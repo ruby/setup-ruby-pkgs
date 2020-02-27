@@ -1,0 +1,13 @@
+name: 'Setup Ruby Pkgs'
+description: 'Cross platorm action for setting up Ruby build environments'
+author: 'MSP-Greg'
+inputs:
+  mingw:
+    description: 'mingw packages to install, spaced delimited list'
+    default: ''
+  msys2:
+    description: 'msys2 packages to install, spaced delimited list'
+    default: ''
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
