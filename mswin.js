@@ -37,6 +37,7 @@ export const addVCVARSEnv = async () => {
 export const openssl = async () => {
   await exec.exec('C:\\ProgramData\\Chocolatey\\bin\\choco install --no-progress openssl')
   fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
+  core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
   mingw = mingw.replace(/openssl/gi, '').trim()
 }
 

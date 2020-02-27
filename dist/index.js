@@ -105,6 +105,7 @@ const openssl = async () => {
     fs.mkdirSync('C:\\openssl-win')
     let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
     await exec.exec(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
+    core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
     core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
   }
 }
@@ -112,11 +113,13 @@ const openssl = async () => {
 // updates MSYS2 MinGW gcc items & clean PATH
 const updateGCC = async () => {
   // full update, takes too long
-  // await exec.exec(`pacman.exe -Syu ${args}`);
-  // await exec.exec(`pacman.exe -Su  ${args}`);
+  // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
-  let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-  await exec.exec(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+  // Old RubyInstaller Rubies compile fine with installed gcc 8.3.0
+  if (rubyABIVers >= '2.4') {
+    let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+    await exec.exec(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+  }
 }
 
 // updates MSYS2 package databases
@@ -133,7 +136,10 @@ const runMingw = async () => {
     await updateGCC()
     mingw = mingw.replace(/_update_/g, '').trim()
   }
-  
+
+  /* _msvc_ can be used when building mswin Rubies, but using an installed mingw
+   * Ruby, normally _update_ should be used
+   */
   if (mingw.includes('_msvc_')) {
     let runner = __webpack_require__(449)
     await runner.addVCVARSEnv()
@@ -142,6 +148,7 @@ const runMingw = async () => {
       await runner.openssl()
     }
     mingw = mingw.replace(/openssl/g, '').trim()
+    return
   }
 
   if (mingw.includes('openssl')) {
@@ -1253,6 +1260,7 @@ const addVCVARSEnv = async () => {
 const openssl = async () => {
   await exec.exec('C:\\ProgramData\\Chocolatey\\bin\\choco install --no-progress openssl')
   fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
+  core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
   mingw = mingw.replace(/openssl/gi, '').trim()
 }
 
