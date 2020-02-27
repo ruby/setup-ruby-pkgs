@@ -43,9 +43,9 @@ export const openssl = async () => {
 
 export const run = async () => {
   try {
-    if (mingw.includes('_update_') || mingw.includes('_msvc_')) {
+    if (mingw.includes('_upgrade_') || mingw.includes('_msvc_')) {
       await addVCVARSEnv()
-      mingw = mingw.replace(/_update_|_msvc_/gi, '').trim()
+      mingw = mingw.replace(/_upgrade_|_msvc_/gi, '').trim()
     }
 
     if (mingw.includes('openssl')) { openssl() }

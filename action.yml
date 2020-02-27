@@ -2,7 +2,7 @@ name: 'Setup Ruby Pkgs'
 description: 'Cross platorm action for setting up Ruby build environments'
 author: 'MSP-Greg'
 inputs:
-  apt:
+  apt-get:
     description: 'Install Ubuntu packages'
     default: ''
   brew:

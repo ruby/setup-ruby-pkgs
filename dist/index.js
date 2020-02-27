@@ -45,6 +45,56 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
+/***/ 3:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
+
+
+const child_process = __webpack_require__(129)
+
+const core = __webpack_require__(820)
+const exec = __webpack_require__(397)
+
+// clean inputs
+let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+
+// get Ruby info in one pass
+let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, RUBY_ENGINE_VERSION, RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
+let [ rubyPlatform,
+      rubyEngine,
+      rubyEngineVersion,
+      rubyVers,
+      rubyABIVers ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
+
+const run = async () => {
+  try {
+    // normal Actions TEMP/TMP settings use a short file pathname
+    // unexpected errors may ocurr...
+    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
+    
+    if (apt !== '') {
+      await exec.exec('sudo apt-get -qy update')
+
+      if (apt.includes('_upgrade_')) {
+        await exec.exec('sudo apt-get -qy dist-upgrade')
+        apt = apt.replace(/_upgrade_/gi, '').trim()
+      }
+
+      if (apt !== '') {
+        await exec.exec(`sudo apt-get -qy install ${apt}`)
+      }
+    }
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+}
+
+
+/***/ }),
+
 /***/ 16:
 /***/ (function(module) {
 
@@ -116,7 +166,7 @@ const updateGCC = async () => {
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
   // Old RubyInstaller Rubies compile fine with installed gcc 8.3.0
-  if (rubyABIVers >= '2.4') {
+  if (rubyABIVers >= '2.2') {
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
     await exec.exec(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
   }
@@ -132,9 +182,9 @@ const runBase = async () => {
 
 // install MinGW packages from mingw input
 const runMingw = async () => {
-  if (mingw.includes('_update_')) {
+  if (mingw.includes('_upgrade_')) {
     await updateGCC()
-    mingw = mingw.replace(/_update_/g, '').trim()
+    mingw = mingw.replace(/_upgrade_/g, '').trim()
   }
 
   /* _msvc_ can be used when building mswin Rubies, but using an installed mingw
@@ -726,6 +776,56 @@ module.exports = require("child_process");
 
 /***/ }),
 
+/***/ 157:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
+
+
+const child_process = __webpack_require__(129)
+
+const core = __webpack_require__(820)
+const exec = __webpack_require__(397)
+
+// clean inputs
+let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
+
+// get Ruby info in one pass
+let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, RUBY_ENGINE_VERSION, RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
+let [ rubyPlatform,
+      rubyEngine,
+      rubyEngineVersion,
+      rubyVers,
+      rubyABIVers ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
+
+const run = async () => {
+  try {
+    // normal Actions TEMP/TMP settings use a short file pathname
+    // unexpected errors may ocurr...
+    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
+
+    if (brew !== '') {
+      await exec.exec('brew update')
+
+      if (brew.includes('_upgrade_')) {
+        await exec.exec('brew upgrade')
+        brew = brew.replace(/_upgrade_/gi, '').trim()
+      }
+      
+      if (brew !== '') {
+        await exec.exec(`brew install ${brew}`)
+      }
+    }
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+}
+
+
+/***/ }),
+
 /***/ 211:
 /***/ (function(module) {
 
@@ -1266,9 +1366,9 @@ const openssl = async () => {
 
 const run = async () => {
   try {
-    if (mingw.includes('_update_') || mingw.includes('_msvc_')) {
+    if (mingw.includes('_upgrade_') || mingw.includes('_msvc_')) {
       await addVCVARSEnv()
-      mingw = mingw.replace(/_update_|_msvc_/gi, '').trim()
+      mingw = mingw.replace(/_upgrade_|_msvc_/gi, '').trim()
     }
 
     if (mingw.includes('openssl')) { openssl() }
@@ -1378,8 +1478,14 @@ const run = () => {
   [ rubyPlatform,
     rubyEngine ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
 
-  if      ( rubyPlatform.includes('mingw') ) { runner = __webpack_require__(23) }
-  else if ( rubyPlatform.includes('mswin') ) { runner = __webpack_require__(449) }
+  if (rubyEngine === 'ruby') {
+         if ( rubyPlatform.includes('linux' ) ) { runner = __webpack_require__(3 ) }
+    else if ( rubyPlatform.includes('darwin') ) { runner = __webpack_require__(157 ) }
+    else if ( rubyPlatform.includes('mingw' ) ) { runner = __webpack_require__(23) }
+    else if ( rubyPlatform.includes('mswin' ) ) { runner = __webpack_require__(449) }
+  } else {
+    return
+  }
 
   if (runner) {
     runner.run()

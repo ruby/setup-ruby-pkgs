@@ -12,8 +12,14 @@ const run = () => {
   [ rubyPlatform,
     rubyEngine ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
 
-  if      ( rubyPlatform.includes('mingw') ) { runner = require('./mingw') }
-  else if ( rubyPlatform.includes('mswin') ) { runner = require('./mswin') }
+  if (rubyEngine === 'ruby') {
+         if ( rubyPlatform.includes('linux' ) ) { runner = require('./apt' ) }
+    else if ( rubyPlatform.includes('darwin') ) { runner = require('./brew' ) }
+    else if ( rubyPlatform.includes('mingw' ) ) { runner = require('./mingw') }
+    else if ( rubyPlatform.includes('mswin' ) ) { runner = require('./mswin') }
+  } else {
+    return
+  }
 
   if (runner) {
     runner.run()

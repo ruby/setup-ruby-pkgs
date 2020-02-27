@@ -56,7 +56,7 @@ const updateGCC = async () => {
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
   // Old RubyInstaller Rubies compile fine with installed gcc 8.3.0
-  if (rubyABIVers >= '2.4') {
+  if (rubyABIVers >= '2.2') {
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
     await exec.exec(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
   }
@@ -72,9 +72,9 @@ const runBase = async () => {
 
 // install MinGW packages from mingw input
 const runMingw = async () => {
-  if (mingw.includes('_update_')) {
+  if (mingw.includes('_upgrade_')) {
     await updateGCC()
-    mingw = mingw.replace(/_update_/g, '').trim()
+    mingw = mingw.replace(/_upgrade_/g, '').trim()
   }
 
   /* _msvc_ can be used when building mswin Rubies, but using an installed mingw
