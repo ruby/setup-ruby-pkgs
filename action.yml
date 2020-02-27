@@ -2,11 +2,17 @@ name: 'Setup Ruby Pkgs'
 description: 'Cross platorm action for setting up Ruby build environments'
 author: 'MSP-Greg'
 inputs:
+  apt:
+    description: 'Install Ubuntu packages'
+    default: ''
+  brew:
+    description: 'Install macOS packages'
+    default: ''
   mingw:
-    description: 'mingw packages to install, spaced delimited list'
+    description: 'Install MSYS2 mingw64 packages'
     default: ''
   msys2:
-    description: 'msys2 packages to install, spaced delimited list'
+    description: 'Install MSYS2 msys2 packages'
     default: ''
 runs:
   using: 'node12'

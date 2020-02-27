@@ -1,12 +1,17 @@
 'use strict';
 
-const fs   = require('fs')
+const fs = require('fs')
 const child_process = require('child_process')
 
 const core = require('@actions/core')
-const exec  = require('@actions/exec')
+const exec = require('@actions/exec')
 
-const addVCVARSEnv = async () => {
+let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+
+/* runs process.env.VCVARS and sets environment for use in Actions
+ * allows steps to run without running vcvars*.bat, also allows using PS scripts
+ */
+export const addVCVARSEnv = async () => {
   let cmd = `cmd.exe /c "${process.env.VCVARS} && set"`
 
   let newSet = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
@@ -28,20 +33,21 @@ const addVCVARSEnv = async () => {
   })
 }
 
+// installs 1.1.1d
+export const openssl = async () => {
+  await exec.exec('C:\\ProgramData\\Chocolatey\\bin\\choco install --no-progress openssl')
+  fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
+  mingw = mingw.replace(/openssl/gi, '').trim()
+}
+
 export const run = async () => {
   try {
-    let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-
-    if (mingw.includes('_update_')) {
+    if (mingw.includes('_update_') || mingw.includes('_msvc_')) {
       await addVCVARSEnv()
-      mingw = mingw.replace(/_update_/gi, '').trim()
+      mingw = mingw.replace(/_update_|_msvc_/gi, '').trim()
     }
 
-    if (mingw.includes('openssl')) {
-      await exec.exec('C:\\ProgramData\\Chocolatey\\bin\\choco install --no-progress openssl')
-      fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
-      mingw = mingw.replace(/openssl/gi, '').trim()
-    }
+    if (mingw.includes('openssl')) { openssl() }
 
     core.exportVariable('CI'    , 'true')
     core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)

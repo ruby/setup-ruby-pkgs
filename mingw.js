@@ -1,16 +1,17 @@
 'use strict';
 
-const fs    = require('fs')
+const fs = require('fs')
 const child_process = require('child_process')
 
-const tc    = require('@actions/tool-cache')
-const core  = require('@actions/core')
-const exec  = require('@actions/exec')
+const tc   = require('@actions/tool-cache')
+const core = require('@actions/core')
+const exec = require('@actions/exec')
 
-// clean input
-let   mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-let   msys2 = core.getInput('msys2').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+// clean inputs
+let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+let msys2 = core.getInput('msys2').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
+// get Ruby info in one pass
 let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, RUBY_ENGINE_VERSION, RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
 let [ rubyPlatform,
       rubyEngine,
@@ -18,15 +19,16 @@ let [ rubyPlatform,
       rubyVers,
       rubyABIVers ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
 
+// need more logic if support for 32 bit MinGW Rubies is added
 let bits = '64'
 const prefix = (bits === '64') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
 const args  = '--noconfirm --noprogressbar --needed'
 
-// Install OpenSSL 1.0.2 for Ruby 2.3 & 2.4, 1.1.1 for Ruby 2.5 and later
+// install OpenSSL 1.0.2 for Ruby 2.3 & 2.4, 1.1.1 for Ruby 2.5 and later
 const openssl = async () => {
   let ssl = 'C:\\Windows\\System32\\'
-  let ary = [`${ssl}libcrypto-1_1-x64.dll`, `${ssl}libssl-1_1-x64.dll`]
-  ary.forEach( (bad) => {
+  let badFiles = [`${ssl}libcrypto-1_1-x64.dll`, `${ssl}libssl-1_1-x64.dll`]
+  badFiles.forEach( (bad) => {
     if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
   })
 
@@ -47,16 +49,17 @@ const openssl = async () => {
   }
 }
 
-// Updates MSYS2 MinGW gcc items
+// updates MSYS2 MinGW gcc items & clean PATH
 const updateGCC = async () => {
   // full update, takes too long
   // await exec.exec(`pacman.exe -Syu ${args}`);
   // await exec.exec(`pacman.exe -Su  ${args}`);
+
   let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
   await exec.exec(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
 }
 
-// Updates MSYS2 package databases
+// updates MSYS2 package databases
 const runBase = async () => {
   // setup and update MSYS2
   await exec.exec(`bash.exe -c "pacman-key --init"`)
@@ -64,12 +67,21 @@ const runBase = async () => {
   await exec.exec(`pacman.exe -Sy`)
 }
 
-// Install MinGW packages from mingw input
+// install MinGW packages from mingw input
 const runMingw = async () => {
-  await runBase()
   if (mingw.includes('_update_')) {
     await updateGCC()
     mingw = mingw.replace(/_update_/g, '').trim()
+  }
+  
+  if (mingw.includes('_msvc_')) {
+    let runner = require('./mswin')
+    await runner.addVCVARSEnv()
+    mingw = mingw.replace(/_msvc_/g, '').trim()
+    if (mingw.includes('openssl')) {
+      await runner.openssl()
+    }
+    mingw = mingw.replace(/openssl/g, '').trim()
   }
 
   if (mingw.includes('openssl')) {
@@ -86,19 +98,27 @@ const runMingw = async () => {
   }
 }
 
-// Install MSYS2 packages from mys2 input
+// install MSYS2 packages from mys2 input
 const runMSYS2 = async () => {
-  if (msys2 !== '') {
-    await exec.exec(`pacman.exe -S ${args} ${msys2}`)
-  }
+  await exec.exec(`pacman.exe -S ${args} ${msys2}`)
 }
 
 export const run = async () => {
   try {
-    core.exportVariable('CI', 'true')
-
+    // normal Actions TEMP/TMP settings use a short file pathname
+    // unexpected errors may ocurr...
     core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
 
+    // rename files that cause build conflicts with MSYS2
+    let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
+    badFiles.forEach( (bad) => {
+      if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
+    })
+
+    // update package database and general MSYS2 initialization
+    if (mingw !== '' || msys2 !== '') { await runBase() }
+
+    // install user specificied packages
     if (mingw !== '') { await runMingw() }
     if (msys2 !== '') { await runMSYS2() }
   } catch (error) {
