@@ -1,10 +1,10 @@
 'use strict';
 
-const fs = require('fs')
-const child_process = require('child_process')
-
+const fs   = require('fs')
+const cp   = require('child_process')
 const core = require('@actions/core')
-const exec = require('@actions/exec')
+
+const { execSync } = require('./common')
 
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
@@ -14,7 +14,7 @@ let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLower
 export const addVCVARSEnv = async () => {
   let cmd = `cmd.exe /c "${process.env.VCVARS} && set"`
 
-  let newSet = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
+  let newSet = cp.execSync(cmd).toString().trim().split(/\r?\n/)
 
   newSet = newSet.filter(line => line.match(/\S=\S/))
 
@@ -27,7 +27,15 @@ export const addVCVARSEnv = async () => {
 
   newEnv.forEach( (v, k, ) => {
     if (process.env[k] !== v) {
-      core.exportVariable(k, v)
+      if (k === 'Path') {
+        const pathAdd = v.replace(process.env['Path'], '')
+        core.info('------------------------------------------------------ pathAdd')
+        core.info(pathAdd)
+        core.info('--------------------------------------------------------------')
+        core.addPath(pathAdd)
+      } else {
+        core.exportVariable(k, v)
+      }
       // console.log(`${k} = ${v}`)
     }
   })
@@ -35,7 +43,7 @@ export const addVCVARSEnv = async () => {
 
 // installs 1.1.1d
 export const openssl = async () => {
-  await exec.exec('C:\\ProgramData\\Chocolatey\\bin\\choco install --no-progress openssl')
+  execSync('C:\\ProgramData\\Chocolatey\\bin\\choco install --no-progress openssl')
   fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
   core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
   mingw = mingw.replace(/openssl/gi, '').trim()
@@ -54,6 +62,6 @@ export const run = async () => {
     core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
 
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(error.message)
   }
 }

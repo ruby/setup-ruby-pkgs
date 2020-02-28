@@ -1,30 +1,30 @@
 'use strict';
 
-const child_process = require('child_process')
-
 const run = () => {
-  let runner = null
-  let rubyPlatform = null
-  let rubyEngine   = null
+  const { ruby } = require('./common')
+  const core     = require('@actions/core')
 
-  let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE"';
+  const platform = require('os').platform()
 
-  [ rubyPlatform,
-    rubyEngine ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
+  try {
+    let runner
 
-  if (rubyEngine === 'ruby') {
-         if ( rubyPlatform.includes('linux' ) ) { runner = require('./apt' ) }
-    else if ( rubyPlatform.includes('darwin') ) { runner = require('./brew' ) }
-    else if ( rubyPlatform.includes('mingw' ) ) { runner = require('./mingw') }
-    else if ( rubyPlatform.includes('mswin' ) ) { runner = require('./mswin') }
-  } else {
-    return
-  }
+    if      ( platform === 'linux' )            { runner = require('./apt'  ) }
+    else if ( platform === 'darwin')            { runner = require('./brew' ) }
+    else if ( ruby.platform.includes('mingw') ) { runner = require('./mingw') }
+    else if ( ruby.platform.includes('mswin') ) { runner = require('./mswin') }
 
-  if (runner) {
-    runner.run()
-  } else {
-    return
+    if (platform === 'win32') {
+      // choco, vcpkg, etc
+    }
+
+    if (runner) {
+      runner.run()
+    } else {
+      return
+    }
+  } catch (error) {
+    core.setFailed(error.message)
   }
 }
 

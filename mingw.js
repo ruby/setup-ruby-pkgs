@@ -1,23 +1,14 @@
 'use strict';
 
-const fs = require('fs')
-const child_process = require('child_process')
-
-const tc   = require('@actions/tool-cache')
+const fs   = require('fs')
 const core = require('@actions/core')
-const exec = require('@actions/exec')
+const tc   = require('@actions/tool-cache')
+
+const { ruby, execSync } = require('./common')
 
 // clean inputs
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 let msys2 = core.getInput('msys2').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-
-// get Ruby info in one pass
-let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, RUBY_ENGINE_VERSION, RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
-let [ rubyPlatform,
-      rubyEngine,
-      rubyEngineVersion,
-      rubyVers,
-      rubyABIVers ] = child_process.execSync(cmd).toString().trim().split(/\r?\n/)
 
 // need more logic if support for 32 bit MinGW Rubies is added
 let bits = '64'
@@ -32,40 +23,40 @@ const openssl = async () => {
     if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
   })
 
-  if (rubyABIVers >= '2.5') {
+  if (ruby.abiVers >= '2.5') {
     const openssl = `${prefix}openssl`
-    await exec.exec(`pacman.exe -S ${args} ${openssl}`)
-  } else if (rubyABIVers === '2.4.0') {
+    execSync(`pacman.exe -S ${args} ${openssl}`)
+  } else if (ruby.abiVers === '2.4.0') {
     const openssl_24 = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${prefix.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
     const openssl_24_path = await tc.downloadTool(openssl_24)
-    await exec.exec(`pacman.exe -Udd --noconfirm --noprogressbar ${openssl_24_path}`)
-  } else if (rubyABIVers <= '2.4') {
+    execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${openssl_24_path}`)
+  } else if (ruby.abiVers <= '2.4') {
     const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
     const openssl_23_path = await tc.downloadTool(openssl_23)
     let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
-    await exec.exec(`tar.exe --lzma -C /c/msys64/mingw64 --exclude=ssl/man -xf /${fn}`)
+    execSync(`tar.exe --lzma -C /c/msys64/mingw64 --exclude=ssl/man -xf /${fn}`)
     core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
   }
 }
 
-// updates MSYS2 MinGW gcc items & clean PATH
+// updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
   // full update, takes too long
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-  if (rubyABIVers >= '2.2') {
+  if (ruby.abiVers >= '2.2') {
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    await exec.exec(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+    execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
   }
 }
 
 // updates MSYS2 package databases
 const runBase = async () => {
   // setup and update MSYS2
-  await exec.exec(`bash.exe -c "pacman-key --init"`)
-  await exec.exec(`bash.exe -c "pacman-key --populate msys2"`)
-  await exec.exec(`pacman.exe -Sy`)
+  execSync(`bash.exe -c "pacman-key --init"`)
+  execSync(`bash.exe -c "pacman-key --populate msys2"`)
+  execSync(`pacman.exe -Sy`)
 }
 
 // install MinGW packages from mingw input
@@ -98,17 +89,17 @@ const runMingw = async () => {
     let pkgs = mingw.split(/ +/)
     if (pkgs.length > 0) {
       pkgs.unshift('')
-      await exec.exec(`pacman.exe -S ${args} ${pkgs.join(prefix)}`)
+      execSync(`pacman.exe -S ${args} ${pkgs.join(prefix)}`)
     }
   }
 }
 
 // install MSYS2 packages from mys2 input
 const runMSYS2 = async () => {
-  await exec.exec(`pacman.exe -S ${args} ${msys2}`)
+  execSync(`pacman.exe -S ${args} ${msys2}`)
 }
 
-export const run = async () => {
+const run = async () => {
   try {
     // normal Actions TEMP/TMP settings use a short file pathname
     // unexpected errors may ocurr...
@@ -127,6 +118,8 @@ export const run = async () => {
     if (mingw !== '') { await runMingw() }
     if (msys2 !== '') { await runMSYS2() }
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(error.message)
   }
 }
+
+module.exports = { run }

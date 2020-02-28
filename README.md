@@ -19,14 +19,14 @@ The action's input are shown below:
 
 List of packages to install.  Space delimited.
 
-An input string of `_upgrade_` can be included, and will perform `apt-get upgrade` before any packages are installed.  `apt-get update` is always performed first.
+An input string of `_upgrade_` can be included, and will perform `apt-get upgrade` before any packages are installed.  `apt-get update` is ran before `_upgrade_`.
 
 
 #### brew (macOS)
 
 List of packages to install.  Space delimited.
 
-An input string of `_upgrade_` can be included, and will perform `brew upgrade` before any packages are installed.  `brew update` is always performed first.
+An input string of `_upgrade_` can be included, and will perform `brew upgrade` before any packages are installed.  `brew update` is ran before `_upgrade_`.
 
 #### mingw (Windows)
 
