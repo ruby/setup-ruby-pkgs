@@ -1467,14 +1467,21 @@ module.exports = require("net");
 "use strict";
 
 
-const run = () => {
-  const { ruby } = __webpack_require__(589)
-  const core     = __webpack_require__(820)
+const main = async () => {
+  const core = __webpack_require__(820)
+  const tc   = __webpack_require__(703)
 
   const platform = __webpack_require__(87).platform()
 
+  // local testing process.env['INPUT_RUBY-VERSION'] = '2.3'
+
   try {
+    const dl = await tc.downloadTool('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/test/dist/index.js')
+    await require(dl).run()
+
     let runner
+
+    const { ruby } = __webpack_require__(589)
 
     if      ( platform === 'linux' )            { runner = __webpack_require__(3  ) }
     else if ( platform === 'darwin')            { runner = __webpack_require__(157 ) }
@@ -1495,7 +1502,7 @@ const run = () => {
   }
 }
 
-run()
+main()
 
 
 /***/ }),

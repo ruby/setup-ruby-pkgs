@@ -1,7 +1,10 @@
 name: 'Setup Ruby Pkgs'
-description: 'Cross platorm action for setting up Ruby build environments'
+description: 'Cross platform action for setting up Ruby build environments'
 author: 'MSP-Greg'
 inputs:
+  ruby-version:
+    description: 'Ruby version'
+    default: ''
   apt-get:
     description: 'Install Ubuntu packages'
     default: ''
@@ -14,6 +17,9 @@ inputs:
   msys2:
     description: 'Install MSYS2 msys2 packages'
     default: ''
+outputs:
+  ruby-prefix:
+    description: 'The prefix of the installed ruby'
 runs:
   using: 'node12'
   main: 'dist/index.js'

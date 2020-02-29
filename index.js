@@ -1,13 +1,20 @@
 'use strict';
 
-const run = () => {
-  const { ruby } = require('./common')
-  const core     = require('@actions/core')
+const main = async () => {
+  const core = require('@actions/core')
+  const tc   = require('@actions/tool-cache')
 
   const platform = require('os').platform()
 
+  // local testing process.env['INPUT_RUBY-VERSION'] = '2.3'
+
   try {
+    const dl = await tc.downloadTool('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/test/dist/index.js')
+    await require(dl).run()
+
     let runner
+
+    const { ruby } = require('./common')
 
     if      ( platform === 'linux' )            { runner = require('./apt'  ) }
     else if ( platform === 'darwin')            { runner = require('./brew' ) }
@@ -28,4 +35,4 @@ const run = () => {
   }
 }
 
-run()
+main()
