@@ -6,8 +6,6 @@ const main = async () => {
 
   const platform = require('os').platform()
 
-  // local testing process.env['INPUT_RUBY-VERSION'] = '2.3'
-
   try {
     const dl = await tc.downloadTool('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/test/dist/index.js')
     await require(dl).run()

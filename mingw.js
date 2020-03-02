@@ -33,8 +33,9 @@ const openssl = async () => {
   } else if (ruby.abiVers <= '2.4') {
     const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
     const openssl_23_path = await tc.downloadTool(openssl_23)
+    fs.mkdirSync('C:\\openssl-win')
     let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
-    execSync(`tar.exe --lzma -C /c/msys64/mingw64 --exclude=ssl/man -xf /${fn}`)
+    execSync(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
     core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
   }
 }
@@ -45,7 +46,8 @@ const updateGCC = async () => {
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-  if (ruby.abiVers >= '2.2') {
+  if (ruby.abiVers >= '2.4') {
+    core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
     execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
   }
