@@ -2,22 +2,30 @@
 
 const main = async () => {
   const core = require('@actions/core')
-  const tc   = require('@actions/tool-cache')
+
+  const common = require('./common')
 
   const platform = require('os').platform()
 
   try {
-    const dl = await tc.downloadTool('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/test/dist/index.js')
-    await require(dl).run()
+    if (core.getInput('ruby-version') !== '') {
+      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
+      console.log(fn)
+      await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
+      await require(fn).run()
+    }
 
     let runner
 
-    const { ruby } = require('./common')
-
-    if      ( platform === 'linux' )            { runner = require('./apt'  ) }
-    else if ( platform === 'darwin')            { runner = require('./brew' ) }
-    else if ( ruby.platform.includes('mingw') ) { runner = require('./mingw') }
-    else if ( ruby.platform.includes('mswin') ) { runner = require('./mswin') }
+    if      ( platform === 'linux' )              { runner = require('./apt'  ) }
+    else if ( platform === 'darwin')              { runner = require('./brew' ) }
+    else {
+      const ruby = common.ruby()
+      if      ( ruby.platform.includes('mingw') ) { runner = require('./mingw') }
+      else if ( ruby.platform.includes('mswin') ) { runner = require('./mswin') }
+      // pass Ruby props to runner
+      if (runner) { runner.setRuby(ruby) }
+    }
 
     if (platform === 'win32') {
       // choco, vcpkg, etc

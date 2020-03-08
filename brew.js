@@ -14,6 +14,11 @@ export const run = async () => {
     core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
 
     if (brew !== '') {
+      if (brew.includes('_update_')) {
+        execSync('brew update')
+        brew = brew.replace(/_update_/gi, '').trim()
+      }
+      
       if (brew.includes('_upgrade_')) {
         execSync('brew update')
         execSync('brew upgrade')

@@ -14,6 +14,11 @@ export const run = async () => {
     core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
     
     if (apt !== '') {
+      if (apt.includes('_update_')) {
+        execSync('sudo apt-get -qy update')
+        apt = apt.replace(/_update_/gi, '').trim()
+      }
+      
       if (apt.includes('_upgrade_')) {
         execSync('sudo apt-get -qy update')
         execSync('sudo apt-get -qy dist-upgrade')
@@ -21,7 +26,7 @@ export const run = async () => {
       }
 
       if (apt !== '') {
-        execSync(`sudo apt-get -qy install ${apt}`)
+        execSync(`sudo apt-get -qy --no-install-recommends install ${apt}`)
       }
     }
   } catch (error) {

@@ -8,6 +8,10 @@ const { execSync } = require('./common')
 
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
+let ruby
+
+export const setRuby = async (_ruby) => { ruby = _ruby }
+
 /* runs process.env.VCVARS and sets environment for use in Actions
  * allows steps to run without running vcvars*.bat, also allows using PS scripts
  */
@@ -50,6 +54,7 @@ export const openssl = async () => {
 }
 
 export const run = async () => {
+  if (ruby > '9.9') { console.log('never') }
   try {
     if (mingw.includes('_upgrade_') || mingw.includes('_msvc_')) {
       await addVCVARSEnv()

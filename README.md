@@ -7,26 +7,28 @@ The action's input are shown below:
 ```yaml
 - uses: MSP-Greg/setup-ruby-pkgs@v1
   with:
-    apt:
-    brew:
-    mingw:
-    msys2:
+    ruby-version:
+    apt:        # Ubuntu
+    brew:       # macOS
+    mingw:      # Windows mingw
+    msys2:      #         mingw
+    mswin:      # Windows mswin
+    choco:      #         mswin
+    vcpkg:      #         mswin
 ```
 
 ### Input Information
 
+All inputs are optional.  If ruby-versions is used, the code for [ruby/setup-ruby](https://github.com/ruby/setup-ruby) is used.
+
 #### apt (Ubuntu)
 
-List of packages to install.  Space delimited.
-
-An input string of `_upgrade_` can be included, and will perform `apt-get upgrade` before any packages are installed.  `apt-get update` is ran before `_upgrade_`.
-
+List of packages to install.  Space delimited. Special options are `_update_` and `_upgrade_`.
 
 #### brew (macOS)
 
-List of packages to install.  Space delimited.
+List of packages to install.  Space delimited. Special options are `_update_` and `_upgrade_`.
 
-An input string of `_upgrade_` can be included, and will perform `brew upgrade` before any packages are installed.  `brew update` is ran before `_upgrade_`.
 
 #### mingw (Windows)
 
