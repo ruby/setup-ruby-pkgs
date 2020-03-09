@@ -975,11 +975,11 @@ const run = async (rubyVers) => {
   const suff    = '-any.pkg.tar.xz'
   const args    = '--noconfirm --noprogressbar --needed'
 
-  let gccFiles
+  let mingwFiles
   let uri
   
   if (rubyVers > '2.0') {
-    gccFiles = gcc['9.2.0-2']
+    mingwFiles = gcc['9.2.0-2']
     uri = `${uriBase}/gcc-9.2.0-2`
   }
   const dir = `${process.env.RUNNER_TEMP}\\msys2_gcc`
@@ -988,9 +988,9 @@ const run = async (rubyVers) => {
   }
 
   // download gcc files from release
-  const len = gccFiles.length
+  const len = mingwFiles.length
   for (let i = 0; i < len; i++) {
-    let f = `${pre64}${gccFiles[i]}${suff}`
+    let f = `${pre64}${mingwFiles[i]}${suff}`
     await download(`${uri}/${f}`    , `${dir}\\${f}`)
     await download(`${uri}/${f}.sig`, `${dir}\\${f}.sig`)
     console.log(`downloaded ${f}`)
@@ -998,27 +998,17 @@ const run = async (rubyVers) => {
 
   const cwd = process.cwd()
 
-  // install gcc files
-  while (gccFiles.length !== 0) {
-    let pkgs = `${pre64}${gccFiles.shift()}${suff}`
-    let i = 1
-    // run six files at a time
-    do {
-      if (gccFiles.length > 0) {
-        pkgs += ` ${pre64}${gccFiles.shift()}${suff}`
-        i ++
-      } else { break }
-    } while (i < 6)
-    console.log(`pacman.exe -Udd ${args} ${pkgs}`)
+  const pkgs = mingwFiles.map(f => `${pre64}${f}${suff}`).join(' ')
 
-    try {
-      process.chdir(dir)
-      execSync(`pacman.exe -Udd ${args} ${pkgs}`)
-      process.chdir(cwd)
-    } catch (error) {
-      process.chdir(cwd)
-      core.setFailed(error.message)
-    }
+  console.log(`pacman.exe -Udd ${args} ${pkgs}`)
+
+  try {
+    process.chdir(dir)
+    execSync(`pacman.exe -Udd ${args} ${pkgs}`)
+    process.chdir(cwd)
+  } catch (error) {
+    process.chdir(cwd)
+    core.setFailed(error.message)
   }
 }
 

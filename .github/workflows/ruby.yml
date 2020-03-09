@@ -1,0 +1,24 @@
+name: CI
+
+on: [push]
+
+jobs:
+  win32:
+    name: >-
+      ${{ matrix.os }} ${{ matrix.ruby }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest ]
+        # ruby: [ ruby-head, mingw, mswin, 2.4, 2.2 ]
+        ruby: [ mingw ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Ruby Install
+        uses: ./
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          mingw: _upgrade_ openssl ragel
