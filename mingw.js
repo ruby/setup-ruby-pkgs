@@ -54,10 +54,8 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers >= '2.5') {
-    await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
-    
-    // const openssl = `${prefix}openssl`
-    // execSync(`pacman.exe -S ${args} ${openssl}`)
+    // await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
+    execSync(`pacman.exe -S ${args} ${prefix}openssl`)
 
   } else if (ruby.abiVers === '2.4.0') {
     const openssl_24 = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${prefix.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
@@ -78,26 +76,17 @@ const openssl = async () => {
 
 // updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
-  await require('./mingw_gcc').run(ruby.vers)
+  // await require('./mingw_gcc').run(ruby.vers)
 
   // full update, takes too long
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-//  if (ruby.abiVers >= '2.4') {
-  if (ruby.abiVers >= '9.9') {
+  if (ruby.abiVers >= '2.4') {
     core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
     execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
   }
-}
-
-// updates MSYS2 package databases
-const runBase = async () => {
-  // setup and update MSYS2
-  execSync(`bash.exe -c "pacman-key --init"`)
-  execSync(`bash.exe -c "pacman-key --populate msys2"`)
-  execSync(`pacman.exe -Sy`)
 }
 
 // install MinGW packages from mingw input
@@ -126,13 +115,13 @@ const runMingw = async () => {
     mingw = mingw.replace(/openssl/gi, '').trim()
   }
 
-  if (mingw.includes('ragel')) {
-    await install('ragel-6.10-1', 'gcc-9.2.0-2')
-    mingw = mingw.replace(/ragel/gi, '').trim()
-  }
+  //if (mingw.includes('ragel')) {
+  //  await install('ragel-6.10-1', 'gcc-9.2.0-2')
+  //  mingw = mingw.replace(/ragel/gi, '').trim()
+  //}
 
   if (mingw !== '') {
-    let pkgs = mingw.split(/ +/)
+    let pkgs = mingw.split(/\s+/)
     if (pkgs.length > 0) {
       pkgs.unshift('')
       execSync(`pacman.exe -S ${args} ${pkgs.join(prefix)}`)
@@ -145,7 +134,7 @@ const runMSYS2 = async () => {
   execSync(`pacman.exe -S ${args} ${msys2}`)
 }
 
-export const setRuby = async (_ruby) => { ruby = _ruby }
+export const setRuby = (_ruby) => { ruby = _ruby }
 
 export const run = async () => {
   try {
@@ -159,16 +148,16 @@ export const run = async () => {
       if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     })
 
-    // update package database and general MSYS2 initialization
-    if (mingw.includes('_update_') || msys2.includes('_update_')) {
-      await runBase()
-      mingw = mingw.replace(/_upgrade_/g, '').trim()
-      msys2 = msys2.replace(/_upgrade_/g, '').trim()
+    if (mingw !== '' || msys2 !== '') {
+      // update package database and general MSYS2 initialization
+      execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
+      execSync(`pacman.exe -Sy`)
+
+      // install user specificied packages
+      if (mingw !== '') { await runMingw() }
+      if (msys2 !== '') { await runMSYS2() }
     }
 
-    // install user specificied packages
-    if (mingw !== '') { await runMingw() }
-    if (msys2 !== '') { await runMSYS2() }
   } catch (error) {
     core.setFailed(error.message)
   }

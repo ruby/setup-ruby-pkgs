@@ -1,6 +1,6 @@
 'use strict';
 
-const main = async () => {
+(async () => {
   const core = require('@actions/core')
 
   const common = require('./common')
@@ -39,6 +39,4 @@ const main = async () => {
   } catch (error) {
     core.setFailed(error.message)
   }
-}
-
-main()
+})()

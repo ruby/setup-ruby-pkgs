@@ -160,10 +160,8 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers >= '2.5') {
-    await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
-    
-    // const openssl = `${prefix}openssl`
-    // execSync(`pacman.exe -S ${args} ${openssl}`)
+    // await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
+    execSync(`pacman.exe -S ${args} ${prefix}openssl`)
 
   } else if (ruby.abiVers === '2.4.0') {
     const openssl_24 = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${prefix.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
@@ -184,26 +182,17 @@ const openssl = async () => {
 
 // updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
-  await __webpack_require__(387).run(ruby.vers)
+  // await require('./mingw_gcc').run(ruby.vers)
 
   // full update, takes too long
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
 
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-//  if (ruby.abiVers >= '2.4') {
-  if (ruby.abiVers >= '9.9') {
+  if (ruby.abiVers >= '2.4') {
     core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
     execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
   }
-}
-
-// updates MSYS2 package databases
-const runBase = async () => {
-  // setup and update MSYS2
-  execSync(`bash.exe -c "pacman-key --init"`)
-  execSync(`bash.exe -c "pacman-key --populate msys2"`)
-  execSync(`pacman.exe -Sy`)
 }
 
 // install MinGW packages from mingw input
@@ -232,13 +221,13 @@ const runMingw = async () => {
     mingw = mingw.replace(/openssl/gi, '').trim()
   }
 
-  if (mingw.includes('ragel')) {
-    await install('ragel-6.10-1', 'gcc-9.2.0-2')
-    mingw = mingw.replace(/ragel/gi, '').trim()
-  }
+  //if (mingw.includes('ragel')) {
+  //  await install('ragel-6.10-1', 'gcc-9.2.0-2')
+  //  mingw = mingw.replace(/ragel/gi, '').trim()
+  //}
 
   if (mingw !== '') {
-    let pkgs = mingw.split(/ +/)
+    let pkgs = mingw.split(/\s+/)
     if (pkgs.length > 0) {
       pkgs.unshift('')
       execSync(`pacman.exe -S ${args} ${pkgs.join(prefix)}`)
@@ -251,7 +240,7 @@ const runMSYS2 = async () => {
   execSync(`pacman.exe -S ${args} ${msys2}`)
 }
 
-const setRuby = async (_ruby) => { ruby = _ruby }
+const setRuby = (_ruby) => { ruby = _ruby }
 
 const run = async () => {
   try {
@@ -265,16 +254,16 @@ const run = async () => {
       if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     })
 
-    // update package database and general MSYS2 initialization
-    if (mingw.includes('_update_') || msys2.includes('_update_')) {
-      await runBase()
-      mingw = mingw.replace(/_upgrade_/g, '').trim()
-      msys2 = msys2.replace(/_upgrade_/g, '').trim()
+    if (mingw !== '' || msys2 !== '') {
+      // update package database and general MSYS2 initialization
+      execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
+      execSync(`pacman.exe -Sy`)
+
+      // install user specificied packages
+      if (mingw !== '') { await runMingw() }
+      if (msys2 !== '') { await runMSYS2() }
     }
 
-    // install user specificied packages
-    if (mingw !== '') { await runMingw() }
-    if (msys2 !== '') { await runMSYS2() }
   } catch (error) {
     core.setFailed(error.message)
   }
@@ -937,83 +926,6 @@ exports.checkBypass = checkBypass;
 
 /***/ }),
 
-/***/ 387:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
-const gcc = {
-  '9.2.0-2': [
-    'expat-2.2.9-1',
-    'libiconv-1.16-1',
-    'zlib-1.2.11-7',
-    'binutils-2.34-1',
-    'headers-git-8.0.0.5647.1fe2e62e-1',
-    'crt-git-8.0.0.5647.1fe2e62e-1',
-    'dlfcn-1.2.0-1',
-    'gmp-6.2.0-1',
-    'isl-0.22.1-1',
-    'libwinpthread-git-8.0.0.5574.33e5a2ac-1',
-    'make-4.3-1',
-    'mpc-1.1.0-1',
-    'mpfr-4.0.2-2',
-    'windows-default-manifest-6.4-3',
-    'winpthreads-git-8.0.0.5574.33e5a2ac-1',
-    'gcc-libs-9.2.0-2',
-    'gcc-9.2.0-2'
-  ]
-}
-
-const run = async (rubyVers) => {
-  const fs   = __webpack_require__(747)
-  const core = __webpack_require__(820)
-  const { download, execSync } = __webpack_require__(589)
-  
-  const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
-  const pre64   = 'mingw-w64-x86_64-'
-  const suff    = '-any.pkg.tar.xz'
-  const args    = '--noconfirm --noprogressbar --needed'
-
-  let mingwFiles
-  let uri
-  
-  if (rubyVers > '2.0') {
-    mingwFiles = gcc['9.2.0-2']
-    uri = `${uriBase}/gcc-9.2.0-2`
-  }
-  const dir = `${process.env.RUNNER_TEMP}\\msys2_gcc`
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-
-  // download gcc files from release
-  const len = mingwFiles.length
-  for (let i = 0; i < len; i++) {
-    let f = `${pre64}${mingwFiles[i]}${suff}`
-    await download(`${uri}/${f}`    , `${dir}\\${f}`)
-    await download(`${uri}/${f}.sig`, `${dir}\\${f}.sig`)
-    console.log(`downloaded ${f}`)
-  } 
-
-  const cwd = process.cwd()
-
-  const pkgs = mingwFiles.map(f => `${pre64}${f}${suff}`).join(' ')
-
-  console.log(`pacman.exe -Udd ${args} ${pkgs}`)
-
-  try {
-    process.chdir(dir)
-    execSync(`pacman.exe -Udd ${args} ${pkgs}`)
-    process.chdir(cwd)
-  } catch (error) {
-    process.chdir(cwd)
-    core.setFailed(error.message)
-  }
-}
-
-/***/ }),
-
 /***/ 395:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -1377,13 +1289,11 @@ function escapeProperty(s) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRuby", function() { return setRuby; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addVCVARSEnv", function() { return addVCVARSEnv; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "openssl", function() { return openssl; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
 
 
 const fs   = __webpack_require__(747)
-const cp   = __webpack_require__(129)
 const core = __webpack_require__(820)
 
 const { execSync } = __webpack_require__(589)
@@ -1392,40 +1302,7 @@ let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLower
 
 let ruby
 
-const setRuby = async (_ruby) => { ruby = _ruby }
-
-/* runs process.env.VCVARS and sets environment for use in Actions
- * allows steps to run without running vcvars*.bat, also allows using PS scripts
- */
-const addVCVARSEnv = async () => {
-  let cmd = `cmd.exe /c "${process.env.VCVARS} && set"`
-
-  let newSet = cp.execSync(cmd).toString().trim().split(/\r?\n/)
-
-  newSet = newSet.filter(line => line.match(/\S=\S/))
-
-  let newEnv = new Map()
-
-  newSet.forEach(s => {
-    let [k,v] = s.split('=', 2)
-    newEnv.set(k,v)
-  })
-
-  newEnv.forEach( (v, k, ) => {
-    if (process.env[k] !== v) {
-      if (k === 'Path') {
-        const pathAdd = v.replace(process.env['Path'], '')
-        core.info('------------------------------------------------------ pathAdd')
-        core.info(pathAdd)
-        core.info('--------------------------------------------------------------')
-        core.addPath(pathAdd)
-      } else {
-        core.exportVariable(k, v)
-      }
-      // console.log(`${k} = ${v}`)
-    }
-  })
-}
+const setRuby = (_ruby) => { ruby = _ruby }
 
 // installs 1.1.1d
 const openssl = async () => {
@@ -1436,13 +1313,7 @@ const openssl = async () => {
 }
 
 const run = async () => {
-  if (ruby > '9.9') { console.log('never') }
   try {
-    if (mingw.includes('_upgrade_') || mingw.includes('_msvc_')) {
-      await addVCVARSEnv()
-      mingw = mingw.replace(/_upgrade_|_msvc_/gi, '').trim()
-    }
-
     if (mingw.includes('openssl')) { openssl() }
 
     core.exportVariable('CI'    , 'true')
@@ -1554,7 +1425,7 @@ module.exports = require("net");
 "use strict";
 
 
-const main = async () => {
+(async () => {
   const core = __webpack_require__(820)
 
   const common = __webpack_require__(589)
@@ -1593,9 +1464,7 @@ const main = async () => {
   } catch (error) {
     core.setFailed(error.message)
   }
-}
-
-main()
+})()
 
 
 /***/ }),
