@@ -9,10 +9,6 @@ let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerC
 
 export const run = async () => {
   try {
-    // normal Actions TEMP/TMP settings use a short file pathname
-    // unexpected errors may ocurr...
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-
     if (brew !== '') {
       if (brew.includes('_update_')) {
         execSync('brew update')

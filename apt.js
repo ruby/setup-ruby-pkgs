@@ -9,10 +9,6 @@ let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLower
 
 export const run = async () => {
   try {
-    // normal Actions TEMP/TMP settings use a short file pathname
-    // unexpected errors may ocurr...
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-    
     if (apt !== '') {
       if (apt.includes('_update_')) {
         execSync('sudo apt-get -qy update')

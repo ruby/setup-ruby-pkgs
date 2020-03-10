@@ -138,10 +138,6 @@ export const setRuby = (_ruby) => { ruby = _ruby }
 
 export const run = async () => {
   try {
-    // normal Actions TEMP/TMP settings use a short file pathname
-    // unexpected errors may ocurr...
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-
     // rename files that cause build conflicts with MSYS2
     let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
     badFiles.forEach( (bad) => {

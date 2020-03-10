@@ -10,32 +10,32 @@
   try {
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      console.log(fn)
       await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
       await require(fn).run()
     }
 
     let runner
 
+    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
+    core.exportVariable('CI'    , 'true')
+
     if      ( platform === 'linux' )              { runner = require('./apt'  ) }
     else if ( platform === 'darwin')              { runner = require('./brew' ) }
-    else {
+    else if (platform === 'win32'  ) {
       const ruby = common.ruby()
       if      ( ruby.platform.includes('mingw') ) { runner = require('./mingw') }
       else if ( ruby.platform.includes('mswin') ) { runner = require('./mswin') }
       // pass Ruby props to runner
       if (runner) { runner.setRuby(ruby) }
-    }
-
-    if (platform === 'win32') {
+      
       // choco, vcpkg, etc
     }
 
-    if (runner) {
-      runner.run()
-    } else {
-      return
-    }
+    if (runner) { runner.run() }
+    
+    console.log(`*** Using Image ${proces.env.ImageOS} / ${process.env.ImageVersion}`)
+    
+
   } catch (error) {
     core.setFailed(error.message)
   }

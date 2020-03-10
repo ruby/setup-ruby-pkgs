@@ -22,10 +22,6 @@ export const openssl = async () => {
 export const run = async () => {
   try {
     if (mingw.includes('openssl')) { openssl() }
-
-    core.exportVariable('CI'    , 'true')
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-
   } catch (error) {
     core.setFailed(error.message)
   }
