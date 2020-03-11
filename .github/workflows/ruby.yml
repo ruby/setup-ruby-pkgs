@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [ windows-latest ]
         # ruby: [ ruby-head, mingw, mswin, 2.4, 2.2 ]
-        ruby: [ mingw ]
+        ruby: [ mingw, 2.5, 2.4, 2.3, 2.2 ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -22,3 +22,9 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           mingw: _upgrade_ openssl ragel
+
+      - name: Info
+        run:  |
+          ruby -v
+          openssl version
+          ragel --version

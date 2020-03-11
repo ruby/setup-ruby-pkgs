@@ -33,7 +33,7 @@
 
     if (runner) { runner.run() }
     
-    console.log(`*** Using Image ${proces.env.ImageOS} / ${process.env.ImageVersion}`)
+    console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
     
 
   } catch (error) {

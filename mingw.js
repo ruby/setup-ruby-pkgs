@@ -5,6 +5,10 @@ const core = require('@actions/core')
 
 const { execSync, download } = require('./common')
 
+// setting to true uses pacman download, false uses release files
+// used when MSYS2 has server issues
+const USE_MSYS2 = true
+
 let ruby
 
 // clean inputs
@@ -54,8 +58,11 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers >= '2.5') {
-    // await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
-    execSync(`pacman.exe -S ${args} ${prefix}openssl`)
+    if (USE_MSYS2) {
+      execSync(`pacman.exe -S ${args} ${prefix}openssl`)
+    } else {
+      await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
+    }
 
   } else if (ruby.abiVers === '2.4.0') {
     const openssl_24 = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${prefix.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
@@ -64,28 +71,44 @@ const openssl = async () => {
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${openssl_24_path}`)
 
   } else if (ruby.abiVers <= '2.4') {
-    const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
-    const openssl_23_path = `${process.env.RUNNER_TEMP}\\ri.tar.lzma`
-    await download(openssl_23, openssl_23_path)
-    fs.mkdirSync('C:\\openssl-win')
-    let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
-    execSync(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
-    core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
+    // const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
+    // const openssl_23_path = `${process.env.RUNNER_TEMP}\\ri.tar.lzma`
+    // await download(openssl_23, openssl_23_path)
+    // fs.mkdirSync('C:\\openssl-win')
+    // let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
+    // execSync(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
+    // core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
   }
 }
 
 // updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
-  // await require('./mingw_gcc').run(ruby.vers)
-
   // full update, takes too long
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
-
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-  if (ruby.abiVers >= '2.4') {
-    core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
-    let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+  
+  if (USE_MSYS2) {
+    if (ruby.abiVers >= '2.4.0') {
+      core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
+      let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+      execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+    } else {
+      const fn = `${process.env.RUNNER_TEMP}\\DevKit-x64.7z`
+      // Extract to SSD, see https://github.com/ruby/setup-ruby/pull/14
+      const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
+      const cmd = `7z x ${fn} -o${drive}:\\`
+
+      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/ri-1.0.0/DevKit-x64.7z', fn)
+      execSync(cmd)
+      core.addPath(`${drive}:\\DevKit-x64\\mingw\\bin;${drive}:\\DevKit-x64\\bin;`)
+      core.info('Installed RubyInstaller DevKit for Ruby 2.3 or 2.3')
+      core.exportVariable('RI_DEVKIT', `${drive}:\\DevKit-x64`)
+      core.exportVariable('CC' , 'gcc')
+      core.exportVariable('CXX', 'g++')
+      core.exportVariable('CPP', 'cpp')
+    }
+  } else {
+    await require('./mingw_gcc').run(ruby.vers)
   }
 }
 
@@ -115,10 +138,16 @@ const runMingw = async () => {
     mingw = mingw.replace(/openssl/gi, '').trim()
   }
 
-  //if (mingw.includes('ragel')) {
-  //  await install('ragel-6.10-1', 'gcc-9.2.0-2')
-  //  mingw = mingw.replace(/ragel/gi, '').trim()
-  //}
+  if (mingw.includes('ragel')) {
+    if (ruby.abiVers >= '2.4.0') {
+      if (!USE_MSYS2) {
+        await install('ragel-6.10-1', 'gcc-9.2.0-2')
+        mingw = mingw.replace(/ragel/gi, '').trim()
+      }
+    } else {
+      mingw = mingw.replace(/ragel/gi, '').trim()
+    }
+  }
 
   if (mingw !== '') {
     let pkgs = mingw.split(/\s+/)
@@ -145,9 +174,11 @@ export const run = async () => {
     })
 
     if (mingw !== '' || msys2 !== '') {
-      // update package database and general MSYS2 initialization
-      execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
-      execSync(`pacman.exe -Sy`)
+      if (ruby.abiVers >= '2.4.0') {
+        // update package database and general MSYS2 initialization
+        execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
+        execSync(`pacman.exe -Sy`)
+      }
 
       // install user specificied packages
       if (mingw !== '') { await runMingw() }

@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(634);
+/******/ 		return __webpack_require__(758);
 /******/ 	};
 /******/ 	// initialize runtime
 /******/ 	runtime(__webpack_require__);
@@ -45,7 +45,14 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
-/***/ 3:
+/***/ 16:
+/***/ (function(module) {
+
+module.exports = require("tls");
+
+/***/ }),
+
+/***/ 26:
 /***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53,19 +60,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
 
 
-const core = __webpack_require__(820)
+const core = __webpack_require__(276)
 
-const { execSync } = __webpack_require__(589)
+const { execSync } = __webpack_require__(498)
 
 // clean inputs
 let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 const run = async () => {
   try {
-    // normal Actions TEMP/TMP settings use a short file pathname
-    // unexpected errors may ocurr...
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-    
     if (apt !== '') {
       if (apt.includes('_update_')) {
         execSync('sudo apt-get -qy update')
@@ -90,14 +93,315 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 16:
+/***/ 87:
 /***/ (function(module) {
 
-module.exports = require("tls");
+module.exports = require("os");
 
 /***/ }),
 
-/***/ 23:
+/***/ 129:
+/***/ (function(module) {
+
+module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 211:
+/***/ (function(module) {
+
+module.exports = require("https");
+
+/***/ }),
+
+/***/ 276:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const command_1 = __webpack_require__(512);
+const os = __importStar(__webpack_require__(87));
+const path = __importStar(__webpack_require__(622));
+/**
+ * The code to exit an action
+ */
+var ExitCode;
+(function (ExitCode) {
+    /**
+     * A code indicating that the action was successful
+     */
+    ExitCode[ExitCode["Success"] = 0] = "Success";
+    /**
+     * A code indicating that the action was a failure
+     */
+    ExitCode[ExitCode["Failure"] = 1] = "Failure";
+})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
+//-----------------------------------------------------------------------
+// Variables
+//-----------------------------------------------------------------------
+/**
+ * Sets env variable for this action and future actions in the job
+ * @param name the name of the variable to set
+ * @param val the value of the variable
+ */
+function exportVariable(name, val) {
+    process.env[name] = val;
+    command_1.issueCommand('set-env', { name }, val);
+}
+exports.exportVariable = exportVariable;
+/**
+ * Registers a secret which will get masked from logs
+ * @param secret value of the secret
+ */
+function setSecret(secret) {
+    command_1.issueCommand('add-mask', {}, secret);
+}
+exports.setSecret = setSecret;
+/**
+ * Prepends inputPath to the PATH (for this action and future actions)
+ * @param inputPath
+ */
+function addPath(inputPath) {
+    command_1.issueCommand('add-path', {}, inputPath);
+    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
+}
+exports.addPath = addPath;
+/**
+ * Gets the value of an input.  The value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string
+ */
+function getInput(name, options) {
+    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
+    if (options && options.required && !val) {
+        throw new Error(`Input required and not supplied: ${name}`);
+    }
+    return val.trim();
+}
+exports.getInput = getInput;
+/**
+ * Sets the value of an output.
+ *
+ * @param     name     name of the output to set
+ * @param     value    value to store
+ */
+function setOutput(name, value) {
+    command_1.issueCommand('set-output', { name }, value);
+}
+exports.setOutput = setOutput;
+//-----------------------------------------------------------------------
+// Results
+//-----------------------------------------------------------------------
+/**
+ * Sets the action status to failed.
+ * When the action exits it will be with an exit code of 1
+ * @param message add error issue message
+ */
+function setFailed(message) {
+    process.exitCode = ExitCode.Failure;
+    error(message);
+}
+exports.setFailed = setFailed;
+//-----------------------------------------------------------------------
+// Logging Commands
+//-----------------------------------------------------------------------
+/**
+ * Gets whether Actions Step Debug is on or not
+ */
+function isDebug() {
+    return process.env['RUNNER_DEBUG'] === '1';
+}
+exports.isDebug = isDebug;
+/**
+ * Writes debug message to user log
+ * @param message debug message
+ */
+function debug(message) {
+    command_1.issueCommand('debug', {}, message);
+}
+exports.debug = debug;
+/**
+ * Adds an error issue
+ * @param message error issue message
+ */
+function error(message) {
+    command_1.issue('error', message);
+}
+exports.error = error;
+/**
+ * Adds an warning issue
+ * @param message warning issue message
+ */
+function warning(message) {
+    command_1.issue('warning', message);
+}
+exports.warning = warning;
+/**
+ * Writes info to log with console.log.
+ * @param message info message
+ */
+function info(message) {
+    process.stdout.write(message + os.EOL);
+}
+exports.info = info;
+/**
+ * Begin an output group.
+ *
+ * Output until the next `groupEnd` will be foldable in this group
+ *
+ * @param name The name of the output group
+ */
+function startGroup(name) {
+    command_1.issue('group', name);
+}
+exports.startGroup = startGroup;
+/**
+ * End an output group.
+ */
+function endGroup() {
+    command_1.issue('endgroup');
+}
+exports.endGroup = endGroup;
+/**
+ * Wrap an asynchronous function call in a group.
+ *
+ * Returns the same type as the function itself.
+ *
+ * @param name The name of the group
+ * @param fn The function to wrap in the group
+ */
+function group(name, fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        startGroup(name);
+        let result;
+        try {
+            result = yield fn();
+        }
+        finally {
+            endGroup();
+        }
+        return result;
+    });
+}
+exports.group = group;
+//-----------------------------------------------------------------------
+// Wrapper action state
+//-----------------------------------------------------------------------
+/**
+ * Saves state for current action, the state can only be retrieved by this action's post job execution.
+ *
+ * @param     name     name of the state to store
+ * @param     value    value to store
+ */
+function saveState(name, value) {
+    command_1.issueCommand('save-state', { name }, value);
+}
+exports.saveState = saveState;
+/**
+ * Gets the value of an state set by this action's main execution.
+ *
+ * @param     name     name of the state to get
+ * @returns   string
+ */
+function getState(name) {
+    return process.env[`STATE_${name}`] || '';
+}
+exports.getState = getState;
+//# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ 357:
+/***/ (function(module) {
+
+module.exports = require("assert");
+
+/***/ }),
+
+/***/ 498:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "download", function() { return download; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
+
+
+const cp = __webpack_require__(129)
+const fs    = __webpack_require__(747)
+const httpc = __webpack_require__(553)
+
+const download = async (url, dest) => {
+  const http = new httpc.HttpClient('MSP-Greg', [], {
+    allowRetries: true,
+    maxRetries: 3
+  })
+
+  return new Promise (async (resolve, reject) => {
+    const response = await http.get(url)
+    if (response.message.statusCode !== 200) {
+      const msg = `Failed to download from:\n  ${url}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}`
+      reject(new Error(msg))
+    }
+    
+    const file = fs.createWriteStream(dest)
+
+    file.on('open', async () => {
+      try {
+        const stream = response.message.pipe(file)
+        stream.on('close', () => {
+          resolve(dest)
+        })
+      } catch (err) {
+        const msg = `Failed to download from:\n  ${url}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}\n  Error: ${err.message}`
+        reject(new Error(msg))
+
+      }
+    })
+    file.on('error', err => {
+      file.end()
+      reject(err)
+    })
+  }).catch( err => console.error(err) )
+}
+
+// get Ruby info in one pass
+const ruby = () => {
+  let map = {}
+  let ary = ['platform', 'engine', 'engineVersion', 'vers', 'abiVers' ]
+  let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, (Object.const_defined?(:RUBY_ENGINE_VERSION) ? RUBY_ENGINE_VERSION : nil), RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
+  cp.execSync(cmd).toString().trim().split(/\r?\n/).forEach( (v,i) => {
+    map[ary[i]]  = v
+  })
+  return map
+}
+
+const execSync = (cmd) => cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'ignore']})
+
+
+/***/ }),
+
+/***/ 505:
 /***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -107,9 +411,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const fs   = __webpack_require__(747)
-const core = __webpack_require__(820)
+const core = __webpack_require__(276)
 
-const { execSync, download } = __webpack_require__(589)
+const { execSync, download } = __webpack_require__(498)
+
+// setting to true uses pacman download, false uses release files
+// used when MSYS2 has server issues
+const USE_MSYS2 = true
 
 let ruby
 
@@ -160,8 +468,11 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers >= '2.5') {
-    // await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
-    execSync(`pacman.exe -S ${args} ${prefix}openssl`)
+    if (USE_MSYS2) {
+      execSync(`pacman.exe -S ${args} ${prefix}openssl`)
+    } else {
+      await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
+    }
 
   } else if (ruby.abiVers === '2.4.0') {
     const openssl_24 = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${prefix.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
@@ -170,28 +481,44 @@ const openssl = async () => {
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${openssl_24_path}`)
 
   } else if (ruby.abiVers <= '2.4') {
-    const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
-    const openssl_23_path = `${process.env.RUNNER_TEMP}\\ri.tar.lzma`
-    await download(openssl_23, openssl_23_path)
-    fs.mkdirSync('C:\\openssl-win')
-    let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
-    execSync(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
-    core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
+    // const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
+    // const openssl_23_path = `${process.env.RUNNER_TEMP}\\ri.tar.lzma`
+    // await download(openssl_23, openssl_23_path)
+    // fs.mkdirSync('C:\\openssl-win')
+    // let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
+    // execSync(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
+    // core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
   }
 }
 
 // updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
-  // await require('./mingw_gcc').run(ruby.vers)
-
   // full update, takes too long
   // await exec.exec(`pacman.exe -Syyuu ${args}`);
-
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-  if (ruby.abiVers >= '2.4') {
-    core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
-    let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+  
+  if (USE_MSYS2) {
+    if (ruby.abiVers >= '2.4.0') {
+      core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
+      let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+      execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+    } else {
+      const fn = `${process.env.RUNNER_TEMP}\\DevKit-x64.7z`
+      // Extract to SSD, see https://github.com/ruby/setup-ruby/pull/14
+      const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
+      const cmd = `7z x ${fn} -o${drive}:\\`
+
+      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/ri-1.0.0/DevKit-x64.7z', fn)
+      execSync(cmd)
+      core.addPath(`${drive}:\\DevKit-x64\\mingw\\bin;${drive}:\\DevKit-x64\\bin;`)
+      core.info('Installed RubyInstaller DevKit for Ruby 2.3 or 2.3')
+      core.exportVariable('RI_DEVKIT', `${drive}:\\DevKit-x64`)
+      core.exportVariable('CC' , 'gcc')
+      core.exportVariable('CXX', 'g++')
+      core.exportVariable('CPP', 'cpp')
+    }
+  } else {
+    await __webpack_require__(518).run(ruby.vers)
   }
 }
 
@@ -206,7 +533,7 @@ const runMingw = async () => {
    * Ruby, normally _update_ should be used
    */
   if (mingw.includes('_msvc_')) {
-    let runner = __webpack_require__(449)
+    let runner = __webpack_require__(894)
     await runner.addVCVARSEnv()
     mingw = mingw.replace(/_msvc_/g, '').trim()
     if (mingw.includes('openssl')) {
@@ -221,10 +548,16 @@ const runMingw = async () => {
     mingw = mingw.replace(/openssl/gi, '').trim()
   }
 
-  //if (mingw.includes('ragel')) {
-  //  await install('ragel-6.10-1', 'gcc-9.2.0-2')
-  //  mingw = mingw.replace(/ragel/gi, '').trim()
-  //}
+  if (mingw.includes('ragel')) {
+    if (ruby.abiVers >= '2.4.0') {
+      if (!USE_MSYS2) {
+        await install('ragel-6.10-1', 'gcc-9.2.0-2')
+        mingw = mingw.replace(/ragel/gi, '').trim()
+      }
+    } else {
+      mingw = mingw.replace(/ragel/gi, '').trim()
+    }
+  }
 
   if (mingw !== '') {
     let pkgs = mingw.split(/\s+/)
@@ -244,10 +577,6 @@ const setRuby = (_ruby) => { ruby = _ruby }
 
 const run = async () => {
   try {
-    // normal Actions TEMP/TMP settings use a short file pathname
-    // unexpected errors may ocurr...
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-
     // rename files that cause build conflicts with MSYS2
     let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
     badFiles.forEach( (bad) => {
@@ -255,9 +584,11 @@ const run = async () => {
     })
 
     if (mingw !== '' || msys2 !== '') {
-      // update package database and general MSYS2 initialization
-      execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
-      execSync(`pacman.exe -Sy`)
+      if (ruby.abiVers >= '2.4.0') {
+        // update package database and general MSYS2 initialization
+        execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
+        execSync(`pacman.exe -Sy`)
+      }
 
       // install user specificied packages
       if (mingw !== '') { await runMingw() }
@@ -272,15 +603,441 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 26:
-/***/ (function(module, __unusedexports, __webpack_require__) {
+/***/ 512:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(395);
+"use strict";
+
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const os = __importStar(__webpack_require__(87));
+/**
+ * Commands
+ *
+ * Command Format:
+ *   ::name key=value,key=value::message
+ *
+ * Examples:
+ *   ::warning::This is the message
+ *   ::set-env name=MY_VAR::some value
+ */
+function issueCommand(command, properties, message) {
+    const cmd = new Command(command, properties, message);
+    process.stdout.write(cmd.toString() + os.EOL);
+}
+exports.issueCommand = issueCommand;
+function issue(name, message = '') {
+    issueCommand(name, {}, message);
+}
+exports.issue = issue;
+const CMD_STRING = '::';
+class Command {
+    constructor(command, properties, message) {
+        if (!command) {
+            command = 'missing.command';
+        }
+        this.command = command;
+        this.properties = properties;
+        this.message = message;
+    }
+    toString() {
+        let cmdStr = CMD_STRING + this.command;
+        if (this.properties && Object.keys(this.properties).length > 0) {
+            cmdStr += ' ';
+            let first = true;
+            for (const key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    const val = this.properties[key];
+                    if (val) {
+                        if (first) {
+                            first = false;
+                        }
+                        else {
+                            cmdStr += ',';
+                        }
+                        cmdStr += `${key}=${escapeProperty(val)}`;
+                    }
+                }
+            }
+        }
+        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
+        return cmdStr;
+    }
+}
+function escapeData(s) {
+    return (s || '')
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A');
+}
+function escapeProperty(s) {
+    return (s || '')
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A')
+        .replace(/:/g, '%3A')
+        .replace(/,/g, '%2C');
+}
+//# sourceMappingURL=command.js.map
+
+/***/ }),
+
+/***/ 518:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
+const gcc = {
+  '9.2.0-2': [
+    'expat-2.2.9-1',
+    'libiconv-1.16-1',
+    'zlib-1.2.11-7',
+    'binutils-2.34-1',
+    'headers-git-8.0.0.5647.1fe2e62e-1',
+    'crt-git-8.0.0.5647.1fe2e62e-1',
+    'dlfcn-1.2.0-1',
+    'gmp-6.2.0-1',
+    'isl-0.22.1-1',
+    'libwinpthread-git-8.0.0.5574.33e5a2ac-1',
+    'make-4.3-1',
+    'mpc-1.1.0-1',
+    'mpfr-4.0.2-2',
+    'windows-default-manifest-6.4-3',
+    'winpthreads-git-8.0.0.5574.33e5a2ac-1',
+    'gcc-libs-9.2.0-2',
+    'gcc-9.2.0-2'
+  ]
+}
+
+const run = async (rubyVers) => {
+  const fs   = __webpack_require__(747)
+  const core = __webpack_require__(276)
+  const { download, execSync } = __webpack_require__(498)
+  
+  const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
+  const pre64   = 'mingw-w64-x86_64-'
+  const suff    = '-any.pkg.tar.xz'
+  const args    = '--noconfirm --noprogressbar --needed'
+
+  let mingwFiles
+  let uri
+  
+  if (rubyVers > '2.0') {
+    mingwFiles = gcc['9.2.0-2']
+    uri = `${uriBase}/gcc-9.2.0-2`
+  }
+  const dir = `${process.env.RUNNER_TEMP}\\msys2_gcc`
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+
+  // download gcc files from release
+  const len = mingwFiles.length
+  for (let i = 0; i < len; i++) {
+    let f = `${pre64}${mingwFiles[i]}${suff}`
+    await download(`${uri}/${f}`    , `${dir}\\${f}`)
+    await download(`${uri}/${f}.sig`, `${dir}\\${f}.sig`)
+    console.log(`downloaded ${f}`)
+  } 
+
+  const cwd = process.cwd()
+
+  const pkgs = mingwFiles.map(f => `${pre64}${f}${suff}`).join(' ')
+
+  console.log(`pacman.exe -Udd ${args} ${pkgs}`)
+
+  try {
+    process.chdir(dir)
+    execSync(`pacman.exe -Udd ${args} ${pkgs}`)
+    process.chdir(cwd)
+  } catch (error) {
+    process.chdir(cwd)
+    core.setFailed(error.message)
+  }
+}
+
+/***/ }),
+
+/***/ 525:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+
+var net = __webpack_require__(631);
+var tls = __webpack_require__(16);
+var http = __webpack_require__(605);
+var https = __webpack_require__(211);
+var events = __webpack_require__(614);
+var assert = __webpack_require__(357);
+var util = __webpack_require__(669);
+
+
+exports.httpOverHttp = httpOverHttp;
+exports.httpsOverHttp = httpsOverHttp;
+exports.httpOverHttps = httpOverHttps;
+exports.httpsOverHttps = httpsOverHttps;
+
+
+function httpOverHttp(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = http.request;
+  return agent;
+}
+
+function httpsOverHttp(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = http.request;
+  agent.createSocket = createSecureSocket;
+  agent.defaultPort = 443;
+  return agent;
+}
+
+function httpOverHttps(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = https.request;
+  return agent;
+}
+
+function httpsOverHttps(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = https.request;
+  agent.createSocket = createSecureSocket;
+  agent.defaultPort = 443;
+  return agent;
+}
+
+
+function TunnelingAgent(options) {
+  var self = this;
+  self.options = options || {};
+  self.proxyOptions = self.options.proxy || {};
+  self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
+  self.requests = [];
+  self.sockets = [];
+
+  self.on('free', function onFree(socket, host, port, localAddress) {
+    var options = toOptions(host, port, localAddress);
+    for (var i = 0, len = self.requests.length; i < len; ++i) {
+      var pending = self.requests[i];
+      if (pending.host === options.host && pending.port === options.port) {
+        // Detect the request to connect same origin server,
+        // reuse the connection.
+        self.requests.splice(i, 1);
+        pending.request.onSocket(socket);
+        return;
+      }
+    }
+    socket.destroy();
+    self.removeSocket(socket);
+  });
+}
+util.inherits(TunnelingAgent, events.EventEmitter);
+
+TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
+  var self = this;
+  var options = mergeOptions({request: req}, self.options, toOptions(host, port, localAddress));
+
+  if (self.sockets.length >= this.maxSockets) {
+    // We are over limit so we'll add it to the queue.
+    self.requests.push(options);
+    return;
+  }
+
+  // If we are under maxSockets create a new one.
+  self.createSocket(options, function(socket) {
+    socket.on('free', onFree);
+    socket.on('close', onCloseOrRemove);
+    socket.on('agentRemove', onCloseOrRemove);
+    req.onSocket(socket);
+
+    function onFree() {
+      self.emit('free', socket, options);
+    }
+
+    function onCloseOrRemove(err) {
+      self.removeSocket(socket);
+      socket.removeListener('free', onFree);
+      socket.removeListener('close', onCloseOrRemove);
+      socket.removeListener('agentRemove', onCloseOrRemove);
+    }
+  });
+};
+
+TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
+  var self = this;
+  var placeholder = {};
+  self.sockets.push(placeholder);
+
+  var connectOptions = mergeOptions({}, self.proxyOptions, {
+    method: 'CONNECT',
+    path: options.host + ':' + options.port,
+    agent: false,
+    headers: {
+      host: options.host + ':' + options.port
+    }
+  });
+  if (options.localAddress) {
+    connectOptions.localAddress = options.localAddress;
+  }
+  if (connectOptions.proxyAuth) {
+    connectOptions.headers = connectOptions.headers || {};
+    connectOptions.headers['Proxy-Authorization'] = 'Basic ' +
+        new Buffer(connectOptions.proxyAuth).toString('base64');
+  }
+
+  debug('making CONNECT request');
+  var connectReq = self.request(connectOptions);
+  connectReq.useChunkedEncodingByDefault = false; // for v0.6
+  connectReq.once('response', onResponse); // for v0.6
+  connectReq.once('upgrade', onUpgrade);   // for v0.6
+  connectReq.once('connect', onConnect);   // for v0.7 or later
+  connectReq.once('error', onError);
+  connectReq.end();
+
+  function onResponse(res) {
+    // Very hacky. This is necessary to avoid http-parser leaks.
+    res.upgrade = true;
+  }
+
+  function onUpgrade(res, socket, head) {
+    // Hacky.
+    process.nextTick(function() {
+      onConnect(res, socket, head);
+    });
+  }
+
+  function onConnect(res, socket, head) {
+    connectReq.removeAllListeners();
+    socket.removeAllListeners();
+
+    if (res.statusCode !== 200) {
+      debug('tunneling socket could not be established, statusCode=%d',
+        res.statusCode);
+      socket.destroy();
+      var error = new Error('tunneling socket could not be established, ' +
+        'statusCode=' + res.statusCode);
+      error.code = 'ECONNRESET';
+      options.request.emit('error', error);
+      self.removeSocket(placeholder);
+      return;
+    }
+    if (head.length > 0) {
+      debug('got illegal response body from proxy');
+      socket.destroy();
+      var error = new Error('got illegal response body from proxy');
+      error.code = 'ECONNRESET';
+      options.request.emit('error', error);
+      self.removeSocket(placeholder);
+      return;
+    }
+    debug('tunneling connection has established');
+    self.sockets[self.sockets.indexOf(placeholder)] = socket;
+    return cb(socket);
+  }
+
+  function onError(cause) {
+    connectReq.removeAllListeners();
+
+    debug('tunneling socket could not be established, cause=%s\n',
+          cause.message, cause.stack);
+    var error = new Error('tunneling socket could not be established, ' +
+                          'cause=' + cause.message);
+    error.code = 'ECONNRESET';
+    options.request.emit('error', error);
+    self.removeSocket(placeholder);
+  }
+};
+
+TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
+  var pos = this.sockets.indexOf(socket)
+  if (pos === -1) {
+    return;
+  }
+  this.sockets.splice(pos, 1);
+
+  var pending = this.requests.shift();
+  if (pending) {
+    // If we have pending requests and a socket gets closed a new one
+    // needs to be created to take over in the pool for the one that closed.
+    this.createSocket(pending, function(socket) {
+      pending.request.onSocket(socket);
+    });
+  }
+};
+
+function createSecureSocket(options, cb) {
+  var self = this;
+  TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
+    var hostHeader = options.request.getHeader('host');
+    var tlsOptions = mergeOptions({}, self.options, {
+      socket: socket,
+      servername: hostHeader ? hostHeader.replace(/:.*$/, '') : options.host
+    });
+
+    // 0 is dummy port for v0.6
+    var secureSocket = tls.connect(0, tlsOptions);
+    self.sockets[self.sockets.indexOf(socket)] = secureSocket;
+    cb(secureSocket);
+  });
+}
+
+
+function toOptions(host, port, localAddress) {
+  if (typeof host === 'string') { // since v0.10
+    return {
+      host: host,
+      port: port,
+      localAddress: localAddress
+    };
+  }
+  return host; // for v0.11 or later
+}
+
+function mergeOptions(target) {
+  for (var i = 1, len = arguments.length; i < len; ++i) {
+    var overrides = arguments[i];
+    if (typeof overrides === 'object') {
+      var keys = Object.keys(overrides);
+      for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
+        var k = keys[j];
+        if (overrides[k] !== undefined) {
+          target[k] = overrides[k];
+        }
+      }
+    }
+  }
+  return target;
+}
+
+
+var debug;
+if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
+  debug = function() {
+    var args = Array.prototype.slice.call(arguments);
+    if (typeof args[0] === 'string') {
+      args[0] = 'TUNNEL: ' + args[0];
+    } else {
+      args.unshift('TUNNEL:');
+    }
+    console.error.apply(console, args);
+  }
+} else {
+  debug = function() {};
+}
+exports.debug = debug; // for test
 
 
 /***/ }),
 
-/***/ 70:
+/***/ 553:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -289,7 +1046,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const url = __webpack_require__(835);
 const http = __webpack_require__(605);
 const https = __webpack_require__(211);
-const pm = __webpack_require__(360);
+const pm = __webpack_require__(766);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -670,7 +1427,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __webpack_require__(26);
+                tunnel = __webpack_require__(855);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -788,80 +1545,99 @@ exports.HttpClient = HttpClient;
 
 /***/ }),
 
-/***/ 87:
+/***/ 605:
 /***/ (function(module) {
 
-module.exports = require("os");
+module.exports = require("http");
 
 /***/ }),
 
-/***/ 129:
+/***/ 614:
 /***/ (function(module) {
 
-module.exports = require("child_process");
+module.exports = require("events");
 
 /***/ }),
 
-/***/ 157:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ 622:
+/***/ (function(module) {
+
+module.exports = require("path");
+
+/***/ }),
+
+/***/ 631:
+/***/ (function(module) {
+
+module.exports = require("net");
+
+/***/ }),
+
+/***/ 669:
+/***/ (function(module) {
+
+module.exports = require("util");
+
+/***/ }),
+
+/***/ 747:
+/***/ (function(module) {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 758:
+/***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
 
 
-const core = __webpack_require__(820)
+(async () => {
+  const core = __webpack_require__(276)
 
-const { execSync } = __webpack_require__(589)
+  const common = __webpack_require__(498)
 
-// clean inputs
-let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
+  const platform = __webpack_require__(87).platform()
 
-const run = async () => {
   try {
-    // normal Actions TEMP/TMP settings use a short file pathname
-    // unexpected errors may ocurr...
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-
-    if (brew !== '') {
-      if (brew.includes('_update_')) {
-        execSync('brew update')
-        brew = brew.replace(/_update_/gi, '').trim()
-      }
-      
-      if (brew.includes('_upgrade_')) {
-        execSync('brew update')
-        execSync('brew upgrade')
-        brew = brew.replace(/_upgrade_/gi, '').trim()
-      }
-      
-      if (brew !== '') {
-        execSync(`brew install ${brew}`)
-      }
+    if (core.getInput('ruby-version') !== '') {
+      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
+      await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
+      await require(fn).run()
     }
+
+    let runner
+
+    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
+    core.exportVariable('CI'    , 'true')
+
+    if      ( platform === 'linux' )              { runner = __webpack_require__(26  ) }
+    else if ( platform === 'darwin')              { runner = __webpack_require__(924 ) }
+    else if (platform === 'win32'  ) {
+      const ruby = common.ruby()
+      if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(505) }
+      else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(894) }
+      // pass Ruby props to runner
+      if (runner) { runner.setRuby(ruby) }
+      
+      // choco, vcpkg, etc
+    }
+
+    if (runner) { runner.run() }
+    
+    console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+    
+
   } catch (error) {
     core.setFailed(error.message)
   }
-}
+})()
 
 
 /***/ }),
 
-/***/ 211:
-/***/ (function(module) {
-
-module.exports = require("https");
-
-/***/ }),
-
-/***/ 357:
-/***/ (function(module) {
-
-module.exports = require("assert");
-
-/***/ }),
-
-/***/ 360:
+/***/ 766:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -926,364 +1702,22 @@ exports.checkBypass = checkBypass;
 
 /***/ }),
 
-/***/ 395:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ 835:
+/***/ (function(module) {
 
-"use strict";
+module.exports = require("url");
 
+/***/ }),
 
-var net = __webpack_require__(631);
-var tls = __webpack_require__(16);
-var http = __webpack_require__(605);
-var https = __webpack_require__(211);
-var events = __webpack_require__(614);
-var assert = __webpack_require__(357);
-var util = __webpack_require__(669);
+/***/ 855:
+/***/ (function(module, __unusedexports, __webpack_require__) {
 
-
-exports.httpOverHttp = httpOverHttp;
-exports.httpsOverHttp = httpsOverHttp;
-exports.httpOverHttps = httpOverHttps;
-exports.httpsOverHttps = httpsOverHttps;
-
-
-function httpOverHttp(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = http.request;
-  return agent;
-}
-
-function httpsOverHttp(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = http.request;
-  agent.createSocket = createSecureSocket;
-  agent.defaultPort = 443;
-  return agent;
-}
-
-function httpOverHttps(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = https.request;
-  return agent;
-}
-
-function httpsOverHttps(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = https.request;
-  agent.createSocket = createSecureSocket;
-  agent.defaultPort = 443;
-  return agent;
-}
-
-
-function TunnelingAgent(options) {
-  var self = this;
-  self.options = options || {};
-  self.proxyOptions = self.options.proxy || {};
-  self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
-  self.requests = [];
-  self.sockets = [];
-
-  self.on('free', function onFree(socket, host, port, localAddress) {
-    var options = toOptions(host, port, localAddress);
-    for (var i = 0, len = self.requests.length; i < len; ++i) {
-      var pending = self.requests[i];
-      if (pending.host === options.host && pending.port === options.port) {
-        // Detect the request to connect same origin server,
-        // reuse the connection.
-        self.requests.splice(i, 1);
-        pending.request.onSocket(socket);
-        return;
-      }
-    }
-    socket.destroy();
-    self.removeSocket(socket);
-  });
-}
-util.inherits(TunnelingAgent, events.EventEmitter);
-
-TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
-  var self = this;
-  var options = mergeOptions({request: req}, self.options, toOptions(host, port, localAddress));
-
-  if (self.sockets.length >= this.maxSockets) {
-    // We are over limit so we'll add it to the queue.
-    self.requests.push(options);
-    return;
-  }
-
-  // If we are under maxSockets create a new one.
-  self.createSocket(options, function(socket) {
-    socket.on('free', onFree);
-    socket.on('close', onCloseOrRemove);
-    socket.on('agentRemove', onCloseOrRemove);
-    req.onSocket(socket);
-
-    function onFree() {
-      self.emit('free', socket, options);
-    }
-
-    function onCloseOrRemove(err) {
-      self.removeSocket(socket);
-      socket.removeListener('free', onFree);
-      socket.removeListener('close', onCloseOrRemove);
-      socket.removeListener('agentRemove', onCloseOrRemove);
-    }
-  });
-};
-
-TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
-  var self = this;
-  var placeholder = {};
-  self.sockets.push(placeholder);
-
-  var connectOptions = mergeOptions({}, self.proxyOptions, {
-    method: 'CONNECT',
-    path: options.host + ':' + options.port,
-    agent: false,
-    headers: {
-      host: options.host + ':' + options.port
-    }
-  });
-  if (options.localAddress) {
-    connectOptions.localAddress = options.localAddress;
-  }
-  if (connectOptions.proxyAuth) {
-    connectOptions.headers = connectOptions.headers || {};
-    connectOptions.headers['Proxy-Authorization'] = 'Basic ' +
-        new Buffer(connectOptions.proxyAuth).toString('base64');
-  }
-
-  debug('making CONNECT request');
-  var connectReq = self.request(connectOptions);
-  connectReq.useChunkedEncodingByDefault = false; // for v0.6
-  connectReq.once('response', onResponse); // for v0.6
-  connectReq.once('upgrade', onUpgrade);   // for v0.6
-  connectReq.once('connect', onConnect);   // for v0.7 or later
-  connectReq.once('error', onError);
-  connectReq.end();
-
-  function onResponse(res) {
-    // Very hacky. This is necessary to avoid http-parser leaks.
-    res.upgrade = true;
-  }
-
-  function onUpgrade(res, socket, head) {
-    // Hacky.
-    process.nextTick(function() {
-      onConnect(res, socket, head);
-    });
-  }
-
-  function onConnect(res, socket, head) {
-    connectReq.removeAllListeners();
-    socket.removeAllListeners();
-
-    if (res.statusCode !== 200) {
-      debug('tunneling socket could not be established, statusCode=%d',
-        res.statusCode);
-      socket.destroy();
-      var error = new Error('tunneling socket could not be established, ' +
-        'statusCode=' + res.statusCode);
-      error.code = 'ECONNRESET';
-      options.request.emit('error', error);
-      self.removeSocket(placeholder);
-      return;
-    }
-    if (head.length > 0) {
-      debug('got illegal response body from proxy');
-      socket.destroy();
-      var error = new Error('got illegal response body from proxy');
-      error.code = 'ECONNRESET';
-      options.request.emit('error', error);
-      self.removeSocket(placeholder);
-      return;
-    }
-    debug('tunneling connection has established');
-    self.sockets[self.sockets.indexOf(placeholder)] = socket;
-    return cb(socket);
-  }
-
-  function onError(cause) {
-    connectReq.removeAllListeners();
-
-    debug('tunneling socket could not be established, cause=%s\n',
-          cause.message, cause.stack);
-    var error = new Error('tunneling socket could not be established, ' +
-                          'cause=' + cause.message);
-    error.code = 'ECONNRESET';
-    options.request.emit('error', error);
-    self.removeSocket(placeholder);
-  }
-};
-
-TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
-  var pos = this.sockets.indexOf(socket)
-  if (pos === -1) {
-    return;
-  }
-  this.sockets.splice(pos, 1);
-
-  var pending = this.requests.shift();
-  if (pending) {
-    // If we have pending requests and a socket gets closed a new one
-    // needs to be created to take over in the pool for the one that closed.
-    this.createSocket(pending, function(socket) {
-      pending.request.onSocket(socket);
-    });
-  }
-};
-
-function createSecureSocket(options, cb) {
-  var self = this;
-  TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
-    var hostHeader = options.request.getHeader('host');
-    var tlsOptions = mergeOptions({}, self.options, {
-      socket: socket,
-      servername: hostHeader ? hostHeader.replace(/:.*$/, '') : options.host
-    });
-
-    // 0 is dummy port for v0.6
-    var secureSocket = tls.connect(0, tlsOptions);
-    self.sockets[self.sockets.indexOf(socket)] = secureSocket;
-    cb(secureSocket);
-  });
-}
-
-
-function toOptions(host, port, localAddress) {
-  if (typeof host === 'string') { // since v0.10
-    return {
-      host: host,
-      port: port,
-      localAddress: localAddress
-    };
-  }
-  return host; // for v0.11 or later
-}
-
-function mergeOptions(target) {
-  for (var i = 1, len = arguments.length; i < len; ++i) {
-    var overrides = arguments[i];
-    if (typeof overrides === 'object') {
-      var keys = Object.keys(overrides);
-      for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
-        var k = keys[j];
-        if (overrides[k] !== undefined) {
-          target[k] = overrides[k];
-        }
-      }
-    }
-  }
-  return target;
-}
-
-
-var debug;
-if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-  debug = function() {
-    var args = Array.prototype.slice.call(arguments);
-    if (typeof args[0] === 'string') {
-      args[0] = 'TUNNEL: ' + args[0];
-    } else {
-      args.unshift('TUNNEL:');
-    }
-    console.error.apply(console, args);
-  }
-} else {
-  debug = function() {};
-}
-exports.debug = debug; // for test
+module.exports = __webpack_require__(525);
 
 
 /***/ }),
 
-/***/ 415:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__webpack_require__(87));
-/**
- * Commands
- *
- * Command Format:
- *   ::name key=value,key=value::message
- *
- * Examples:
- *   ::warning::This is the message
- *   ::set-env name=MY_VAR::some value
- */
-function issueCommand(command, properties, message) {
-    const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
-}
-exports.issueCommand = issueCommand;
-function issue(name, message = '') {
-    issueCommand(name, {}, message);
-}
-exports.issue = issue;
-const CMD_STRING = '::';
-class Command {
-    constructor(command, properties, message) {
-        if (!command) {
-            command = 'missing.command';
-        }
-        this.command = command;
-        this.properties = properties;
-        this.message = message;
-    }
-    toString() {
-        let cmdStr = CMD_STRING + this.command;
-        if (this.properties && Object.keys(this.properties).length > 0) {
-            cmdStr += ' ';
-            let first = true;
-            for (const key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    const val = this.properties[key];
-                    if (val) {
-                        if (first) {
-                            first = false;
-                        }
-                        else {
-                            cmdStr += ',';
-                        }
-                        cmdStr += `${key}=${escapeProperty(val)}`;
-                    }
-                }
-            }
-        }
-        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
-        return cmdStr;
-    }
-}
-function escapeData(s) {
-    return (s || '')
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A');
-}
-function escapeProperty(s) {
-    return (s || '')
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A')
-        .replace(/:/g, '%3A')
-        .replace(/,/g, '%2C');
-}
-//# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 449:
+/***/ 894:
 /***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1294,9 +1728,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const fs   = __webpack_require__(747)
-const core = __webpack_require__(820)
+const core = __webpack_require__(276)
 
-const { execSync } = __webpack_require__(589)
+const { execSync } = __webpack_require__(498)
 
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
@@ -1315,10 +1749,6 @@ const openssl = async () => {
 const run = async () => {
   try {
     if (mingw.includes('openssl')) { openssl() }
-
-    core.exportVariable('CI'    , 'true')
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-
   } catch (error) {
     core.setFailed(error.message)
   }
@@ -1327,375 +1757,44 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 589:
+/***/ 924:
 /***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "download", function() { return download; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
 
 
-const cp = __webpack_require__(129)
-const fs    = __webpack_require__(747)
-const httpc = __webpack_require__(70)
+const core = __webpack_require__(276)
 
-const download = async (url, dest) => {
-  const http = new httpc.HttpClient('MSP-Greg', [], {
-    allowRetries: true,
-    maxRetries: 3
-  })
+const { execSync } = __webpack_require__(498)
 
-  return new Promise (async (resolve, reject) => {
-    const response = await http.get(url)
-    if (response.message.statusCode !== 200) {
-      const msg = `Failed to download from:\n  ${url}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}`
-      reject(new Error(msg))
-    }
-    
-    const file = fs.createWriteStream(dest)
+// clean inputs
+let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
 
-    file.on('open', async () => {
-      try {
-        const stream = response.message.pipe(file)
-        stream.on('close', () => {
-          resolve(dest)
-        })
-      } catch (err) {
-        const msg = `Failed to download from:\n  ${url}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}\n  Error: ${err.message}`
-        reject(new Error(msg))
-
-      }
-    })
-    file.on('error', err => {
-      file.end()
-      reject(err)
-    })
-  }).catch( err => console.error(err) )
-}
-
-// get Ruby info in one pass
-const ruby = () => {
-  let map = {}
-  let ary = ['platform', 'engine', 'engineVersion', 'vers', 'abiVers' ]
-  let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, (Object.const_defined?(:RUBY_ENGINE_VERSION) ? RUBY_ENGINE_VERSION : nil), RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
-  cp.execSync(cmd).toString().trim().split(/\r?\n/).forEach( (v,i) => {
-    map[ary[i]]  = v
-  })
-  return map
-}
-
-const execSync = (cmd) => cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'ignore']})
-
-
-/***/ }),
-
-/***/ 605:
-/***/ (function(module) {
-
-module.exports = require("http");
-
-/***/ }),
-
-/***/ 614:
-/***/ (function(module) {
-
-module.exports = require("events");
-
-/***/ }),
-
-/***/ 622:
-/***/ (function(module) {
-
-module.exports = require("path");
-
-/***/ }),
-
-/***/ 631:
-/***/ (function(module) {
-
-module.exports = require("net");
-
-/***/ }),
-
-/***/ 634:
-/***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
-
-"use strict";
-
-
-(async () => {
-  const core = __webpack_require__(820)
-
-  const common = __webpack_require__(589)
-
-  const platform = __webpack_require__(87).platform()
-
+const run = async () => {
   try {
-    if (core.getInput('ruby-version') !== '') {
-      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      console.log(fn)
-      await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
-      await require(fn).run()
-    }
-
-    let runner
-
-    if      ( platform === 'linux' )              { runner = __webpack_require__(3  ) }
-    else if ( platform === 'darwin')              { runner = __webpack_require__(157 ) }
-    else {
-      const ruby = common.ruby()
-      if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(23) }
-      else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(449) }
-      // pass Ruby props to runner
-      if (runner) { runner.setRuby(ruby) }
-    }
-
-    if (platform === 'win32') {
-      // choco, vcpkg, etc
-    }
-
-    if (runner) {
-      runner.run()
-    } else {
-      return
+    if (brew !== '') {
+      if (brew.includes('_update_')) {
+        execSync('brew update')
+        brew = brew.replace(/_update_/gi, '').trim()
+      }
+      
+      if (brew.includes('_upgrade_')) {
+        execSync('brew update')
+        execSync('brew upgrade')
+        brew = brew.replace(/_upgrade_/gi, '').trim()
+      }
+      
+      if (brew !== '') {
+        execSync(`brew install ${brew}`)
+      }
     }
   } catch (error) {
     core.setFailed(error.message)
   }
-})()
+}
 
-
-/***/ }),
-
-/***/ 669:
-/***/ (function(module) {
-
-module.exports = require("util");
-
-/***/ }),
-
-/***/ 747:
-/***/ (function(module) {
-
-module.exports = require("fs");
-
-/***/ }),
-
-/***/ 820:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __webpack_require__(415);
-const os = __importStar(__webpack_require__(87));
-const path = __importStar(__webpack_require__(622));
-/**
- * The code to exit an action
- */
-var ExitCode;
-(function (ExitCode) {
-    /**
-     * A code indicating that the action was successful
-     */
-    ExitCode[ExitCode["Success"] = 0] = "Success";
-    /**
-     * A code indicating that the action was a failure
-     */
-    ExitCode[ExitCode["Failure"] = 1] = "Failure";
-})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
-//-----------------------------------------------------------------------
-// Variables
-//-----------------------------------------------------------------------
-/**
- * Sets env variable for this action and future actions in the job
- * @param name the name of the variable to set
- * @param val the value of the variable
- */
-function exportVariable(name, val) {
-    process.env[name] = val;
-    command_1.issueCommand('set-env', { name }, val);
-}
-exports.exportVariable = exportVariable;
-/**
- * Registers a secret which will get masked from logs
- * @param secret value of the secret
- */
-function setSecret(secret) {
-    command_1.issueCommand('add-mask', {}, secret);
-}
-exports.setSecret = setSecret;
-/**
- * Prepends inputPath to the PATH (for this action and future actions)
- * @param inputPath
- */
-function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
-    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
-}
-exports.addPath = addPath;
-/**
- * Gets the value of an input.  The value is also trimmed.
- *
- * @param     name     name of the input to get
- * @param     options  optional. See InputOptions.
- * @returns   string
- */
-function getInput(name, options) {
-    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
-    if (options && options.required && !val) {
-        throw new Error(`Input required and not supplied: ${name}`);
-    }
-    return val.trim();
-}
-exports.getInput = getInput;
-/**
- * Sets the value of an output.
- *
- * @param     name     name of the output to set
- * @param     value    value to store
- */
-function setOutput(name, value) {
-    command_1.issueCommand('set-output', { name }, value);
-}
-exports.setOutput = setOutput;
-//-----------------------------------------------------------------------
-// Results
-//-----------------------------------------------------------------------
-/**
- * Sets the action status to failed.
- * When the action exits it will be with an exit code of 1
- * @param message add error issue message
- */
-function setFailed(message) {
-    process.exitCode = ExitCode.Failure;
-    error(message);
-}
-exports.setFailed = setFailed;
-//-----------------------------------------------------------------------
-// Logging Commands
-//-----------------------------------------------------------------------
-/**
- * Writes debug message to user log
- * @param message debug message
- */
-function debug(message) {
-    command_1.issueCommand('debug', {}, message);
-}
-exports.debug = debug;
-/**
- * Adds an error issue
- * @param message error issue message
- */
-function error(message) {
-    command_1.issue('error', message);
-}
-exports.error = error;
-/**
- * Adds an warning issue
- * @param message warning issue message
- */
-function warning(message) {
-    command_1.issue('warning', message);
-}
-exports.warning = warning;
-/**
- * Writes info to log with console.log.
- * @param message info message
- */
-function info(message) {
-    process.stdout.write(message + os.EOL);
-}
-exports.info = info;
-/**
- * Begin an output group.
- *
- * Output until the next `groupEnd` will be foldable in this group
- *
- * @param name The name of the output group
- */
-function startGroup(name) {
-    command_1.issue('group', name);
-}
-exports.startGroup = startGroup;
-/**
- * End an output group.
- */
-function endGroup() {
-    command_1.issue('endgroup');
-}
-exports.endGroup = endGroup;
-/**
- * Wrap an asynchronous function call in a group.
- *
- * Returns the same type as the function itself.
- *
- * @param name The name of the group
- * @param fn The function to wrap in the group
- */
-function group(name, fn) {
-    return __awaiter(this, void 0, void 0, function* () {
-        startGroup(name);
-        let result;
-        try {
-            result = yield fn();
-        }
-        finally {
-            endGroup();
-        }
-        return result;
-    });
-}
-exports.group = group;
-//-----------------------------------------------------------------------
-// Wrapper action state
-//-----------------------------------------------------------------------
-/**
- * Saves state for current action, the state can only be retrieved by this action's post job execution.
- *
- * @param     name     name of the state to store
- * @param     value    value to store
- */
-function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
-}
-exports.saveState = saveState;
-/**
- * Gets the value of an state set by this action's main execution.
- *
- * @param     name     name of the state to get
- * @returns   string
- */
-function getState(name) {
-    return process.env[`STATE_${name}`] || '';
-}
-exports.getState = getState;
-//# sourceMappingURL=core.js.map
-
-/***/ }),
-
-/***/ 835:
-/***/ (function(module) {
-
-module.exports = require("url");
 
 /***/ })
 
