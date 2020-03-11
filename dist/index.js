@@ -499,19 +499,31 @@ const updateGCC = async () => {
   
   if (USE_MSYS2) {
     if (ruby.abiVers >= '2.4.0') {
-      core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
-      let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-      execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
+      const fn = `${process.env.RUNNER_TEMP}\\msys64.7z`
+      // Extract to SSD, see https://github.com/ruby/setup-ruby/pull/14
+      const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
+      const cmd = `7z x ${fn} -o${drive}:\\`
+
+      core.info('Downloading MSYS2 for Ruby 2.4 and later')
+      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-11/msys64.7z', fn)
+      execSync(cmd)
+      core.addPath(`${drive}:\\msys64\\mingw64\\bin;${drive}:\\msys64\\usr\\bin;`)
+      core.info('  Installed MSYS2 for Ruby 2.4 and later')
+      
+      // core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
+      // let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+      // execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
     } else {
       const fn = `${process.env.RUNNER_TEMP}\\DevKit-x64.7z`
       // Extract to SSD, see https://github.com/ruby/setup-ruby/pull/14
       const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
       const cmd = `7z x ${fn} -o${drive}:\\`
 
+      core.info('Downloading RubyInstaller DevKit for Ruby 2.3 or 2.3')
       await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/ri-1.0.0/DevKit-x64.7z', fn)
       execSync(cmd)
       core.addPath(`${drive}:\\DevKit-x64\\mingw\\bin;${drive}:\\DevKit-x64\\bin;`)
-      core.info('Installed RubyInstaller DevKit for Ruby 2.3 or 2.3')
+      core.info('  Installed RubyInstaller DevKit for Ruby 2.3 or 2.3')
       core.exportVariable('RI_DEVKIT', `${drive}:\\DevKit-x64`)
       core.exportVariable('CC' , 'gcc')
       core.exportVariable('CXX', 'g++')
@@ -586,8 +598,8 @@ const run = async () => {
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
         // update package database and general MSYS2 initialization
-        execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
-        execSync(`pacman.exe -Sy`)
+        // execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
+        // execSync(`pacman.exe -Sy`)
       }
 
       // install user specificied packages
@@ -1624,7 +1636,7 @@ module.exports = require("fs");
       // choco, vcpkg, etc
     }
 
-    if (runner) { runner.run() }
+    if (runner) { await runner.run() }
     
     console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
     

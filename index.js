@@ -31,7 +31,7 @@
       // choco, vcpkg, etc
     }
 
-    if (runner) { runner.run() }
+    if (runner) { await runner.run() }
     
     console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
     

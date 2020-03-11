@@ -28,3 +28,7 @@ jobs:
           ruby -v
           openssl version
           ragel --version
+          if ('${{ matrix.ruby }}' -ge '2.4') {
+            echo ''
+            ridk version
+          }
