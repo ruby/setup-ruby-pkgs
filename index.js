@@ -23,6 +23,7 @@
     else if ( platform === 'darwin')              { runner = require('./brew' ) }
     else if (platform === 'win32'  ) {
       const ruby = common.ruby()
+      
       if      ( ruby.platform.includes('mingw') ) { runner = require('./mingw') }
       else if ( ruby.platform.includes('mswin') ) { runner = require('./mswin') }
       // pass Ruby props to runner

@@ -4,16 +4,18 @@ const cp = require('child_process')
 const fs    = require('fs')
 const httpc = require('@actions/http-client')
 
-export const download = async (url, dest) => {
+export const download = async (uri, dest) => {
+  console.log(`Downloading:\n  ${uri}`)
+
   const http = new httpc.HttpClient('MSP-Greg', [], {
     allowRetries: true,
     maxRetries: 3
   })
 
   return new Promise (async (resolve, reject) => {
-    const response = await http.get(url)
+    const response = await http.get(uri)
     if (response.message.statusCode !== 200) {
-      const msg = `Failed to download from:\n  ${url}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}`
+      const msg = `Failed to download from:\n  ${uri}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}`
       reject(new Error(msg))
     }
     
@@ -26,7 +28,7 @@ export const download = async (url, dest) => {
           resolve(dest)
         })
       } catch (err) {
-        const msg = `Failed to download from:\n  ${url}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}\n  Error: ${err.message}`
+        const msg = `Failed to download from:\n  ${uri}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}\n  Error: ${err.message}`
         reject(new Error(msg))
 
       }

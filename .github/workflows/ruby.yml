@@ -26,9 +26,15 @@ jobs:
       - name: Info
         run:  |
           ruby -v
+          echo ''
+          gcc --version
+          echo ''
           openssl version
+          echo ''
           ragel --version
+          echo ''
           if ('${{ matrix.ruby }}' -ge '2.4') {
-            echo ''
             ridk version
+          } else {
+            dir d:\DevKit64\mingw\include\openssl
           }

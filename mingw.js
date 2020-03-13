@@ -1,6 +1,7 @@
 'use strict';
 
 const fs   = require('fs')
+const path = require('path')
 const core = require('@actions/core')
 
 const { execSync, download } = require('./common')
@@ -9,7 +10,16 @@ const { execSync, download } = require('./common')
 // used when MSYS2 has server issues
 const USE_MSYS2 = true
 
+// SSD drive, used for most downloads
+const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
+
+const tar = 'C:\\msys64\\usr\\bin\\tar.exe'
+const oldDKTar = `/${drive}/DevKit64/mingw/x86_64-w64-mingw32`
+
+
 let ruby
+let old_pkgs
+let addOldDKtoPath = false
 
 // clean inputs
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
@@ -71,13 +81,12 @@ const openssl = async () => {
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${openssl_24_path}`)
 
   } else if (ruby.abiVers <= '2.4') {
-    // const openssl_23 = 'http://dl.bintray.com/oneclick/OpenKnapsack/x64/openssl-1.0.2j-x64-windows.tar.lzma'
-    // const openssl_23_path = `${process.env.RUNNER_TEMP}\\ri.tar.lzma`
-    // await download(openssl_23, openssl_23_path)
-    // fs.mkdirSync('C:\\openssl-win')
-    // let fn = openssl_23_path.replace(/:/, '').replace(/\\/, '/')
-    // execSync(`tar.exe --lzma -C /c/openssl-win --exclude=ssl/man -xf /${fn}`)
-    // core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
+    let fn = `${process.env.RUNNER_TEMP}\\ri.tar.lzma`
+    await download(old_pkgs['openssl'], fn)
+    fn = fn.replace(/:/, '').replace(/\\/g, '/')
+    const cmd = `${tar} --lzma -C ${oldDKTar} --exclude=ssl/man -xf /${fn}`
+    execSync(cmd)
+    core.info('Installed OpenKnapsack openssl-1.0.2j-x64 package')
   }
 }
 
@@ -90,34 +99,26 @@ const updateGCC = async () => {
   if (USE_MSYS2) {
     if (ruby.abiVers >= '2.4.0') {
       const fn = `${process.env.RUNNER_TEMP}\\msys64.7z`
-      // Extract to SSD, see https://github.com/ruby/setup-ruby/pull/14
-      const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
-      const cmd = `7z x ${fn} -o${drive}:\\`
+      const cmd = `7z x ${fn} -oC:\\`
 
-      core.info('Downloading MSYS2 for Ruby 2.4 and later')
       await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-11/msys64.7z', fn)
+      fs.rmdirSync('C:\\msys64', { recursive: true })
       execSync(cmd)
-      core.addPath(`${drive}:\\msys64\\mingw64\\bin;${drive}:\\msys64\\usr\\bin;`)
       core.info('  Installed MSYS2 for Ruby 2.4 and later')
       
       // core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
       // let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
       // execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
     } else {
-      const fn = `${process.env.RUNNER_TEMP}\\DevKit-x64.7z`
-      // Extract to SSD, see https://github.com/ruby/setup-ruby/pull/14
-      const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
-      const cmd = `7z x ${fn} -o${drive}:\\`
+      const dirDK = `${drive}:\\DevKit64`
+      const uri = 'https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe'
+      const fn  = `${process.env.RUNNER_TEMP}\\DevKit64.7z`
+      const cmd = `7z x ${fn} -o${dirDK}`
 
-      core.info('Downloading RubyInstaller DevKit for Ruby 2.3 or 2.3')
-      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/ri-1.0.0/DevKit-x64.7z', fn)
+      await download(uri, fn)
       execSync(cmd)
-      core.addPath(`${drive}:\\DevKit-x64\\mingw\\bin;${drive}:\\DevKit-x64\\bin;`)
-      core.info('  Installed RubyInstaller DevKit for Ruby 2.3 or 2.3')
-      core.exportVariable('RI_DEVKIT', `${drive}:\\DevKit-x64`)
-      core.exportVariable('CC' , 'gcc')
-      core.exportVariable('CXX', 'g++')
-      core.exportVariable('CPP', 'cpp')
+      addOldDKtoPath = true
+      core.info('Installed RubyInstaller DevKit for Ruby 2.2 or 2.3')
     }
   } else {
     await require('./mingw_gcc').run(ruby.vers)
@@ -156,17 +157,53 @@ const runMingw = async () => {
         await install('ragel-6.10-1', 'gcc-9.2.0-2')
         mingw = mingw.replace(/ragel/gi, '').trim()
       }
-    } else {
-      mingw = mingw.replace(/ragel/gi, '').trim()
     }
   }
 
   if (mingw !== '') {
     let pkgs = mingw.split(/\s+/)
     if (pkgs.length > 0) {
-      pkgs.unshift('')
-      execSync(`pacman.exe -S ${args} ${pkgs.join(prefix)}`)
+      if (ruby.abiVers >= '2.4.0') {
+        pkgs.unshift('')
+        execSync(`pacman.exe -S ${args} ${pkgs.join(prefix)}`)
+      } else {
+        let toInstall = []
+        pkgs.forEach( (pkg) => {
+          if (old_pkgs[pkg]) {
+            toInstall.push({ pkg: pkg, uri: old_pkgs[pkg]})
+          } else {
+            core.warning(`Package '${pkg}' is not available`)
+          }
+        })
+        if (toInstall.length !== 0) {
+          for (const item of toInstall) {
+            let fn = `${process.env.RUNNER_TEMP}\\${item.pkg}.tar.lzma`
+            await download(item.uri, fn)
+            fn = fn.replace(/:/, '').replace(/\\/g, '/')
+            let cmd = `${tar} --lzma -C ${oldDKTar} -xf /${fn}`
+            execSync(cmd)
+          }
+        }
+      }
     }
+  }
+  if (addOldDKtoPath) {
+    const dirDK = `${drive}:\\DevKit64`
+    core.exportVariable('RI_DEVKIT', dirDK)
+    core.exportVariable('CC' , 'gcc')
+    core.exportVariable('CXX', 'g++')
+    core.exportVariable('CPP', 'cpp')
+
+    let aryPath = process.env.PATH.split(path.delimiter)
+    const rubyPath = aryPath.shift()
+    // two msys2 paths
+    aryPath.shift()
+    aryPath.shift()
+    aryPath.unshift(`${dirDK}\\mingw\\x86_64-w64-mingw32\\bin`)
+    aryPath.unshift(`${dirDK}\\mingw\\bin`)
+    aryPath.unshift(`${dirDK}\\bin`)
+    aryPath.unshift(rubyPath)
+    core.exportVariable('Path', aryPath.join(path.delimiter))
   }
 }
 
@@ -190,6 +227,9 @@ export const run = async () => {
         // update package database and general MSYS2 initialization
         // execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
         // execSync(`pacman.exe -Sy`)
+      } else {
+        // get list of available pkgs for Ruby 2.2 & 2.3
+        old_pkgs = require('./open_knapsack_pkgs').old_pkgs
       }
 
       // install user specificied packages

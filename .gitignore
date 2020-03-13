@@ -12,3 +12,5 @@ lerna-debug.log*
 /scratch
 
 notes.txt
+_test.js
+_test.mjs
