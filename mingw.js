@@ -6,8 +6,10 @@ const core = require('@actions/core')
 
 const { execSync, download } = require('./common')
 
-// setting to true uses pacman download, false uses release files
-// used when MSYS2 has server issues
+/* setting to true uses release MSYS2, otherwise uses pre-installed MSYS2
+ * release contains OpenSSL 1.1.1d and ragel
+ * used when MSYS2 has server issues
+ */
 const USE_MSYS2 = true
 
 // SSD drive, used for most downloads
@@ -65,11 +67,8 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers >= '2.5') {
-    if (USE_MSYS2) {
-      execSync(`pacman.exe -S ${args} ${pre}openssl`)
-    } else {
-      await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
-    }
+    execSync(`pacman.exe -S ${args} ${pre}openssl`)
+    // await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
 
   } else if (ruby.abiVers === '2.4.0') {
     const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
@@ -90,7 +89,7 @@ const updateGCC = async () => {
       const fn = `${process.env.RUNNER_TEMP}\\msys64.7z`
       const cmd = `7z x ${fn} -oC:\\`
 
-      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-11/msys64.7z', fn)
+      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-16/msys64.7z', fn)
       fs.rmdirSync('C:\\msys64', { recursive: true })
       execSync(cmd)
       core.info('Installed MSYS2 for Ruby 2.4 and later')
@@ -144,9 +143,11 @@ const runMingw = async () => {
         await openssl()
         mingw = mingw.replace(/openssl/gi, '').trim()
       }   
-      let pkgs = mingw.split(/\s+/)
-      pkgs.unshift('')
-      execSync(`pacman.exe -S ${args} ${pkgs.join(pre)}`)
+      if (mingw !== '') {
+        let pkgs = mingw.split(/\s+/)
+        pkgs.unshift('')
+        execSync(`pacman.exe -S ${args} ${pkgs.join(pre)}`)
+      }
     } else {
       let toInstall = []
       let pkgs = mingw.split(/\s+/)
