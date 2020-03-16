@@ -35,6 +35,4 @@ jobs:
           echo ''
           if ('${{ matrix.ruby }}' -ge '2.4') {
             ridk version
-          } else {
-            dir d:\DevKit64\mingw\include\openssl
           }
