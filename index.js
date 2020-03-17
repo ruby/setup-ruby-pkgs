@@ -33,9 +33,8 @@
     }
 
     if (runner) { await runner.run() }
-    
+
     console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
-    
 
   } catch (error) {
     core.setFailed(error.message)

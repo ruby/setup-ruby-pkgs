@@ -1688,9 +1688,8 @@ module.exports = require("fs");
     }
 
     if (runner) { await runner.run() }
-    
+
     console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
-    
 
   } catch (error) {
     core.setFailed(error.message)
@@ -1797,6 +1796,8 @@ const { execSync } = __webpack_require__(498)
 
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
+let vcpkg = core.getInput('vcpkg').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+
 let ruby
 
 const setRuby = (_ruby) => { ruby = _ruby }
@@ -1812,6 +1813,12 @@ const openssl = async () => {
 const run = async () => {
   try {
     if (mingw.includes('openssl')) { openssl() }
+    
+    if (vcpkg !== '') {
+      execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
+      core.addPath(`${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\tools`)
+    }
+
   } catch (error) {
     core.setFailed(error.message)
   }

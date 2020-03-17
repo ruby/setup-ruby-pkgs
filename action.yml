@@ -17,9 +17,9 @@ inputs:
   msys2:
     description: 'Install MSYS2 msys2 packages'
     default: ''
-outputs:
-  ruby-prefix:
-    description: 'The prefix of the installed ruby'
+  vcpkg:
+    description: 'Install vcpkg packages'
+    default: ''
 runs:
   using: 'node12'
   main: 'dist/index.js'

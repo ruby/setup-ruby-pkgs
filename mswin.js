@@ -7,6 +7,8 @@ const { execSync } = require('./common')
 
 let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
+let vcpkg = core.getInput('vcpkg').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+
 let ruby
 
 export const setRuby = (_ruby) => { ruby = _ruby }
@@ -22,6 +24,12 @@ export const openssl = async () => {
 export const run = async () => {
   try {
     if (mingw.includes('openssl')) { openssl() }
+    
+    if (vcpkg !== '') {
+      execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
+      core.addPath(`${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\tools`)
+    }
+
   } catch (error) {
     core.setFailed(error.message)
   }
