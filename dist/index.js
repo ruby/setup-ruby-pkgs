@@ -524,7 +524,7 @@ const updateGCC = async () => {
       const fn = `${process.env.RUNNER_TEMP}\\msys64.7z`
       const cmd = `7z x ${fn} -oC:\\`
 
-      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-16/msys64.7z', fn)
+      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-20/msys64.7z', fn)
       fs.rmdirSync('C:\\msys64', { recursive: true })
       execSync(cmd)
       core.info('Installed MSYS2 for Ruby 2.4 and later')
