@@ -25,6 +25,8 @@ jobs:
 
       - name: Info
         run:  |
+          # stderr output from OpenSSL causes failure
+          $ErrorActionPreference = 'Continue'
           ruby -v
           echo ''
           gcc --version
