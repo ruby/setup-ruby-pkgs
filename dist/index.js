@@ -368,27 +368,39 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "download", function() { return download; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
 
 
 const cp = __webpack_require__(129)
-const fs    = __webpack_require__(747)
+const fs = __webpack_require__(747)
+const path  = __webpack_require__(622)
+const core  = __webpack_require__(276)
 const httpc = __webpack_require__(553)
 
+const blu = '\x1b[94m'                     // eslint-disable-line no-unused-vars
+const yel = '\x1b[33m'                     // eslint-disable-line no-unused-vars
+const rst = '\x1b[0m'                      // eslint-disable-line no-unused-vars
+
 const download = async (uri, dest) => {
-  console.log(`Downloading:\n  ${uri}`)
+  if (!fs.existsSync(path.dirname(dest))) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+  }
+
+  console.log(`[command]Downloading:\n  ${uri}`)
 
   const http = new httpc.HttpClient('MSP-Greg', [], {
     allowRetries: true,
     maxRetries: 3
   })
 
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise (async (resolve, reject) => {
     const response = await http.get(uri)
     if (response.message.statusCode !== 200) {
       const msg = `Failed to download from:\n  ${uri}\n  Code: ${response.message.statusCode}\n  Message: ${response.message.statusMessage}`
       reject(new Error(msg))
     }
-    
+
     const file = fs.createWriteStream(dest)
 
     file.on('open', async () => {
@@ -421,7 +433,12 @@ const ruby = () => {
   return map
 }
 
-const execSync = (cmd) => cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'ignore']})
+const execSync = (cmd) => {
+  console.log(`[command]${cmd}`)
+  cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'inherit']})
+}
+
+const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 
 /***/ }),
@@ -439,40 +456,48 @@ const fs   = __webpack_require__(747)
 const path = __webpack_require__(622)
 const core = __webpack_require__(276)
 
-const { execSync, download } = __webpack_require__(498)
+const { download, execSync, getInput } = __webpack_require__(498)
 
-/* setting to true uses release MSYS2, otherwise uses pre-installed MSYS2
- * release contains OpenSSL 1.1.1d and ragel
+/* setting to string uses release MSYS2, setting to null uses pre-installed MSYS2
+ * release contains all Ruby building dependencies, 
  * used when MSYS2 has server issues
  */
-const USE_MSYS2 = true
+const RELEASE_ASSET = 'msys2-2020-03-20'
 
 // SSD drive, used for most downloads
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
 
 const tar = 'C:\\msys64\\usr\\bin\\tar.exe'
 
+// below are for setup of old Ruby DevKit
+const dirDK    = `${drive}:\\DevKit64`
 const oldDKTar = `/${drive}/DevKit64/mingw/x86_64-w64-mingw32`
+
+const dlPath = `${process.env.RUNNER_TEMP}\\srp`
+if (!fs.existsSync(dlPath)) {
+  fs.mkdirSync(dlPath, { recursive: true })
+}  
 
 let ruby
 let old_pkgs
-let addOldDKtoPath = false
 
 // clean inputs
-let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-let msys2 = core.getInput('msys2').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+let mingw = getInput('mingw')
+let msys2 = getInput('msys2')
 
 let pre // set in setRuby, ' mingw-w64-x86_64-' or ' mingw-w64-i686-'
 const args  = '--noconfirm --noprogressbar --needed'
 
-const install = async (pkg, release) => {
+// Not used. Installs packages stored in GitHub release.
+// Only needed for exceptional cases.
+const install = async (pkg, release) => {  // eslint-disable-line no-unused-vars
   const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
   const suff    = '-any.pkg.tar.xz'
   const args    = '--noconfirm --noprogressbar --needed'
 
   const uri = `${uriBase}/${release}`
 
-  const dir = `${process.env.RUNNER_TEMP}\\msys2_gcc`
+  const dir = `${dlPath}\\msys2_gcc`
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })
   }  
@@ -493,7 +518,10 @@ const install = async (pkg, release) => {
   }
 }
 
-// install OpenSSL 1.0.2 for Ruby 2.3 & 2.4, 1.1.1 for Ruby 2.5 and later
+/* Renames OpenSSL dlls in System32 folder, installs OpenSSL 1.0.2 for Ruby 2.4.
+ * At present, all versions of Ruby except 2.4 can use the OpenSSL packages
+ * provided by the generic package install code.  But that may change...
+ */
 const openssl = async () => {
   let ssl = 'C:\\Windows\\System32\\'
   let badFiles = [`${ssl}libcrypto-1_1-x64.dll`, `${ssl}libssl-1_1-x64.dll`]
@@ -501,51 +529,70 @@ const openssl = async () => {
     if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
   })
 
-  if (ruby.abiVers >= '2.5') {
-    execSync(`pacman.exe -S ${args} ${pre}openssl`)
-    // await install('openssl-1.1.1.d-2', 'gcc-9.2.0-2')
-
-  } else if (ruby.abiVers === '2.4.0') {
+  if (ruby.abiVers === '2.4.0') {
     const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
-    const fn = `${process.env.RUNNER_TEMP}\\ri2.tar.xz`
+    const fn = `${dlPath}\\ri2.tar.xz`
     await download(uri, fn)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+    mingw = mingw.replace(/openssl/gi, '').trim()
   }
 }
 
-// updates MSYS2 MinGW gcc items
+// Updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
-  // full update, takes too long
-  // await exec.exec(`pacman.exe -Syyuu ${args}`);
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
   
-  if (USE_MSYS2) {
-    if (ruby.abiVers >= '2.4.0') {
-      const fn = `${process.env.RUNNER_TEMP}\\msys64.7z`
-      const cmd = `7z x ${fn} -oC:\\`
-
-      await download('https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/msys2-2020-03-20/msys64.7z', fn)
-      fs.rmdirSync('C:\\msys64', { recursive: true })
-      execSync(cmd)
-      core.info('Installed MSYS2 for Ruby 2.4 and later')
-      
-      // core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
-      // let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-      // execSync(`pacman.exe -S ${args} ${gccPkgs.join(prefix)}`)
-    } else {
-      const dirDK = `${drive}:\\DevKit64`
-      const uri = 'https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe'
-      const fn  = `${process.env.RUNNER_TEMP}\\DevKit64.7z`
-      const cmd = `7z x ${fn} -o${dirDK}`
-
-      await download(uri, fn)
-      execSync(cmd)
-      addOldDKtoPath = true
-      core.info('Installed RubyInstaller DevKit for Ruby 2.2 or 2.3')
-    }
-  } else {
-    await __webpack_require__(518).run(ruby.vers)
+  if (ruby.abiVers >= '2.4') {
+    core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
+    let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+    execSync(`pacman.exe -S ${args} ${gccPkgs.join(pre)}`)
   }
+
+  // await require('./mingw_gcc').run(ruby.vers)
+}
+
+// Used to install pre-built MSYS2 from a GitHub release asset, hopefully never
+// needed once Actions Windows images have MSYS2 installed.
+const installMSYS2 = async () => {
+  const fn = `${dlPath}\\msys64.7z`
+  const cmd = `7z x ${fn} -oC:\\`
+  await download(`https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/${RELEASE_ASSET}/msys64.7z`, fn)
+  fs.rmdirSync('C:\\msys64', { recursive: true })
+  execSync(cmd)
+  core.info('Installed MSYS2 for Ruby 2.4 and later')
+}
+
+// Ruby 2.2 and 2.3 - install old DevKit
+const installDevKit = async () => {
+  const uri = 'https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe'
+  const fn  = `${dlPath}\\DevKit64.7z`
+  const cmd = `7z x ${fn} -o${dirDK}`
+
+  await download(uri, fn)
+  execSync(cmd)
+
+  core.exportVariable('RI_DEVKIT', dirDK)
+  core.exportVariable('CC' , 'gcc')
+  core.exportVariable('CXX', 'g++')
+  core.exportVariable('CPP', 'cpp')
+  core.info('Installed RubyInstaller DevKit for Ruby 2.2 or 2.3')
+}
+
+/* Ruby 2.2 and 2.3 - sets Path for old DevKit
+ * We need MSYS2 in path to install DK packages (for tar lzma), so remove after
+ * all packages are installed
+ */
+const setPathDevKit = () => {
+  let aryPath = process.env.PATH.split(path.delimiter)
+  const rubyPath = aryPath.shift()
+  // two msys2 paths
+  aryPath.shift()
+  aryPath.shift()
+  aryPath.unshift(`${dirDK}\\mingw\\x86_64-w64-mingw32\\bin`)
+  aryPath.unshift(`${dirDK}\\mingw\\bin`)
+  aryPath.unshift(`${dirDK}\\bin`)
+  aryPath.unshift(rubyPath)
+  core.exportVariable('Path', aryPath.join(path.delimiter))
 }
 
 // install MinGW packages from mingw input
@@ -563,20 +610,10 @@ const runMingw = async () => {
     return
   }
 
-  if (mingw.includes('ragel')) {
-    if (ruby.abiVers >= '2.4.0') {
-      if (!USE_MSYS2) {
-        await install('ragel-6.10-1', 'gcc-9.2.0-2')
-        mingw = mingw.replace(/ragel/gi, '').trim()
-      }
-    }
-  }
-
   if (mingw !== '') {
     if (ruby.abiVers >= '2.4.0') {
       if (mingw.includes('openssl')) {
         await openssl()
-        mingw = mingw.replace(/openssl/gi, '').trim()
       }   
       if (mingw !== '') {
         let pkgs = mingw.split(/\s+/)
@@ -595,7 +632,7 @@ const runMingw = async () => {
       })
       if (toInstall.length !== 0) {
         for (const item of toInstall) {
-          let fn = `${process.env.RUNNER_TEMP}\\${item.pkg}.tar.lzma`
+          let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
           fn = fn.replace(/:/, '').replace(/\\/g, '/')
           let cmd = `${tar} --lzma -C ${oldDKTar} -xf /${fn}`
@@ -603,24 +640,6 @@ const runMingw = async () => {
         }
       }
     }
-  }
-  if (addOldDKtoPath) {
-    const dirDK = `${drive}:\\DevKit64`
-    core.exportVariable('RI_DEVKIT', dirDK)
-    core.exportVariable('CC' , 'gcc')
-    core.exportVariable('CXX', 'g++')
-    core.exportVariable('CPP', 'cpp')
-
-    let aryPath = process.env.PATH.split(path.delimiter)
-    const rubyPath = aryPath.shift()
-    // two msys2 paths
-    aryPath.shift()
-    aryPath.shift()
-    aryPath.unshift(`${dirDK}\\mingw\\x86_64-w64-mingw32\\bin`)
-    aryPath.unshift(`${dirDK}\\mingw\\bin`)
-    aryPath.unshift(`${dirDK}\\bin`)
-    aryPath.unshift(rubyPath)
-    core.exportVariable('Path', aryPath.join(path.delimiter))
   }
 }
 
@@ -642,11 +661,12 @@ const run = async () => {
       if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     })
 
+    if (ruby.abiVers < '2.4.0') { await installDevKit() }
+
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
-        // update package database and general MSYS2 initialization
-        // execSync(`bash.exe -c "pacman-key --init ; pacman-key --populate msys2"`)
-        // execSync(`pacman.exe -Sy`)
+        if (RELEASE_ASSET) { await installMSYS2() }
+        execSync(`pacman.exe -Sy`)
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
         old_pkgs = __webpack_require__(169).old_pkgs
@@ -656,6 +676,8 @@ const run = async () => {
       if (mingw !== '') { await runMingw() }
       if (msys2 !== '') { await runMSYS2() }
     }
+
+    if (ruby.abiVers < '2.4.0') { setPathDevKit() }
 
   } catch (error) {
     core.setFailed(error.message)
@@ -747,83 +769,6 @@ function escapeProperty(s) {
         .replace(/,/g, '%2C');
 }
 //# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 518:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
-const gcc = {
-  '9.2.0-2': [
-    'expat-2.2.9-1',
-    'libiconv-1.16-1',
-    'zlib-1.2.11-7',
-    'binutils-2.34-1',
-    'headers-git-8.0.0.5647.1fe2e62e-1',
-    'crt-git-8.0.0.5647.1fe2e62e-1',
-    'dlfcn-1.2.0-1',
-    'gmp-6.2.0-1',
-    'isl-0.22.1-1',
-    'libwinpthread-git-8.0.0.5574.33e5a2ac-1',
-    'make-4.3-1',
-    'mpc-1.1.0-1',
-    'mpfr-4.0.2-2',
-    'windows-default-manifest-6.4-3',
-    'winpthreads-git-8.0.0.5574.33e5a2ac-1',
-    'gcc-libs-9.2.0-2',
-    'gcc-9.2.0-2'
-  ]
-}
-
-const run = async (rubyVers) => {
-  const fs   = __webpack_require__(747)
-  const core = __webpack_require__(276)
-  const { download, execSync } = __webpack_require__(498)
-  
-  const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
-  const pre64   = 'mingw-w64-x86_64-'
-  const suff    = '-any.pkg.tar.xz'
-  const args    = '--noconfirm --noprogressbar --needed'
-
-  let mingwFiles
-  let uri
-  
-  if (rubyVers > '2.0') {
-    mingwFiles = gcc['9.2.0-2']
-    uri = `${uriBase}/gcc-9.2.0-2`
-  }
-  const dir = `${process.env.RUNNER_TEMP}\\msys2_gcc`
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-
-  // download gcc files from release
-  const len = mingwFiles.length
-  for (let i = 0; i < len; i++) {
-    let f = `${pre64}${mingwFiles[i]}${suff}`
-    await download(`${uri}/${f}`    , `${dir}\\${f}`)
-    await download(`${uri}/${f}.sig`, `${dir}\\${f}.sig`)
-    console.log(`downloaded ${f}`)
-  } 
-
-  const cwd = process.cwd()
-
-  const pkgs = mingwFiles.map(f => `${pre64}${f}${suff}`).join(' ')
-
-  console.log(`pacman.exe -Udd ${args} ${pkgs}`)
-
-  try {
-    process.chdir(dir)
-    execSync(`pacman.exe -Udd ${args} ${pkgs}`)
-    process.chdir(cwd)
-  } catch (error) {
-    process.chdir(cwd)
-    core.setFailed(error.message)
-  }
-}
 
 /***/ }),
 
@@ -1792,13 +1737,12 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { execSync } = __webpack_require__(498)
+const { execSync, getInput } = __webpack_require__(498)
 
-let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+let mingw = getInput('mingw')
+let vcpkg = getInput('vcpkg')
 
-let vcpkg = core.getInput('vcpkg').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-
-let ruby
+let ruby                                   // eslint-disable-line no-unused-vars
 
 const setRuby = (_ruby) => { ruby = _ruby }
 

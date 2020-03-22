@@ -3,13 +3,12 @@
 const fs   = require('fs')
 const core = require('@actions/core')
 
-const { execSync } = require('./common')
+const { execSync, getInput } = require('./common')
 
-let mingw = core.getInput('mingw').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+let mingw = getInput('mingw')
+let vcpkg = getInput('vcpkg')
 
-let vcpkg = core.getInput('vcpkg').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-
-let ruby
+let ruby                                   // eslint-disable-line no-unused-vars
 
 export const setRuby = (_ruby) => { ruby = _ruby }
 
