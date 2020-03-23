@@ -8,6 +8,8 @@
   const platform = require('os').platform()
 
   try {
+    console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
       await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
@@ -34,9 +36,8 @@
 
     if (runner) { await runner.run() }
 
-    console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
-
-  } catch (error) {
-    core.setFailed(error.message)
+  } catch (e) {
+    console.log(`::error::${e.message}`)
+    process.exitCode = 1
   }
 })()
