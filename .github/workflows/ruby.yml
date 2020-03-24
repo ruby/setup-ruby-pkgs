@@ -22,6 +22,8 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           mingw: _upgrade_ openssl ragel
+          mswin: bison mingw-w64-x86_64-ragel
+          vcpkg: readline
 
       - name: Info
         run:  |

@@ -10,7 +10,8 @@ const { download, execSync, getInput } = require('./common')
  * release contains all Ruby building dependencies, 
  * used when MSYS2 has server issues
  */
-const RELEASE_ASSET = 'msys2-2020-03-20'
+const RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
+  'msys2-2020-03-20' : null
 
 // SSD drive, used for most downloads
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
@@ -19,7 +20,7 @@ const tar = 'C:\\msys64\\usr\\bin\\tar.exe'
 
 // below are for setup of old Ruby DevKit
 const dirDK    = `${drive}:\\DevKit64`
-const oldDKTar = `/${drive}/DevKit64/mingw/x86_64-w64-mingw32`
+const dirDKTar = `/${drive}/DevKit64/mingw/x86_64-w64-mingw32`
 
 const dlPath = `${process.env.RUNNER_TEMP}\\srp`
 if (!fs.existsSync(dlPath)) {
@@ -81,6 +82,7 @@ const openssl = async () => {
     const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
     const fn = `${dlPath}\\ri2.tar.xz`
     await download(uri, fn)
+    execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     mingw = mingw.replace(/openssl/gi, '').trim()
   }
@@ -133,13 +135,11 @@ const installDevKit = async () => {
 const setPathDevKit = () => {
   let aryPath = process.env.PATH.split(path.delimiter)
   const rubyPath = aryPath.shift()
-  // two msys2 paths
-  aryPath.shift()
-  aryPath.shift()
-  aryPath.unshift(`${dirDK}\\mingw\\x86_64-w64-mingw32\\bin`)
-  aryPath.unshift(`${dirDK}\\mingw\\bin`)
-  aryPath.unshift(`${dirDK}\\bin`)
-  aryPath.unshift(rubyPath)
+  // remove two msys2 paths, add devkit paths
+  aryPath.splice(0, 2,
+    rubyPath, `${dirDK}\\mingw\\x86_64-w64-mingw32\\bin`,
+    `${dirDK}\\mingw\\bin`, `${dirDK}\\bin`
+  )
   core.exportVariable('Path', aryPath.join(path.delimiter))
 }
 
@@ -183,7 +183,7 @@ const runMingw = async () => {
           let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
           fn = fn.replace(/:/, '').replace(/\\/g, '/')
-          let cmd = `${tar} --lzma -C ${oldDKTar} -xf /${fn}`
+          let cmd = `${tar} --lzma -C ${dirDKTar} -xf /${fn}`
           execSync(cmd)
         }
       }

@@ -6,19 +6,25 @@ inputs:
     description: 'Ruby version'
     default: ''
   apt-get:
-    description: 'Install Ubuntu packages'
+    description: 'Ubuntu - install packages'
     default: ''
   brew:
-    description: 'Install macOS packages'
+    description: 'macOS - install packages'
     default: ''
   mingw:
-    description: 'Install MSYS2 mingw64 packages'
+    description: 'MinGW - install MSYS2 mingw64 packages'
     default: ''
   msys2:
-    description: 'Install MSYS2 msys2 packages'
+    description: 'MinGW - install MSYS2 msys2 packages'
+    default: ''
+  mswin:
+    description: 'mswin - install MSYS2 packages (mingw64 packages need prefix)'
+    default: ''
+  choco:
+    description: 'mswin - install Chocolatey packages'
     default: ''
   vcpkg:
-    description: 'Install vcpkg packages'
+    description: 'mswin - install vcpkg packages'
     default: ''
 runs:
   using: 'node12'
