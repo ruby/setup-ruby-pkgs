@@ -24,6 +24,10 @@ export const run = async () => {
       if (!choco.includes('openssl')) { choco += ' openssl' }
     }
 
+    if (mingw.includes('ragel')) {
+      execSync('pacman.exe -S --noconfirm --noprogressbar --needed mingw-w64-x86_64-ragel')
+    }
+
     if (choco !== '') {
       execSync(`choco install --no-progress ${choco}`)
       if (choco.includes('openssl')) {
