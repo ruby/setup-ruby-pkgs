@@ -12,7 +12,7 @@
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
+      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn)
       await require(fn).run()
     }
 

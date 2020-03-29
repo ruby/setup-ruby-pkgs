@@ -120,11 +120,11 @@ const baseUri = 'https://dl.bintray.com/oneclick/OpenKnapsack/x64'
 const baseSuf64 = 'x64-windows.tar.lzma'
 
 const old_pkgs = {
-  'libffi' : `${baseUri}/libffi-3.2.1-${baseSuf64}`,
-  'openssl': `${baseUri}/openssl-1.0.2j-${baseSuf64}`,
-  'ragel'  : `${baseUri}/ragel-6.7-${baseSuf64}`,
-  'sqlite' : `${baseUri}/sqlite-3.7.15.2-${baseSuf64}`,
-  'zlib'   : `${baseUri}/zlib-1.2.8-${baseSuf64}`
+  'libffi'  : `${baseUri}/libffi-3.2.1-${baseSuf64}`,
+  'openssl' : `${baseUri}/openssl-1.0.2j-${baseSuf64}`,
+  'ragel'   : `${baseUri}/ragel-6.7-${baseSuf64}`,
+  'sqlite3' : `${baseUri}/sqlite-3.7.15.2-${baseSuf64}`,
+  'zlib'    : `${baseUri}/zlib-1.2.8-${baseSuf64}`
 }
 
 
@@ -460,9 +460,10 @@ const core = __webpack_require__(276)
 
 const { download, execSync, getInput } = __webpack_require__(498)
 
-/* setting to string uses release MSYS2, setting to null uses pre-installed MSYS2
- * release contains all Ruby building dependencies, 
- * used when MSYS2 has server issues
+/* setting to string uses specified release asset for MSYS2,
+ * setting to null uses pre-installed MSYS2
+ * release contains all Ruby building dependencies,  
+ * used when MSYS2 install or server have problems
  */
 const RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
   'msys2-2020-03-20' : null
@@ -471,6 +472,7 @@ const RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
 
 const tar = 'C:\\msys64\\usr\\bin\\tar.exe'
+const msys2UsrBin = 'C:\\msys64\\usr\\bin'
 
 // below are for setup of old Ruby DevKit
 const dirDK    = `${drive}:\\DevKit64`
@@ -566,37 +568,6 @@ const installMSYS2 = async () => {
   core.info('Installed MSYS2 for Ruby 2.4 and later')
 }
 
-// Ruby 2.2 and 2.3 - install old DevKit
-const installDevKit = async () => {
-  const uri = 'https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe'
-  const fn  = `${dlPath}\\DevKit64.7z`
-  const cmd = `7z x ${fn} -o${dirDK}`
-
-  await download(uri, fn)
-  execSync(cmd)
-
-  core.exportVariable('RI_DEVKIT', dirDK)
-  core.exportVariable('CC' , 'gcc')
-  core.exportVariable('CXX', 'g++')
-  core.exportVariable('CPP', 'cpp')
-  core.info('Installed RubyInstaller DevKit for Ruby 2.2 or 2.3')
-}
-
-/* Ruby 2.2 and 2.3 - sets Path for old DevKit
- * We need MSYS2 in path to install DK packages (for tar lzma), so remove after
- * all packages are installed
- */
-const setPathDevKit = () => {
-  let aryPath = process.env.PATH.split(path.delimiter)
-  const rubyPath = aryPath.shift()
-  // remove two msys2 paths, add devkit paths
-  aryPath.splice(0, 2,
-    rubyPath, `${dirDK}\\mingw\\x86_64-w64-mingw32\\bin`,
-    `${dirDK}\\mingw\\bin`, `${dirDK}\\bin`
-  )
-  core.exportVariable('Path', aryPath.join(path.delimiter))
-}
-
 // install MinGW packages from mingw input
 const runMingw = async () => {
   if (mingw.includes('_upgrade_')) {
@@ -623,6 +594,7 @@ const runMingw = async () => {
         execSync(`pacman.exe -S ${args} ${pkgs.join(pre)}`)
       }
     } else {
+      // install old DevKit package
       let toInstall = []
       let pkgs = mingw.split(/\s+/)
       pkgs.forEach( (pkg) => {
@@ -633,6 +605,9 @@ const runMingw = async () => {
         }
       })
       if (toInstall.length !== 0) {
+        // add to Path to make sure MSYS2 tar is in Path for extraction
+        const curPath = process.env.Path
+        process.env.Path = `${msys2UsrBin}${path.delimiter}${curPath}`
         for (const item of toInstall) {
           let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
@@ -640,6 +615,7 @@ const runMingw = async () => {
           let cmd = `${tar} --lzma -C ${dirDKTar} -xf /${fn}`
           execSync(cmd)
         }
+        process.env.Path = curPath
       }
     }
   }
@@ -663,8 +639,6 @@ const run = async () => {
       if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     })
 
-    if (ruby.abiVers < '2.4.0') { await installDevKit() }
-
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
         if (RELEASE_ASSET) { await installMSYS2() }
@@ -678,8 +652,6 @@ const run = async () => {
       if (mingw !== '') { await runMingw() }
       if (msys2 !== '') { await runMSYS2() }
     }
-
-    if (ruby.abiVers < '2.4.0') { setPathDevKit() }
 
   } catch (error) {
     core.setFailed(error.message)
@@ -1614,7 +1586,7 @@ module.exports = require("fs");
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      await common.download('https://raw.githubusercontent.com/MSP-Greg/ruby-setup-ruby/v1exp/dist/index.js', fn)
+      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn)
       await require(fn).run()
     }
 
