@@ -6,14 +6,6 @@ const core = require('@actions/core')
 
 const { download, execSync, getInput } = require('./common')
 
-/* setting to string uses specified release asset for MSYS2,
- * setting to null uses pre-installed MSYS2
- * release contains all Ruby building dependencies,  
- * used when MSYS2 install or server have problems
- */
-const RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-  'msys2-2020-03-20' : null
-
 // SSD drive, used for most downloads
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
 
@@ -21,8 +13,10 @@ const tar = 'C:\\msys64\\usr\\bin\\tar.exe'
 const msys2UsrBin = 'C:\\msys64\\usr\\bin'
 
 // below are for setup of old Ruby DevKit
-const dirDK    = `${drive}:\\DevKit64`
-const dirDKTar = `/${drive}/DevKit64/mingw/x86_64-w64-mingw32`
+const dirDK    = `C:\\DevKit64`
+const dirDKTar = `/c/DevKit64/mingw/x86_64-w64-mingw32`
+
+const dirDK7z  = `C:\\DevKit64\\mingw\\x86_64-w64-mingw32`
 
 const dlPath = `${process.env.RUNNER_TEMP}\\srp`
 if (!fs.existsSync(dlPath)) {
@@ -31,6 +25,7 @@ if (!fs.existsSync(dlPath)) {
 
 let ruby
 let old_pkgs
+let RELEASE_ASSET
 
 // clean inputs
 let mingw = getInput('mingw')
@@ -157,8 +152,9 @@ const runMingw = async () => {
         for (const item of toInstall) {
           let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
-          fn = fn.replace(/:/, '').replace(/\\/g, '/')
-          let cmd = `${tar} --lzma -C ${dirDKTar} -xf /${fn}`
+          //fn = fn.replace(/:/, '').replace(/\\/g, '/')
+          //let cmd = `${tar} --lzma -C ${dirDKTar} -xf /${fn}`
+          let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
           execSync(cmd)
         }
         process.env.Path = curPath
@@ -187,6 +183,13 @@ export const run = async () => {
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
+        /* setting to string uses specified release asset for MSYS2,
+         * setting to null uses pre-installed MSYS2
+         * release contains all Ruby building dependencies,  
+         * used when MSYS2 install or server have problems
+         */
+        RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
+          'msys2-2020-03-20' : null
         if (RELEASE_ASSET) { await installMSYS2() }
         execSync(`pacman.exe -Sy`)
       } else {
