@@ -12,13 +12,13 @@ export const run = async () => {
     if (brew !== '') {
       if (brew.includes('_update_')) {
         execSync('brew update')
-        brew = brew.replace(/_update_/gi, '').trim()
+        brew = brew.replace(/\b_update_\b/gi, '').trim()
       }
       
       if (brew.includes('_upgrade_')) {
         execSync('brew update')
         execSync('brew upgrade')
-        brew = brew.replace(/_upgrade_/gi, '').trim()
+        brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
       }
       
       if (brew !== '') {

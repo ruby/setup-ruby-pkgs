@@ -12,13 +12,13 @@ export const run = async () => {
     if (apt !== '') {
       if (apt.includes('_update_')) {
         execSync('sudo apt-get -qy update')
-        apt = apt.replace(/_update_/gi, '').trim()
+        apt = apt.replace(/\b_update_\b/gi, '').trim()
       }
       
       if (apt.includes('_upgrade_')) {
         execSync('sudo apt-get -qy update')
         execSync('sudo apt-get -qy dist-upgrade')
-        apt = apt.replace(/_upgrade_/gi, '').trim()
+        apt = apt.replace(/\b_upgrade_\b/gi, '').trim()
       }
 
       if (apt !== '') {

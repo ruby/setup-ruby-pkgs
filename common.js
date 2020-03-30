@@ -69,4 +69,10 @@ export const execSync = (cmd) => {
   cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'inherit']})
 }
 
+export const execSyncQ = (cmd) => {
+  console.log(`[command]${cmd}`)
+  cp.execSync(cmd, {stdio: ['ignore', 'ignore', 'inherit']})
+  console.log('  Done')
+}
+
 export const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()

@@ -72,13 +72,13 @@ const run = async () => {
     if (apt !== '') {
       if (apt.includes('_update_')) {
         execSync('sudo apt-get -qy update')
-        apt = apt.replace(/_update_/gi, '').trim()
+        apt = apt.replace(/\b_update_\b/gi, '').trim()
       }
       
       if (apt.includes('_upgrade_')) {
         execSync('sudo apt-get -qy update')
         execSync('sudo apt-get -qy dist-upgrade')
-        apt = apt.replace(/_upgrade_/gi, '').trim()
+        apt = apt.replace(/\b_upgrade_\b/gi, '').trim()
       }
 
       if (apt !== '') {
@@ -368,6 +368,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "download", function() { return download; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSyncQ", function() { return execSyncQ; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
 
 
@@ -440,6 +441,12 @@ const execSync = (cmd) => {
   cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'inherit']})
 }
 
+const execSyncQ = (cmd) => {
+  console.log(`[command]${cmd}`)
+  cp.execSync(cmd, {stdio: ['ignore', 'ignore', 'inherit']})
+  console.log('  Done')
+}
+
 const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 
@@ -455,22 +462,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const fs   = __webpack_require__(747)
-const path = __webpack_require__(622)
 const core = __webpack_require__(276)
 
-const { download, execSync, getInput } = __webpack_require__(498)
+const { download, execSync, execSyncQ, getInput } = __webpack_require__(498)
 
-// SSD drive, used for most downloads
+// SSD drive, used for most downloads and MSYS
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
 
-const tar = 'C:\\msys64\\usr\\bin\\tar.exe'
-const msys2UsrBin = 'C:\\msys64\\usr\\bin'
-
-// below are for setup of old Ruby DevKit
-const dirDK    = `C:\\DevKit64`
-const dirDKTar = `/c/DevKit64/mingw/x86_64-w64-mingw32`
-
-const dirDK7z  = `C:\\DevKit64\\mingw\\x86_64-w64-mingw32`
+// location to extract old MSYS packages
+const dirDK7z  = `${drive}:\\DevKit64\\mingw\\x86_64-w64-mingw32`
 
 const dlPath = `${process.env.RUNNER_TEMP}\\srp`
 if (!fs.existsSync(dlPath)) {
@@ -486,6 +486,7 @@ let mingw = getInput('mingw')
 let msys2 = getInput('msys2')
 
 let pre // set in setRuby, ' mingw-w64-x86_64-' or ' mingw-w64-i686-'
+// standard pacman args
 const args  = '--noconfirm --noprogressbar --needed'
 
 // Not used. Installs packages stored in GitHub release.
@@ -535,7 +536,7 @@ const openssl = async () => {
     await download(uri, fn)
     execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
-    mingw = mingw.replace(/openssl/gi, '').trim()
+    mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
   }
 }
 
@@ -559,7 +560,7 @@ const installMSYS2 = async () => {
   const cmd = `7z x ${fn} -oC:\\`
   await download(`https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/${RELEASE_ASSET}/msys64.7z`, fn)
   fs.rmdirSync('C:\\msys64', { recursive: true })
-  execSync(cmd)
+  execSyncQ(cmd)
   core.info('Installed MSYS2 for Ruby 2.4 and later')
 }
 
@@ -567,7 +568,7 @@ const installMSYS2 = async () => {
 const runMingw = async () => {
   if (mingw.includes('_upgrade_')) {
     await updateGCC()
-    mingw = mingw.replace(/_upgrade_/g, '').trim()
+    mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
   }
 
   /* _msvc_ can be used when building mswin Rubies
@@ -600,18 +601,12 @@ const runMingw = async () => {
         }
       })
       if (toInstall.length !== 0) {
-        // add to Path to make sure MSYS2 tar is in Path for extraction
-        const curPath = process.env.Path
-        process.env.Path = `${msys2UsrBin}${path.delimiter}${curPath}`
         for (const item of toInstall) {
           let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
-          //fn = fn.replace(/:/, '').replace(/\\/g, '/')
-          //let cmd = `${tar} --lzma -C ${dirDKTar} -xf /${fn}`
           let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
-          execSync(cmd)
+          execSyncQ(cmd)
         }
-        process.env.Path = curPath
       }
     }
   }
@@ -1733,7 +1728,7 @@ const run = async () => {
       if (!choco.includes('openssl')) { choco += ' openssl' }
     }
 
-    if (mingw.includes('ragel')) {
+    if (mingw.includes('ragel') && !mswin.includes('ragel')) {
       execSync('pacman.exe -S --noconfirm --noprogressbar --needed mingw-w64-x86_64-ragel')
     }
 
@@ -1783,13 +1778,13 @@ const run = async () => {
     if (brew !== '') {
       if (brew.includes('_update_')) {
         execSync('brew update')
-        brew = brew.replace(/_update_/gi, '').trim()
+        brew = brew.replace(/\b_update_\b/gi, '').trim()
       }
       
       if (brew.includes('_upgrade_')) {
         execSync('brew update')
         execSync('brew upgrade')
-        brew = brew.replace(/_upgrade_/gi, '').trim()
+        brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
       }
       
       if (brew !== '') {

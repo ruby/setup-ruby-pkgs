@@ -24,7 +24,7 @@ export const run = async () => {
       if (!choco.includes('openssl')) { choco += ' openssl' }
     }
 
-    if (mingw.includes('ragel')) {
+    if (mingw.includes('ragel') && !mswin.includes('ragel')) {
       execSync('pacman.exe -S --noconfirm --noprogressbar --needed mingw-w64-x86_64-ragel')
     }
 
