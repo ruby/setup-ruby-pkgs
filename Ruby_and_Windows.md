@@ -41,7 +41,7 @@ Compiled with a set of gcc tools known as MSYS.  MSYS is no longer supported and
 
 [ruby/setup-ruby] adds all `ENV` information required to use the correct set of build tools.  Most of the below information is general background that pertains to local use.
 
-* MinGW Rubies include a file named `devkit.rb`.  Requiring it adds the build tools' locations to Path.  For CI, the locations are added by [ruby/setup-ruby](https://github.com/ruby/setup-ruby).
+* MinGW Rubies include a file named `devkit.rb`.  Requiring it adds the build tools' locations to Path.  For CI, the locations are added by [ruby/setup-ruby].
 
 * MinGW Rubies also include a file `rubygems/defaults/operating_system.rb`, which essentially performs the same function as `devkit.rb`.  When a gem needs to be compiled, it adds the builds tools to `ENV`.  It also adds the locations of the devkit package dlls to the dll library 'lookup resolution' chain.  This is done with a Windows specific system call.
 
@@ -52,17 +52,17 @@ Compiled with a set of gcc tools known as MSYS.  MSYS is no longer supported and
 
 ## MinGW builds - gcc compatibility
 
-Many Windows CI providers only have the most recent Ruby patch/teeny versions installed.  With GitHub Actions and [ruby/setup-ruby](https://github.com/ruby/setup-ruby), all Windows versions from Ruby 2.4 and later are available.  There may be compatibility issues when using a current MSYS2 gcc with older Ruby patch versions.
+Many Windows CI providers only have the most recent Ruby patch/teeny versions installed.  With GitHub Actions and [ruby/setup-ruby], all Windows versions from Ruby 2.4 and later are available.  There may be compatibility issues when using a current MSYS2 gcc with older Ruby patch versions.
 
-| gcc \\ ruby |  2.4   |  2.5   |  2.6   |  2.7   |
-|  :---:      | :---   | :---   | :---   |  :---  |
-| **6.3.0-3** | 2.4.1  |        |        |        |
-| **7.2.0-2** |        | 2.5.0  |        |        |
-| **8.2.1-1** |        |        | 2.6.0  |        |
-| **8.3.0-2** | 2.4.6  | 2.5.5  | 2.6.3  |        |
-| **9.2.0-1** | 2.4.7  | 2.5.6  | 2.6.4  |        |
-| **9.2.0-2** | 2.4.9  | 2.5.7  | 2.6.5  | 2.7.0  |
-
+| gcc \\ ruby |  2.4   |  2.5   |  2.6   |  2.7   | master |
+|  :---:      | :---   | :---   | :---   |  :---  |        |
+| **6.3.0-3** | 2.4.1  |        |        |        |        |
+| **7.2.0-2** |        | 2.5.0  |        |        |        |
+| **8.2.1-1** |        |        | 2.6.0  |        |        |
+| **8.3.0-2** | 2.4.6  | 2.5.5  | 2.6.3  |        |        |
+| **9.2.0-1** | 2.4.7  | 2.5.6  | 2.6.4  |        |        |
+| **9.2.0-2** | 2.4.9  | 2.5.7  | 2.6.5  | 2.7.0  |        |
+| **9.3.0-1** |        |        |        |        | mingw  |
 
 ## Windows OpenSSL
 

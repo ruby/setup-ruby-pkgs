@@ -1,6 +1,10 @@
+[ruby/setup-ruby]:https://github.com/ruby/setup-ruby
+
 # setup-ruby-pkgs
 
-Cross platform action for Ruby CI that configures build tools and installs packages needed for compiling.
+Cross platform action that installs Ruby, along with tools and packages needed for compiling.
+
+If you don't need any changes to tools or packages, please use [ruby/setup-ruby].
 
 The action's inputs are shown below:
 
@@ -23,7 +27,7 @@ All inputs are optional.
 
 ### ruby-version:
 
-Installs the Ruby version using the code from [ruby/setup-ruby](https://github.com/ruby/setup-ruby).  The available versions can be found in its [README](https://github.com/ruby/setup-ruby/blob/master/README.md#supported-versions).
+Installs the Ruby version using the code from [ruby/setup-ruby].  The available versions can be found in its [README](https://github.com/ruby/setup-ruby/blob/master/README.md#supported-versions).
 
 ### apt: (Ubuntu)
 
