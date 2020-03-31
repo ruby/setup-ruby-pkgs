@@ -165,9 +165,9 @@ export const run = async () => {
   try {
     // rename files that cause build conflicts with MSYS2
     let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
-    badFiles.forEach( (bad) => {
-      if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
-    })
+    // badFiles.forEach( (bad) => {
+    //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
+    // })
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
