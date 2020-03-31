@@ -12,6 +12,7 @@ The action's inputs are shown below:
 - uses: MSP-Greg/setup-ruby-pkgs@v1
   with:
     ruby-version:
+    bundler:
     apt:             # Ubuntu
     brew:            # macOS
     mingw:           # Windows mingw / mswin
@@ -28,6 +29,10 @@ All inputs are optional.
 ### ruby-version:
 
 Installs the Ruby version using the code from [ruby/setup-ruby].  The available versions can be found in its [README](https://github.com/ruby/setup-ruby/blob/master/README.md#supported-versions).
+
+### bundler:
+
+Installs Bundler using the code from [ruby/setup-ruby].
 
 ### apt: (Ubuntu)
 

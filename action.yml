@@ -4,7 +4,12 @@ author: 'MSP-Greg'
 inputs:
   ruby-version:
     description: 'Ruby version'
-    default: ''
+    required: false
+    default: 'default'
+  bundler:
+    description: 'The version of Bundler to install. Either none, 1, 2, latest or Gemfile.lock. The default tries Gemfile.lock and otherwise uses latest.'
+    required: false
+    default: 'default'
   apt-get:
     description: 'Ubuntu - install packages'
     default: ''
