@@ -32,13 +32,14 @@ export const run = async () => {
       execSync(`choco install --no-progress ${choco}`)
       if (choco.includes('openssl')) {
         fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
-        core.exportVariable('SSL_DIR', '--with-openssl-dir=C:\\openssl-win')
+        core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
       }
     }
 
     if (vcpkg !== '') {
       execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
-      core.exportVariable('OPT_DIR', `--with-opt-dir=${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows`)
+      const vcpkgRoot = process.env.VCPKG_INSTALLATION_ROOT.replace(/\\/g, '/')
+      core.exportVariable('OPT_DIR', `--with-opt-dir=${vcpkgRoot}/installed/x64-windows`)
       const vcpkgTools = `${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\tools`
       if (fs.existsSync(vcpkgTools) && fs.readdirSync(vcpkgTools).length >= 0) {
         core.addPath(vcpkgTools)

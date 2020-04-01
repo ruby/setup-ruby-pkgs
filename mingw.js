@@ -163,8 +163,9 @@ export const setRuby = (_ruby) => {
 
 export const run = async () => {
   try {
+    // 2020-04-01 setup-ruby sets ENV['MAKE'], not needed
     // rename files that cause build conflicts with MSYS2
-    let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
+    // let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
     // badFiles.forEach( (bad) => {
     //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     // })
