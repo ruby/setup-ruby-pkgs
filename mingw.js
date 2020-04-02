@@ -178,7 +178,7 @@ export const run = async () => {
          * used when MSYS2 install or server have problems
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-          'msys2-2020-03-20' : null
+          'msys2-2020-04-02' : null
         if (RELEASE_ASSET) { await installMSYS2() }
         execSync(`pacman.exe -Sy`)
       } else {

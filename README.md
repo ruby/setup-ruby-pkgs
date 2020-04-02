@@ -84,8 +84,8 @@ List of packages to install.  Space delimited.  Most packages are compiled with 
 ### vcpkg: (Windows)
 
 List of packages to install.  Space delimited.  All packages are compiled with msvc, so normally used with mswin builds.  An environment variable `OPT_DIR` is set to
-```
---with-opt-dir=${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows
+```ruby
+"--with-opt-dir=#{ENV['VCPKG_INSTALLATION_ROOT']}/installed/x64-windows"
 ```
 
 After install, the tools folder is checked, and if any files are present, it is added to path.
