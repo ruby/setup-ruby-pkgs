@@ -68,20 +68,36 @@ const { execSync } = __webpack_require__(498)
 let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 const run = async () => {
-  let needUpdate = true
   try {
     if (apt !== '') {
-      
-      if (apt.includes('_upgrade_')) {
-        execSync('sudo apt-get -qy update')
+
+      const opts = '-o Acquire::Retries=3'
+      let needUpdate  = true
+      let needUpgrade = true
+
+      if (/\b_update_\b/.test(apt)) {
+        execSync(`sudo apt-get ${opts} -qy update`)
+        apt = apt.replace(/\b_update_\b/gi, '').trim()
         needUpdate = false
-        execSync('sudo apt-get -qy dist-upgrade')
+      }
+
+      if (/\b_dist-upgrade_\b/.test(apt)) {
+        if (needUpdate) { execSync('sudo apt-get -qy update') }
+        execSync(`sudo apt-get ${opts} -qy dist-upgrade`)
+        needUpgrade = false
+        apt = apt.replace(/\b_dist-upgrade_\b/gi, '').trim()
+      }
+      
+      if (/\b_upgrade_\b/.test(apt)) {
+        if (needUpgrade) {
+          if (needUpdate) { execSync(`sudo apt-get ${opts} -qy update`) }
+          execSync(`sudo apt-get ${opts} -qy upgrade`)
+        }
         apt = apt.replace(/\b_upgrade_\b/gi, '').trim()
       }
 
       if (apt !== '') {
-        if (needUpdate) { execSync('sudo apt-get -qy update') }
-        execSync(`sudo apt-get -qy --no-install-recommends install ${apt}`)
+        execSync(`sudo apt-get ${opts} -qy --no-install-recommends install ${apt}`)
       }
     }
   } catch (error) {
@@ -1777,20 +1793,20 @@ let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerC
 const run = async () => {
   try {
     if (brew !== '') {
-      if (brew.includes('_update_')) {
+      let needUpdate = true
+
+      if (/\b_update_\b/.test(brew)) {
         execSync('brew update')
+        needUpdate = false
         brew = brew.replace(/\b_update_\b/gi, '').trim()
       }
-      
-      if (brew.includes('_upgrade_')) {
-        execSync('brew update')
-        execSync('brew upgrade')
+
+      if (/\b_upgrade_\b/.test(brew)) {
+        if (needUpdate) { execSync('brew update') }
         brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
       }
-      
-      if (brew !== '') {
-        execSync(`brew install ${brew}`)
-      }
+
+      if (brew !== '') { execSync(`brew install ${brew}`) }
     }
   } catch (error) {
     core.setFailed(error.message)

@@ -10,20 +10,20 @@ let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerC
 export const run = async () => {
   try {
     if (brew !== '') {
-      if (brew.includes('_update_')) {
+      let needUpdate = true
+
+      if (/\b_update_\b/.test(brew)) {
         execSync('brew update')
+        needUpdate = false
         brew = brew.replace(/\b_update_\b/gi, '').trim()
       }
-      
-      if (brew.includes('_upgrade_')) {
-        execSync('brew update')
-        execSync('brew upgrade')
+
+      if (/\b_upgrade_\b/.test(brew)) {
+        if (needUpdate) { execSync('brew update') }
         brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
       }
-      
-      if (brew !== '') {
-        execSync(`brew install ${brew}`)
-      }
+
+      if (brew !== '') { execSync(`brew install ${brew}`) }
     }
   } catch (error) {
     core.setFailed(error.message)
