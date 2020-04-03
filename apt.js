@@ -8,20 +8,19 @@ const { execSync } = require('./common')
 let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 export const run = async () => {
+  let needUpdate = true
   try {
     if (apt !== '') {
-      if (apt.includes('_update_')) {
-        execSync('sudo apt-get -qy update')
-        apt = apt.replace(/\b_update_\b/gi, '').trim()
-      }
       
       if (apt.includes('_upgrade_')) {
         execSync('sudo apt-get -qy update')
+        needUpdate = false
         execSync('sudo apt-get -qy dist-upgrade')
         apt = apt.replace(/\b_upgrade_\b/gi, '').trim()
       }
 
       if (apt !== '') {
+        if (needUpdate) { execSync('sudo apt-get -qy update') }
         execSync(`sudo apt-get -qy --no-install-recommends install ${apt}`)
       }
     }

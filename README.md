@@ -36,7 +36,7 @@ Installs Bundler using the code from [ruby/setup-ruby].
 
 ### apt: (Ubuntu)
 
-List of packages to install.  Space delimited. Special options are `_update_` and `_upgrade_`.
+List of packages to install.  Space delimited. Including `_upgrade_` will do so.  `update` is always done.
 
 ### brew: (macOS)
 
