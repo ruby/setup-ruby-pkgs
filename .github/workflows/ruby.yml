@@ -44,7 +44,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ windows ]
-        # ruby: [ ruby-head, mingw, mswin, 2.4, 2.2 ]
         ruby: [ mswin, mingw, 2.5, 2.4, 2.3, 2.2 ]
     runs-on: ${{ matrix.os }}-latest
     steps:

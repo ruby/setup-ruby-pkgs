@@ -70,8 +70,8 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers === '2.4.0') {
-    const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.t-1-any.pkg.tar.xz`
-    const fn = `${dlPath}\\ri2.tar.xz`
+    const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
+    const fn = `${dlPath}\\ri2.tar.zst`
     await download(uri, fn)
     execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
