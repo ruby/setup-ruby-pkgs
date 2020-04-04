@@ -62,7 +62,10 @@ __webpack_require__.r(__webpack_exports__);
 
 const core = __webpack_require__(276)
 
-const { execSync } = __webpack_require__(498)
+const { execSync, grpSt, grpEnd } = __webpack_require__(498)
+
+// group start time
+let msSt
 
 // clean inputs
 let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
@@ -76,28 +79,36 @@ const run = async () => {
       let needUpgrade = true
 
       if (/\b_update_\b/.test(apt)) {
+        msSt = grpSt('apt-get update')
         execSync(`sudo apt-get ${opts} -qy update`)
+        grpEnd(msSt)
         apt = apt.replace(/\b_update_\b/gi, '').trim()
         needUpdate = false
       }
 
       if (/\b_dist-upgrade_\b/.test(apt)) {
+        msSt = grpSt('apt-get dist-upgrade')
         if (needUpdate) { execSync('sudo apt-get -qy update') }
         execSync(`sudo apt-get ${opts} -qy dist-upgrade`)
+        grpEnd(msSt)
         needUpgrade = false
         apt = apt.replace(/\b_dist-upgrade_\b/gi, '').trim()
       }
       
       if (/\b_upgrade_\b/.test(apt)) {
         if (needUpgrade) {
+          msSt = grpSt('apt-get upgrade')
           if (needUpdate) { execSync(`sudo apt-get ${opts} -qy update`) }
           execSync(`sudo apt-get ${opts} -qy upgrade`)
+        grpEnd(msSt)
         }
         apt = apt.replace(/\b_upgrade_\b/gi, '').trim()
       }
 
       if (apt !== '') {
+        msSt = grpSt(`apt-get ${apt}`)
         execSync(`sudo apt-get ${opts} -qy --no-install-recommends install ${apt}`)
+        grpEnd(msSt)
       }
     }
   } catch (error) {
@@ -384,6 +395,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSyncQ", function() { return execSyncQ; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpSt", function() { return grpSt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpEnd", function() { return grpEnd; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
 
 
@@ -393,9 +406,11 @@ const path  = __webpack_require__(622)
 const core  = __webpack_require__(276)
 const httpc = __webpack_require__(553)
 
+const { performance } = __webpack_require__(630)
+
+const yel = '\x1b[33m'
 const blu = '\x1b[94m'                     // eslint-disable-line no-unused-vars
-const yel = '\x1b[33m'                     // eslint-disable-line no-unused-vars
-const rst = '\x1b[0m'                      // eslint-disable-line no-unused-vars
+const rst = '\x1b[0m'
 
 const download = async (uri, dest) => {
   // make sure the folder exists
@@ -462,6 +477,16 @@ const execSyncQ = (cmd) => {
   console.log('  Done')
 }
 
+const grpSt = (desc) => {
+  console.log(`##[group]${yel}${desc}${rst}`)
+  return performance.now()
+}
+
+const grpEnd = (msSt) => {
+  const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+  console.log(`::[endgroup]\n  time: ${timeStr} s`)
+}
+
 const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 
@@ -479,7 +504,13 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { download, execSync, execSyncQ, getInput } = __webpack_require__(498)
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput } = __webpack_require__(498)
+
+// group start time
+let msSt
+
+// used to only update MSYS2 database (y parameter) once
+let msys2Sync = '-Sy'
 
 // SSD drive, used for most downloads and MSYS
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
@@ -548,9 +579,11 @@ const openssl = async () => {
   if (ruby.abiVers === '2.4.0') {
     const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
     const fn = `${dlPath}\\ri2.tar.zst`
+    msSt = grpSt('install 2.4 OpenSSL')
     await download(uri, fn)
     execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+    grpEnd(msSt)
     mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
   }
 }
@@ -560,9 +593,10 @@ const updateGCC = async () => {
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
   
   if (ruby.abiVers >= '2.4') {
-    core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
+    msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    execSync(`pacman.exe -S ${args} ${gccPkgs.join(pre)}`)
+    execSync(`pacman.exe ${msys2Sync} ${args} ${gccPkgs.join(pre)}`)
+    grpEnd(msSt)
   }
 
   // await require('./mingw_gcc').run(ruby.vers)
@@ -583,6 +617,7 @@ const installMSYS2 = async () => {
 const runMingw = async () => {
   if (mingw.includes('_upgrade_')) {
     await updateGCC()
+    msys2Sync = '-S'
     mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
   }
 
@@ -602,10 +637,13 @@ const runMingw = async () => {
       if (mingw !== '') {
         let pkgs = mingw.split(/\s+/)
         pkgs.unshift('')
-        execSync(`pacman.exe -S ${args} ${pkgs.join(pre)}`)
+        const list = pkgs.join(pre).trim()
+        msSt = grpSt(`pacman.exe -S ${list}`)
+        execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
+        grpEnd(msSt)
       }
     } else {
-      // install old DevKit package
+      // install old DevKit packages
       let toInstall = []
       let pkgs = mingw.split(/\s+/)
       pkgs.forEach( (pkg) => {
@@ -616,12 +654,15 @@ const runMingw = async () => {
         }
       })
       if (toInstall.length !== 0) {
+        const list = toInstall.map(item => item.pkg).join(' ')
+        msSt = grpSt(`installing MSYS packages: ${list}`)
         for (const item of toInstall) {
           let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
           let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
           execSyncQ(cmd)
         }
+        grpEnd(msSt)
       }
     }
   }
@@ -629,7 +670,9 @@ const runMingw = async () => {
 
 // install MSYS2 packages from mys2 input
 const runMSYS2 = async () => {
-  execSync(`pacman.exe -S ${args} ${msys2}`)
+  msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2}`)
+  execSync(`pacman.exe ${msys2Sync} ${args} ${msys2}`)
+  grpEnd(msSt)
 }
 
 const setRuby = (_ruby) => {
@@ -655,8 +698,11 @@ const run = async () => {
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
           'msys2-2020-04-02' : null
-        if (RELEASE_ASSET) { await installMSYS2() }
-        execSync(`pacman.exe -Sy`)
+        if (RELEASE_ASSET) {
+          msSt = grpSt('Updating MSYS2')
+          await installMSYS2()
+          grpEnd(msSt)
+        }
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
         old_pkgs = __webpack_require__(169).old_pkgs
@@ -1561,6 +1607,13 @@ module.exports = require("path");
 
 /***/ }),
 
+/***/ 630:
+/***/ (function(module) {
+
+module.exports = require("perf_hooks");
+
+/***/ }),
+
 /***/ 631:
 /***/ (function(module) {
 
@@ -1723,7 +1776,10 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { execSync, getInput } = __webpack_require__(498)
+const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(498)
+
+// group start time
+let msSt
 
 let mingw = getInput('mingw')  // only parsed for openssl
 let mswin = getInput('mswin')
@@ -1737,26 +1793,34 @@ const setRuby = (_ruby) => { ruby = _ruby }
 const run = async () => {
   try {
     if (mswin !== '') {
-      execSync(`pacman.exe -S --noconfirm --noprogressbar --needed ${mswin}`)
+      if (mingw.includes('ragel') && !mswin.includes('ragel')) {
+        mswin += ' mingw-w64-x86_64-ragel'
+        mswin = mswin.trim()
+      }
+      msSt = grpSt(`install msys2 packages: ${mswin}`)
+      execSync(`pacman.exe -Sy --noconfirm --noprogressbar --needed ${mswin}`)
+      grpEnd(msSt)
     }
 
     if (mingw.includes('openssl')) {
-      if (!choco.includes('openssl')) { choco += ' openssl' }
-    }
-
-    if (mingw.includes('ragel') && !mswin.includes('ragel')) {
-      execSync('pacman.exe -S --noconfirm --noprogressbar --needed mingw-w64-x86_64-ragel')
+      if (!choco.includes('openssl')) {
+        choco += ' openssl'
+        choco = choco.trim()        
+      }
     }
 
     if (choco !== '') {
+      msSt = grpSt(`choco install ${choco}`)
       execSync(`choco install --no-progress ${choco}`)
       if (choco.includes('openssl')) {
         fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
         core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
       }
+      grpEnd(msSt)
     }
 
     if (vcpkg !== '') {
+      msSt = grpSt(`vcpkg --triplet x64-windows install ${vcpkg}`)
       execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
       const vcpkgRoot = process.env.VCPKG_INSTALLATION_ROOT.replace(/\\/g, '/')
       core.exportVariable('OPT_DIR', `--with-opt-dir=${vcpkgRoot}/installed/x64-windows`)
@@ -1765,8 +1829,8 @@ const run = async () => {
         core.addPath(vcpkgTools)
         console.log(`Added to Path: ${vcpkgTools}`)
       }
+      grpEnd(msSt)
     }
-
   } catch (error) {
     core.setFailed(error.message)
   }
@@ -1785,7 +1849,10 @@ __webpack_require__.r(__webpack_exports__);
 
 const core = __webpack_require__(276)
 
-const { execSync } = __webpack_require__(498)
+const { execSync, grpSt, grpEnd } = __webpack_require__(498)
+
+// group start time
+let msSt
 
 // clean inputs
 let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
@@ -1796,17 +1863,26 @@ const run = async () => {
       let needUpdate = true
 
       if (/\b_update_\b/.test(brew)) {
+        msSt = grpSt('brew update')
         execSync('brew update')
+        grpEnd(msSt)
         needUpdate = false
         brew = brew.replace(/\b_update_\b/gi, '').trim()
       }
 
       if (/\b_upgrade_\b/.test(brew)) {
+        msSt = grpSt('brew upgrade')
         if (needUpdate) { execSync('brew update') }
+        execSync('brew upgrade')
+        grpEnd(msSt)
         brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
       }
 
-      if (brew !== '') { execSync(`brew install ${brew}`) }
+      if (brew !== '') {
+        msSt = grpSt(`brew install ${brew}`)
+          execSync(`brew install ${brew}`)
+        grpEnd(msSt)
+      }
     }
   } catch (error) {
     core.setFailed(error.message)

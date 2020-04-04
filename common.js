@@ -6,9 +6,11 @@ const path  = require('path')
 const core  = require('@actions/core')
 const httpc = require('@actions/http-client')
 
+const { performance } = require('perf_hooks')
+
+const yel = '\x1b[33m'
 const blu = '\x1b[94m'                     // eslint-disable-line no-unused-vars
-const yel = '\x1b[33m'                     // eslint-disable-line no-unused-vars
-const rst = '\x1b[0m'                      // eslint-disable-line no-unused-vars
+const rst = '\x1b[0m'
 
 export const download = async (uri, dest) => {
   // make sure the folder exists
@@ -73,6 +75,16 @@ export const execSyncQ = (cmd) => {
   console.log(`[command]${cmd}`)
   cp.execSync(cmd, {stdio: ['ignore', 'ignore', 'inherit']})
   console.log('  Done')
+}
+
+export const grpSt = (desc) => {
+  console.log(`##[group]${yel}${desc}${rst}`)
+  return performance.now()
+}
+
+export const grpEnd = (msSt) => {
+  const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+  console.log(`::[endgroup]\n  time: ${timeStr} s`)
 }
 
 export const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()

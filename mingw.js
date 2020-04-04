@@ -3,7 +3,13 @@
 const fs   = require('fs')
 const core = require('@actions/core')
 
-const { download, execSync, execSyncQ, getInput } = require('./common')
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput } = require('./common')
+
+// group start time
+let msSt
+
+// used to only update MSYS2 database (y parameter) once
+let msys2Sync = '-Sy'
 
 // SSD drive, used for most downloads and MSYS
 const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
@@ -72,9 +78,11 @@ const openssl = async () => {
   if (ruby.abiVers === '2.4.0') {
     const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
     const fn = `${dlPath}\\ri2.tar.zst`
+    msSt = grpSt('install 2.4 OpenSSL')
     await download(uri, fn)
     execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+    grpEnd(msSt)
     mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
   }
 }
@@ -84,9 +92,10 @@ const updateGCC = async () => {
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
   
   if (ruby.abiVers >= '2.4') {
-    core.info(`********** Upgrading gcc for Ruby ${ruby.vers}`)
+    msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    execSync(`pacman.exe -S ${args} ${gccPkgs.join(pre)}`)
+    execSync(`pacman.exe ${msys2Sync} ${args} ${gccPkgs.join(pre)}`)
+    grpEnd(msSt)
   }
 
   // await require('./mingw_gcc').run(ruby.vers)
@@ -107,6 +116,7 @@ const installMSYS2 = async () => {
 const runMingw = async () => {
   if (mingw.includes('_upgrade_')) {
     await updateGCC()
+    msys2Sync = '-S'
     mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
   }
 
@@ -126,10 +136,13 @@ const runMingw = async () => {
       if (mingw !== '') {
         let pkgs = mingw.split(/\s+/)
         pkgs.unshift('')
-        execSync(`pacman.exe -S ${args} ${pkgs.join(pre)}`)
+        const list = pkgs.join(pre).trim()
+        msSt = grpSt(`pacman.exe -S ${list}`)
+        execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
+        grpEnd(msSt)
       }
     } else {
-      // install old DevKit package
+      // install old DevKit packages
       let toInstall = []
       let pkgs = mingw.split(/\s+/)
       pkgs.forEach( (pkg) => {
@@ -140,12 +153,15 @@ const runMingw = async () => {
         }
       })
       if (toInstall.length !== 0) {
+        const list = toInstall.map(item => item.pkg).join(' ')
+        msSt = grpSt(`installing MSYS packages: ${list}`)
         for (const item of toInstall) {
           let fn = `${dlPath}\\${item.pkg}.tar.lzma`
           await download(item.uri, fn)
           let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
           execSyncQ(cmd)
         }
+        grpEnd(msSt)
       }
     }
   }
@@ -153,7 +169,9 @@ const runMingw = async () => {
 
 // install MSYS2 packages from mys2 input
 const runMSYS2 = async () => {
-  execSync(`pacman.exe -S ${args} ${msys2}`)
+  msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2}`)
+  execSync(`pacman.exe ${msys2Sync} ${args} ${msys2}`)
+  grpEnd(msSt)
 }
 
 export const setRuby = (_ruby) => {
@@ -179,8 +197,11 @@ export const run = async () => {
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
           'msys2-2020-04-02' : null
-        if (RELEASE_ASSET) { await installMSYS2() }
-        execSync(`pacman.exe -Sy`)
+        if (RELEASE_ASSET) {
+          msSt = grpSt('Updating MSYS2')
+          await installMSYS2()
+          grpEnd(msSt)
+        }
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
         old_pkgs = require('./open_knapsack_pkgs').old_pkgs
