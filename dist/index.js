@@ -397,6 +397,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSyncQ", function() { return execSyncQ; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpSt", function() { return grpSt; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpEnd", function() { return grpEnd; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "log", function() { return log; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
 
 
@@ -408,17 +409,19 @@ const httpc = __webpack_require__(553)
 
 const { performance } = __webpack_require__(630)
 
-const yel = '\x1b[33m'
-const blu = '\x1b[94m'                     // eslint-disable-line no-unused-vars
+const colors = {
+  'yel': '\x1b[33m',
+  'blu': '\x1b[94m'
+}
 const rst = '\x1b[0m'
 
-const download = async (uri, dest) => {
+const download = async (uri, dest, log = true) => {
   // make sure the folder exists
   if (!fs.existsSync(path.dirname(dest))) {
     fs.mkdirSync(path.dirname(dest), { recursive: true })
   }
 
-  console.log(`[command]Downloading:\n  ${uri}`)
+  if (log) { console.log(`[command]Downloading:\n  ${uri}`) }
 
   const http = new httpc.HttpClient('MSP-Greg', [], {
     allowRetries: true,
@@ -478,13 +481,17 @@ const execSyncQ = (cmd) => {
 }
 
 const grpSt = (desc) => {
-  console.log(`##[group]${yel}${desc}${rst}`)
+  console.log(`##[group]${colors['yel']}${desc}${rst}`)
   return performance.now()
 }
 
 const grpEnd = (msSt) => {
   const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
-  console.log(`::[endgroup]\n  time: ${timeStr} s`)
+  console.log(`::[endgroup]\n  took ${timeStr} s`)
+}
+
+const log = (logText, color = 'yel') => {
+  console.log(`${colors[color]}${logText}${rst}`)
 }
 
 const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
@@ -1644,6 +1651,8 @@ module.exports = require("fs");
 (async () => {
   const core = __webpack_require__(276)
 
+  const { performance } = __webpack_require__(630)
+
   const common = __webpack_require__(498)
 
   const platform = __webpack_require__(87).platform()
@@ -1657,8 +1666,12 @@ module.exports = require("fs");
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn)
+      common.log('  Running ruby/setup-ruby')
+      const msSt = performance.now()
+      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn, false)
       await require(fn).run()
+      const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+      console.log(`  took ${timeStr} s`)
     }
 
     let runner

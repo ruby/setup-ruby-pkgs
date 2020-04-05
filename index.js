@@ -3,6 +3,8 @@
 (async () => {
   const core = require('@actions/core')
 
+  const { performance } = require('perf_hooks')
+
   const common = require('./common')
 
   const platform = require('os').platform()
@@ -16,8 +18,12 @@
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn)
+      common.log('  Running ruby/setup-ruby')
+      const msSt = performance.now()
+      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn, false)
       await require(fn).run()
+      const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+      console.log(`  took ${timeStr} s`)
     }
 
     let runner

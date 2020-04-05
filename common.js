@@ -8,17 +8,19 @@ const httpc = require('@actions/http-client')
 
 const { performance } = require('perf_hooks')
 
-const yel = '\x1b[33m'
-const blu = '\x1b[94m'                     // eslint-disable-line no-unused-vars
+const colors = {
+  'yel': '\x1b[33m',
+  'blu': '\x1b[94m'
+}
 const rst = '\x1b[0m'
 
-export const download = async (uri, dest) => {
+export const download = async (uri, dest, log = true) => {
   // make sure the folder exists
   if (!fs.existsSync(path.dirname(dest))) {
     fs.mkdirSync(path.dirname(dest), { recursive: true })
   }
 
-  console.log(`[command]Downloading:\n  ${uri}`)
+  if (log) { console.log(`[command]Downloading:\n  ${uri}`) }
 
   const http = new httpc.HttpClient('MSP-Greg', [], {
     allowRetries: true,
@@ -78,13 +80,17 @@ export const execSyncQ = (cmd) => {
 }
 
 export const grpSt = (desc) => {
-  console.log(`##[group]${yel}${desc}${rst}`)
+  console.log(`##[group]${colors['yel']}${desc}${rst}`)
   return performance.now()
 }
 
 export const grpEnd = (msSt) => {
   const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
-  console.log(`::[endgroup]\n  time: ${timeStr} s`)
+  console.log(`::[endgroup]\n  took ${timeStr} s`)
+}
+
+export const log = (logText, color = 'yel') => {
+  console.log(`${colors[color]}${logText}${rst}`)
 }
 
 export const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
