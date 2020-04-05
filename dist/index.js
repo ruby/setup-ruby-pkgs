@@ -1649,7 +1649,11 @@ module.exports = require("fs");
   const platform = __webpack_require__(87).platform()
 
   try {
-    console.log(`*** Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+    if (platform !== 'darwin') {
+      console.log(`Image tag: https://github.com/actions/virtual-environments/tree/${process.env.ImageOS}/${process.env.ImageVersion}`)
+    } else {
+      console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+    }
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
