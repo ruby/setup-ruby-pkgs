@@ -68,7 +68,7 @@ Many Windows CI providers only have the most recent Ruby patch/teeny versions in
 |             |        |        | 2.6.3  |        |        |
 | **9.2.0-1** | 2.4.7  | 2.5.6  | 2.6.4  |        |        |
 | **9.2.0-2** | 2.4.9  | 2.5.7  | 2.6.5  | 2.7.0  |        |
-| **9.3.0-1** |        |        |        |        | mingw  |
+| **9.3.0-1** | 2.4.10 | 2.5.8  | 2.6.6  | 2.7.1  | mingw  |
 
 ## Windows OpenSSL
 
@@ -78,12 +78,12 @@ The following lists the OpenSSL versions used for the most recent release:
 |   :---:   |  :---:  |  :---:    |
 | **2.2**   | 1.0.2j  | MSYS gcc  |
 | **2.3**   | 1.0.2j  | MSYS gcc  |
-| **2.4**   | 1.0.2t  | MSYS2 gcc |
-| **2.5**   | 1.1.1*  | MSYS2 gcc |
-| **2.6**   | 1.1.1*  | MSYS2 gcc |
-| **2.7**   | 1.1.1*  | MSYS2 gcc |
-| **mingw** | 1.1.1*  | MSYS2 gcc |
-| **mswin** | 1.1.1*  | msvc      |
+| **2.4**   | 1.0.2u  | MSYS2 gcc |
+| **2.5**   | 1.1.1f  | MSYS2 gcc |
+| **2.6**   | 1.1.1f  | MSYS2 gcc |
+| **2.7**   | 1.1.1f  | MSYS2 gcc |
+| **mingw** | 1.1.1f  | MSYS2 gcc |
+| **mswin** | 1.1.1f  | msvc      |
 
 On the mswin platform, `openssl` can used in either the `mingw:` input or the `choco:` input, both will install an msvc OpenSSL build.
 

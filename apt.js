@@ -14,6 +14,12 @@ export const run = async () => {
   try {
     if (apt !== '') {
 
+      // fix for server timeout issues
+      msSt = grpSt('apt-get server fix')
+      apt += ' _update_'
+      execSync(`sudo sed -i 's/azure\\.//' /etc/apt/sources.list`)
+      grpEnd(msSt)
+
       const opts = '-o Acquire::Retries=3'
       let needUpdate  = true
       let needUpgrade = true

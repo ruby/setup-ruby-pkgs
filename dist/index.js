@@ -74,6 +74,12 @@ const run = async () => {
   try {
     if (apt !== '') {
 
+      // fix for server timeout issues
+      msSt = grpSt('apt-get server fix')
+      apt += ' _update_'
+      execSync(`sudo sed -i 's/azure\\.//' /etc/apt/sources.list`)
+      grpEnd(msSt)
+
       const opts = '-o Acquire::Retries=3'
       let needUpdate  = true
       let needUpgrade = true
@@ -1658,10 +1664,21 @@ module.exports = require("fs");
   const platform = __webpack_require__(87).platform()
 
   try {
-    if (platform !== 'darwin') {
-      console.log(`Image tag: https://github.com/actions/virtual-environments/tree/${process.env.ImageOS}/${process.env.ImageVersion}`)
-    } else {
-      console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+    const msgPre = 'Image info: https://github.com/actions/virtual-environments/tree/' +
+                   `${process.env.ImageOS}/${process.env.ImageVersion}`
+    switch (platform) {
+      case 'linux':
+        console.log(`${msgPre}/images/linux`)
+        break;
+      case 'win32':
+        console.log(`${msgPre}/images/win`)
+        break;
+      case 'darwin':
+        console.log('See https://github.com/actions/virtual-environments/commits/master/images/macos')
+        console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+        break;
+      default:
+        console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
     }
 
     if (core.getInput('ruby-version') !== '') {

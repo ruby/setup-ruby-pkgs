@@ -10,10 +10,21 @@
   const platform = require('os').platform()
 
   try {
-    if (platform !== 'darwin') {
-      console.log(`Image tag: https://github.com/actions/virtual-environments/tree/${process.env.ImageOS}/${process.env.ImageVersion}`)
-    } else {
-      console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+    const msgPre = 'Image info: https://github.com/actions/virtual-environments/tree/' +
+                   `${process.env.ImageOS}/${process.env.ImageVersion}`
+    switch (platform) {
+      case 'linux':
+        console.log(`${msgPre}/images/linux`)
+        break;
+      case 'win32':
+        console.log(`${msgPre}/images/win`)
+        break;
+      case 'darwin':
+        console.log('See https://github.com/actions/virtual-environments/commits/master/images/macos')
+        console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
+        break;
+      default:
+        console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
     }
 
     if (core.getInput('ruby-version') !== '') {
