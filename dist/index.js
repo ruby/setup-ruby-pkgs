@@ -711,7 +711,7 @@ const run = async () => {
          * used when MSYS2 install or server have problems
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-          'msys2-2020-04-02' : null
+          'msys2-2020-04-13' : null
         if (RELEASE_ASSET) {
           msSt = grpSt('Updating MSYS2')
           await installMSYS2()
@@ -1126,6 +1126,7 @@ var HttpCodes;
     HttpCodes[HttpCodes["RequestTimeout"] = 408] = "RequestTimeout";
     HttpCodes[HttpCodes["Conflict"] = 409] = "Conflict";
     HttpCodes[HttpCodes["Gone"] = 410] = "Gone";
+    HttpCodes[HttpCodes["TooManyRequests"] = 429] = "TooManyRequests";
     HttpCodes[HttpCodes["InternalServerError"] = 500] = "InternalServerError";
     HttpCodes[HttpCodes["NotImplemented"] = 501] = "NotImplemented";
     HttpCodes[HttpCodes["BadGateway"] = 502] = "BadGateway";
