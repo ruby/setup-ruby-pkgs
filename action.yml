@@ -10,6 +10,10 @@ inputs:
     description: 'The version of Bundler to install. Either none, 1, 2, latest or Gemfile.lock. The default tries Gemfile.lock and otherwise uses latest.'
     required: false
     default: 'default'
+  working-directory:
+    description: 'The working directory to use for resolving paths for .ruby-version, .tool-versions and Gemfile.lock.'
+    required: false
+    default: '.'
   apt-get:
     description: 'Ubuntu - install packages'
     default: ''
