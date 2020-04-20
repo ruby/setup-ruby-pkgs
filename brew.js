@@ -30,6 +30,13 @@ export const run = async () => {
         grpEnd(msSt)
         brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
       }
+      
+      if (/\b_link_\b/.test(brew)) {
+        msSt = grpSt('brew link')
+        execSync('brew link')
+        grpEnd(msSt)
+        brew = brew.replace(/\b_link_\b/gi, '').trim()
+      }
 
       if (brew !== '') {
         msSt = grpSt(`brew install ${brew}`)
