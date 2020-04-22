@@ -598,8 +598,8 @@ const openssl = async () => {
     execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
-    mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
   }
+  mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
 }
 
 // Updates MSYS2 MinGW gcc items
