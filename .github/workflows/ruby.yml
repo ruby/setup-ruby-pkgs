@@ -73,3 +73,6 @@ jobs:
           if ('${{ matrix.ruby }}' -ge '2.4') {
             ridk version
           }
+      - name: gem install openssl
+        if:   matrix.ruby >= '2.4'
+        run:  gem install openssl -N
