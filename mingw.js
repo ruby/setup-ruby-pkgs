@@ -12,7 +12,7 @@ let msSt
 let msys2Sync = '-Sy'
 
 // SSD drive, used for most downloads and MSYS
-const drive = (process.env['GITHUB_WORKSPACE'] || 'C')[0] 
+const drive = (process.env.GITHUB_WORKSPACE || 'C')[0] 
 
 // location to extract old MSYS packages
 const dirDK7z  = `${drive}:\\DevKit64\\mingw\\x86_64-w64-mingw32`
@@ -202,6 +202,12 @@ export const run = async () => {
           await installMSYS2()
           grpEnd(msSt)
         }
+
+        // add home directory for user
+        const dirHome = `C:\\msys64\\home\\${process.env.USERNAME}`
+        if (!fs.existsSync(dirHome)) {
+          fs.mkdirSync(dirHome, { recursive: true })
+        }  
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
         old_pkgs = require('./open_knapsack_pkgs').old_pkgs
