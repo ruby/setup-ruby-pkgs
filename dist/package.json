@@ -1,0 +1,28 @@
+{
+  "name": "setup-ruby-pkgs",
+  "version": "1.6.0",
+  "description": "Install packages and update builds tools for Ruby",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint *.js",
+    "package": "ncc build index.js -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MSP-Greg/setup-ruby-pkgs.git"
+  },
+  "keywords": [
+    "actions",
+    "ruby",
+    "setup",
+    "windows",
+    "mingw",
+    "mswin"
+  ],
+  "author": "MSP-Greg",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.3",
+    "@actions/http-client": "^1.0.8"
+  }
+}

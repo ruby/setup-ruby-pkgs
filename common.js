@@ -14,6 +14,8 @@ const colors = {
 }
 const rst = '\x1b[0m'
 
+export const version = JSON.parse(fs.readFileSync(`${__dirname}\\package.json`, 'utf8')).version
+
 export const download = async (uri, dest, log = true) => {
   // make sure the folder exists
   if (!fs.existsSync(path.dirname(dest))) {

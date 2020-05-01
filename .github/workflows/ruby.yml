@@ -74,5 +74,5 @@ jobs:
             ridk version
           }
       - name: gem install openssl
-        if:   (matrix.ruby >= '2.4') && (matrix.ruby != 'mswin')
+        if:   (matrix.ruby >= '2.4') && (matrix.ruby <= '3.2')
         run:  gem install openssl -N

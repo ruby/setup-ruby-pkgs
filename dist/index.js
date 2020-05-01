@@ -398,6 +398,7 @@ module.exports = require("assert");
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "version", function() { return version; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "download", function() { return download; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
@@ -421,6 +422,8 @@ const colors = {
   'blu': '\x1b[94m'
 }
 const rst = '\x1b[0m'
+
+const version = JSON.parse(fs.readFileSync(__webpack_require__.ab + "package.json", 'utf8')).version
 
 const download = async (uri, dest, log = true) => {
   // make sure the folder exists
@@ -711,7 +714,7 @@ const run = async () => {
          * used when MSYS2 install or server have problems
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-          'msys2-2020-04-22' : null
+          'msys2-2020-05-01' : null
         if (RELEASE_ASSET) {
           msSt = grpSt('Updating MSYS2')
           await installMSYS2()
@@ -1721,7 +1724,7 @@ module.exports = require("fs");
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      common.log('  Running ruby/setup-ruby')
+      common.log(`  Running ruby/setup-ruby ${common.version}`)
       const msSt = performance.now()
       await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn, false)
       await require(fn).run()
