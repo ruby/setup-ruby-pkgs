@@ -29,13 +29,15 @@
 
     if (core.getInput('ruby-version') !== '') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      common.log(`  Running ruby/setup-ruby ${common.version}`)
+      common.log('  Running ruby/setup-ruby')
       const msSt = performance.now()
       await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn, false)
       await require(fn).run()
       const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
       console.log(`  took ${timeStr} s`)
     }
+
+    common.log(`  Running MSP-Greg/setup-ruby-pkgs ${common.version}`)
 
     let runner
 
