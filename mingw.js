@@ -76,11 +76,11 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers === '2.4.0') {
-    const uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
-    const fn = `${dlPath}\\ri2.tar.zst`
+    let uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
+    let fn = `${dlPath}\\ri2.tar.zst`
     msSt = grpSt('install 2.4 OpenSSL')
     await download(uri, fn)
-    execSync(`pacman.exe -R --noconfirm --noprogressbar ${pre.trim()}openssl`)
+    await download(`${uri}.sig`, `${fn}.sig`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
