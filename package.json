@@ -1,6 +1,6 @@
 {
   "name": "setup-ruby-pkgs",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Install packages and update builds tools for Ruby",
   "main": "index.js",
   "scripts": {
