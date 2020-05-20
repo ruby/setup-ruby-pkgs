@@ -1,5 +1,8 @@
 # @MSP-Greg/setup-ruby-pkgs Releases
 
+### v1.10.0
+- [Update MSYS2 to 2020-05-20](https://github.com/MSP-Greg/setup-ruby-pkgs/commit/b5d86ae)
+
 ### v1.9.0
 - [Update MSYS2 to 2020-05-19](https://github.com/MSP-Greg/setup-ruby-pkgs/commit/8f95af8)
 
