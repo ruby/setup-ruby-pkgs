@@ -196,7 +196,7 @@ export const run = async () => {
          * used when MSYS2 install or server have problems
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-          'msys2-2020-05-19' : null
+          'msys2-2020-05-20' : null
         if (RELEASE_ASSET) {
           msSt = grpSt('Updating MSYS2')
           await installMSYS2()
