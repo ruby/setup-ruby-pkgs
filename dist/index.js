@@ -610,6 +610,14 @@ const openssl = async () => {
     let uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
     let fn = `${dlPath}\\ri2.tar.zst`
     msSt = grpSt('install 2.4 OpenSSL')
+
+    if (!RELEASE_ASSET) {
+      // appveyor ri2 package signing key
+      let key = 'F98B8484BE8BF1C5'
+      execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
+      execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
+    }
+
     await download(uri, fn)
     await download(`${uri}.sig`, `${fn}.sig`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
