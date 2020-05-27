@@ -12,7 +12,7 @@ let msSt
 let msys2Sync = '-Sy'
 
 // SSD drive, used for most downloads and MSYS
-const drive = (process.env.GITHUB_WORKSPACE || 'C')[0] 
+const drive = (process.env.GITHUB_WORKSPACE || 'C')[0]
 
 // location to extract old MSYS packages
 const dirDK7z  = `${drive}:\\DevKit64\\mingw\\x86_64-w64-mingw32`
@@ -20,7 +20,7 @@ const dirDK7z  = `${drive}:\\DevKit64\\mingw\\x86_64-w64-mingw32`
 const dlPath = `${process.env.RUNNER_TEMP}\\srp`
 if (!fs.existsSync(dlPath)) {
   fs.mkdirSync(dlPath, { recursive: true })
-}  
+}
 
 let ruby
 let old_pkgs
@@ -46,7 +46,7 @@ const install = async (pkg, release) => {  // eslint-disable-line no-unused-vars
   const dir = `${dlPath}\\msys2_gcc`
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })
-  }  
+  }
 
   let f = `${pre}${pkg}${suff}`
   await download(`${uri}/${f}`    , `${dir}\\${f}`)
@@ -98,7 +98,7 @@ const openssl = async () => {
 // Updates MSYS2 MinGW gcc items
 const updateGCC = async () => {
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-  
+
   if (ruby.abiVers >= '2.4') {
     msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
@@ -129,7 +129,7 @@ const runMingw = async () => {
   }
 
   /* _msvc_ can be used when building mswin Rubies
-   * when using an installed mingw Ruby, normally _update_ should be used
+   * when using an installed mingw Ruby, normally _upgrade_ should be used
    */
   if (mingw.includes('_msvc_')) {
     await require('./mswin').addVCVARSEnv()
@@ -140,7 +140,7 @@ const runMingw = async () => {
     if (ruby.abiVers >= '2.4.0') {
       if (mingw.includes('openssl')) {
         await openssl()
-      }   
+      }
       if (mingw !== '') {
         let pkgs = mingw.split(/\s+/)
         pkgs.unshift('')
@@ -184,7 +184,7 @@ const runMSYS2 = async () => {
 
 export const setRuby = (_ruby) => {
   ruby = _ruby
-  pre = (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'  
+  pre = (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
 }
 
 export const run = async () => {
@@ -200,7 +200,7 @@ export const run = async () => {
       if (ruby.abiVers >= '2.4.0') {
         /* setting to string uses specified release asset for MSYS2,
          * setting to null uses pre-installed MSYS2
-         * release contains all Ruby building dependencies,  
+         * release contains all Ruby building dependencies,
          * used when MSYS2 install or server have problems
          */
         RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
@@ -211,11 +211,6 @@ export const run = async () => {
           grpEnd(msSt)
         }
 
-        // add home directory for user
-        const dirHome = `C:\\msys64\\home\\${process.env.USERNAME}`
-        if (!fs.existsSync(dirHome)) {
-          fs.mkdirSync(dirHome, { recursive: true })
-        }  
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
         old_pkgs = require('./open_knapsack_pkgs').old_pkgs
@@ -224,6 +219,14 @@ export const run = async () => {
       // install user specificied packages
       if (mingw !== '') { await runMingw() }
       if (msys2 !== '') { await runMSYS2() }
+    }
+
+    if (ruby.abiVers >= '2.4.0') {
+      // add home directory for user
+      const dirHome = `C:\\msys64\\home\\${process.env.USERNAME}`
+      if (!fs.existsSync(dirHome)) {
+        fs.mkdirSync(dirHome, { recursive: true })
+      }
     }
 
   } catch (error) {
