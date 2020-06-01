@@ -102,7 +102,7 @@ const updateGCC = async () => {
   if (ruby.abiVers >= '2.4') {
     msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
     let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    execSync(`pacman.exe ${msys2Sync} ${args} ${gccPkgs.join(pre)}`)
+    execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
     grpEnd(msSt)
   }
 
