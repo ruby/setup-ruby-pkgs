@@ -27,7 +27,7 @@
         console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
     }
 
-    if (core.getInput('ruby-version') !== '') {
+    if (core.getInput('ruby-version') !== 'none') {
       const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
       common.log('  Running ruby/setup-ruby')
       console.log(`  pwd: ${process.cwd()}`)

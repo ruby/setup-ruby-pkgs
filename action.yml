@@ -1,17 +1,21 @@
 name: 'Setup Ruby Pkgs'
-description: 'Cross platform action for setting up Ruby build environments'
+description: 'Cross platform action for setting up Ruby build environments.  Runs ruby/setup-ruby, see input info'
 author: 'MSP-Greg'
 inputs:
   ruby-version:
-    description: 'Ruby version'
+    description: 'Used by ruby/setup-ruby.  Ruby version.  A value of "none" will bypass running ruby/setup-ruby'
     required: false
     default: 'default'
   bundler:
-    description: 'The version of Bundler to install. Either none, 1, 2, latest or Gemfile.lock. The default tries Gemfile.lock and otherwise uses latest.'
+    description: 'Used by ruby/setup-ruby.  The version of Bundler to install. Either none, 1, 2, latest or Gemfile.lock. The default tries Gemfile.lock and otherwise uses latest.'
     required: false
     default: 'default'
+  bundler-cache:
+    description: 'Used by ruby/setup-ruby.  Run "bundle install", and cache the result automatically. Either true or false.'
+    required: false
+    default: 'true'
   working-directory:
-    description: 'The working directory to use for resolving paths for .ruby-version, .tool-versions and Gemfile.lock.'
+    description: 'Used by ruby/setup-ruby.  The working directory to use for resolving paths for .ruby-version, .tool-versions and Gemfile.lock.'
     required: false
     default: '.'
   apt-get:
