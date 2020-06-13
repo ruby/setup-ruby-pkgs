@@ -3,7 +3,7 @@
 const fs   = require('fs')
 const core = require('@actions/core')
 
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput } = require('./common')
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = require('./common')
 
 // group start time
 let msSt
@@ -189,7 +189,6 @@ export const setRuby = (_ruby) => {
 
 export const run = async () => {
   try {
-    // 2020-04-01 setup-ruby sets ENV['MAKE'], not needed
     // rename files that cause build conflicts with MSYS2
     // let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
     // badFiles.forEach( (bad) => {
@@ -198,6 +197,21 @@ export const run = async () => {
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
+        // remove pacman CheckSpace, move cache dir to SSD
+        const conf_fn = 'C:\\msys64\\etc\\pacman.conf'
+        let conf      = fs.readFileSync(conf_fn, 'utf-8')
+        let cache_dir = `${process.env.RUNNER_TEMP}\\pacman\\pkg`
+
+        fs.mkdirSync(cache_dir, { recursive: true })
+
+        cache_dir = win2nix(cache_dir)
+
+        conf = conf.replace(/^CheckSpace/m, '#CheckSpace')
+        conf = conf.replace(/^#CacheDir( += )[^\n]+/m, (m, p1) => {
+          return `CacheDir ${p1}${cache_dir}`
+        })
+        fs.writeFileSync(conf_fn, conf, 'utf-8')
+
         /* setting to string uses specified release asset for MSYS2,
          * setting to null uses pre-installed MSYS2
          * release contains all Ruby building dependencies,

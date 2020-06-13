@@ -1,6 +1,6 @@
 {
   "name": "setup-ruby-pkgs",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Install packages and update builds tools for Ruby",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "ruby",
     "setup",
     "windows",
+    "msys2",
     "mingw",
     "mswin"
   ],

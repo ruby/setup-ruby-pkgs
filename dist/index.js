@@ -19,7 +19,13 @@ module.exports =
 /******/ 		};
 /******/
 /******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 		var threw = true;
+/******/ 		try {
+/******/ 			modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 			threw = false;
+/******/ 		} finally {
+/******/ 			if(threw) delete installedModules[moduleId];
+/******/ 		}
 /******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
@@ -420,6 +426,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpEnd", function() { return grpEnd; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "log", function() { return log; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "win2nix", function() { return win2nix; });
 
 
 const cp = __webpack_require__(129)
@@ -519,6 +526,12 @@ const log = (logText, color = 'yel') => {
 
 const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
+// convert windows path like C:\Users\runneradmin to /c/Users/runneradmin
+const win2nix = (path) => { 
+  return (/^[A-Z]:/i.test(path) ?
+    ('/' + path[0].toLowerCase() + path.split(':',2)[1]) :
+    path).replace(/\\/g, '/').replace(/ /g, '\\ ')
+}
 
 /***/ }),
 
@@ -534,7 +547,7 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput } = __webpack_require__(498)
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(498)
 
 // group start time
 let msSt
@@ -720,7 +733,6 @@ const setRuby = (_ruby) => {
 
 const run = async () => {
   try {
-    // 2020-04-01 setup-ruby sets ENV['MAKE'], not needed
     // rename files that cause build conflicts with MSYS2
     // let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
     // badFiles.forEach( (bad) => {
@@ -729,6 +741,21 @@ const run = async () => {
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
+        // remove pacman CheckSpace, move cache dir to SSD
+        const conf_fn = 'C:\\msys64\\etc\\pacman.conf'
+        let conf      = fs.readFileSync(conf_fn, 'utf-8')
+        let cache_dir = `${process.env.RUNNER_TEMP}\\pacman\\pkg`
+
+        fs.mkdirSync(cache_dir, { recursive: true })
+
+        cache_dir = win2nix(cache_dir)
+
+        conf = conf.replace(/^CheckSpace/m, '#CheckSpace')
+        conf = conf.replace(/^#CacheDir( += )[^\n]+/m, (m, p1) => {
+          return `CacheDir ${p1}${cache_dir}`
+        })
+        fs.writeFileSync(conf_fn, conf, 'utf-8')
+
         /* setting to string uses specified release asset for MSYS2,
          * setting to null uses pre-installed MSYS2
          * release contains all Ruby building dependencies,
@@ -1903,9 +1930,9 @@ let mswin = getInput('mswin')
 let choco = getInput('choco')
 let vcpkg = getInput('vcpkg')
 
-let ruby                                   // eslint-disable-line no-unused-vars
+let ruby
 
-const setRuby = (_ruby) => { ruby = _ruby }
+const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-vars
 
 const run = async () => {
   try {

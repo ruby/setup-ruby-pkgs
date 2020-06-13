@@ -13,9 +13,9 @@ let mswin = getInput('mswin')
 let choco = getInput('choco')
 let vcpkg = getInput('vcpkg')
 
-let ruby                                   // eslint-disable-line no-unused-vars
+let ruby
 
-export const setRuby = (_ruby) => { ruby = _ruby }
+export const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-vars
 
 export const run = async () => {
   try {

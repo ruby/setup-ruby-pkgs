@@ -9,9 +9,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu, macos ]
+        os: [ ubuntu-20.04, ubuntu-latest, macos-latest ]
         ruby: [ ruby-head, 2.7, 2.5, 2.2 ]
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
