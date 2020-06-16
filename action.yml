@@ -13,7 +13,7 @@ inputs:
   bundler-cache:
     description: 'Used by ruby/setup-ruby.  Run "bundle install", and cache the result automatically. Either true or false.'
     required: false
-    default: 'true'
+    default: 'false'
   working-directory:
     description: 'Used by ruby/setup-ruby.  The working directory to use for resolving paths for .ruby-version, .tool-versions and Gemfile.lock.'
     required: false
