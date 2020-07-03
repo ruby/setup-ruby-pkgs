@@ -55,6 +55,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           mingw: _upgrade_ openssl ragel
+          msys2: bison
           mswin: bison mingw-w64-x86_64-ragel
           vcpkg: readline
 
