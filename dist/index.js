@@ -643,12 +643,10 @@ const openssl = async () => {
 const updateGCC = async () => {
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
 
-  if (ruby.abiVers >= '2.4') {
-    msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
-    let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-    execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
-    grpEnd(msSt)
-  }
+  msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
+  let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+  execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
+  grpEnd(msSt)
 
   // await require('./mingw_gcc').run(ruby.vers)
 }
@@ -667,8 +665,10 @@ const installMSYS2 = async () => {
 // install MinGW packages from mingw input
 const runMingw = async () => {
   if (mingw.includes('_upgrade_')) {
-    await updateGCC()
-    msys2Sync = '-S'
+    if (ruby.abiVers >= '2.4') {
+      await updateGCC()
+      msys2Sync = '-S'
+    }
     mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
   }
 
@@ -725,8 +725,12 @@ const runMingw = async () => {
 
 // install MSYS2 packages from mys2 input
 const runMSYS2 = async () => {
+  let pacman = 'pacman.exe'
+  if (ruby.abiVers < '2.4.0') {
+    pacman = 'C:\\msys64\\usr\\bin\\pacman.exe'
+  }
   msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2}`)
-  execSync(`pacman.exe ${msys2Sync} ${args} ${msys2}`)
+  execSync(`${pacman} ${msys2Sync} ${args} ${msys2}`)
   grpEnd(msSt)
 }
 
