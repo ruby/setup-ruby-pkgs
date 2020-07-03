@@ -427,6 +427,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "log", function() { return log; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "win2nix", function() { return win2nix; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateKeyRing", function() { return updateKeyRing; });
 
 
 const cp = __webpack_require__(129)
@@ -527,11 +528,30 @@ const log = (logText, color = 'yel') => {
 const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
 
 // convert windows path like C:\Users\runneradmin to /c/Users/runneradmin
-const win2nix = (path) => { 
+const win2nix = (path) => {
   return (/^[A-Z]:/i.test(path) ?
     ('/' + path[0].toLowerCase() + path.split(':',2)[1]) :
     path).replace(/\\/g, '/').replace(/ /g, '\\ ')
 }
+
+const updateKeyRing = async (vers) => {
+  const dlPath = `${process.env.RUNNER_TEMP}\\srp`
+  const uri = `http://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.xz`
+  const fn = `${dlPath}\\key-ring.tar.xz`
+  const msSt = grpSt('install updated MSYS2 keyring')
+
+  await download(uri, fn)
+  await download(`${uri}.sig`, `${fn}.sig`)
+
+  const origPath = process.env.Path
+  process.env.Path = `C:\\msys64\\usr\\bin;C:\\msys64\\mingw64\\bin;${origPath}`
+
+  execSync(`C:\\msys64\\usr\\bin\\pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+  process.env['Path'] = origPath
+
+  grpEnd(msSt)
+}
+
 
 /***/ }),
 
@@ -547,7 +567,7 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(498)
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix, updateKeyRing } = __webpack_require__(498)
 
 // group start time
 let msSt
@@ -746,6 +766,8 @@ const run = async () => {
     // badFiles.forEach( (bad) => {
     //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     // })
+
+    await updateKeyRing('r21.b39fb11-1')
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
@@ -1928,7 +1950,7 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(498)
+const { execSync, grpSt, grpEnd, getInput, updateKeyRing } = __webpack_require__(498)
 
 // group start time
 let msSt
@@ -1945,6 +1967,8 @@ const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-var
 const run = async () => {
   try {
     if (mswin !== '') {
+      await updateKeyRing('r21.b39fb11-1')
+
       if (mingw.includes('ragel') && !mswin.includes('ragel')) {
         mswin += ' mingw-w64-x86_64-ragel'
         mswin = mswin.trim()

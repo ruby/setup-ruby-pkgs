@@ -3,7 +3,7 @@
 const fs   = require('fs')
 const core = require('@actions/core')
 
-const { execSync, grpSt, grpEnd, getInput } = require('./common')
+const { execSync, grpSt, grpEnd, getInput, updateKeyRing } = require('./common')
 
 // group start time
 let msSt
@@ -20,6 +20,8 @@ export const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unu
 export const run = async () => {
   try {
     if (mswin !== '') {
+      await updateKeyRing('r21.b39fb11-1')
+
       if (mingw.includes('ragel') && !mswin.includes('ragel')) {
         mswin += ' mingw-w64-x86_64-ragel'
         mswin = mswin.trim()

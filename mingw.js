@@ -3,7 +3,7 @@
 const fs   = require('fs')
 const core = require('@actions/core')
 
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = require('./common')
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix, updateKeyRing } = require('./common')
 
 // group start time
 let msSt
@@ -202,6 +202,8 @@ export const run = async () => {
     // badFiles.forEach( (bad) => {
     //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     // })
+
+    await updateKeyRing('r21.b39fb11-1')
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
