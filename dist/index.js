@@ -688,7 +688,11 @@ const runMingw = async () => {
       if (mingw !== '') {
         let pkgs = mingw.split(/\s+/)
         pkgs.unshift('')
-        const list = pkgs.join(pre).trim()
+        let list = pkgs.join(pre)
+        if (msys2 !== '') {
+          list += ' ' + msys2
+          msys2 = ''
+        }
         msSt = grpSt(`pacman.exe -S ${list}`)
         execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
         grpEnd(msSt)
