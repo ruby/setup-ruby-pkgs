@@ -567,7 +567,8 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix, updateKeyRing } = __webpack_require__(498)
+// , updateKeyRing
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(498)
 
 // group start time
 let msSt
@@ -767,7 +768,7 @@ const run = async () => {
     //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     // })
 
-    await updateKeyRing('r21.b39fb11-1')
+    // await updateKeyRing('r21.b39fb11-1')
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
@@ -1950,7 +1951,8 @@ __webpack_require__.r(__webpack_exports__);
 const fs   = __webpack_require__(747)
 const core = __webpack_require__(276)
 
-const { execSync, grpSt, grpEnd, getInput, updateKeyRing } = __webpack_require__(498)
+// , updateKeyRing
+const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(498)
 
 // group start time
 let msSt
@@ -1967,7 +1969,7 @@ const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-var
 const run = async () => {
   try {
     if (mswin !== '') {
-      await updateKeyRing('r21.b39fb11-1')
+      // await updateKeyRing('r21.b39fb11-1')
 
       if (mingw.includes('ragel') && !mswin.includes('ragel')) {
         mswin += ' mingw-w64-x86_64-ragel'
