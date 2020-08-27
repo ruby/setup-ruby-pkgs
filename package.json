@@ -23,7 +23,7 @@
   "author": "MSP-Greg",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.4",
+    "@actions/core": "^1.2.5",
     "@actions/http-client": "^1.0.8"
   }
 }
