@@ -9,7 +9,7 @@ const httpc = require('@actions/http-client')
 const { performance } = require('perf_hooks')
 
 const colors = {
-  'yel': '\x1b[33m',
+  'yel': '\x1b[93m',
   'blu': '\x1b[94m'
 }
 const rst = '\x1b[0m'

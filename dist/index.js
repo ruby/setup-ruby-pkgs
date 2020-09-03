@@ -1,74 +1,20 @@
 module.exports =
-/******/ (function(modules, runtime) { // webpackBootstrap
-/******/ 	"use strict";
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		var threw = true;
-/******/ 		try {
-/******/ 			modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 			threw = false;
-/******/ 		} finally {
-/******/ 			if(threw) delete installedModules[moduleId];
-/******/ 		}
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	__webpack_require__.ab = __dirname + "/";
-/******/
-/******/ 	// the startup function
-/******/ 	function startup() {
-/******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(758);
-/******/ 	};
-/******/ 	// initialize runtime
-/******/ 	runtime(__webpack_require__);
-/******/
-/******/ 	// run startup
-/******/ 	return startup();
-/******/ })
-/************************************************************************/
-/******/ ({
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-/***/ 16:
-/***/ (function(module) {
-
-module.exports = require("tls");
-
-/***/ }),
-
-/***/ 26:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ 256:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "run": () => /* binding */ run
+/* harmony export */ });
 
 
-const core = __webpack_require__(276)
+const core = __webpack_require__(487)
 
-const { execSync, grpSt, grpEnd } = __webpack_require__(498)
+const { execSync, grpSt, grpEnd } = __webpack_require__(732)
 
 // group start time
 let msSt
@@ -132,52 +78,746 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 87:
-/***/ (function(module) {
-
-module.exports = require("os");
-
-/***/ }),
-
-/***/ 129:
-/***/ (function(module) {
-
-module.exports = require("child_process");
-
-/***/ }),
-
-/***/ 169:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ 386:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "old_pkgs", function() { return old_pkgs; });
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "run": () => /* binding */ run
+/* harmony export */ });
 
 
-const baseUri = 'https://dl.bintray.com/oneclick/OpenKnapsack/x64'
+const core = __webpack_require__(487)
 
-const baseSuf64 = 'x64-windows.tar.lzma'
+const { execSync, grpSt, grpEnd } = __webpack_require__(732)
 
-const old_pkgs = {
-  'libffi'  : `${baseUri}/libffi-3.2.1-${baseSuf64}`,
-  'openssl' : `${baseUri}/openssl-1.0.2j-${baseSuf64}`,
-  'ragel'   : `${baseUri}/ragel-6.7-${baseSuf64}`,
-  'sqlite3' : `${baseUri}/sqlite-3.7.15.2-${baseSuf64}`,
-  'zlib'    : `${baseUri}/zlib-1.2.8-${baseSuf64}`
+// group start time
+let msSt
+
+// clean inputs
+let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
+
+const run = async () => {
+  try {
+    if (brew !== '') {
+      let needUpdate = true
+
+      if (/\b_update_\b/.test(brew)) {
+        msSt = grpSt('brew update')
+        execSync('brew update')
+        grpEnd(msSt)
+        needUpdate = false
+        brew = brew.replace(/\b_update_\b/gi, '').trim()
+      }
+
+      if (/\b_upgrade_\b/.test(brew)) {
+        msSt = grpSt('brew upgrade')
+        if (needUpdate) { execSync('brew update') }
+        execSync('brew upgrade')
+        grpEnd(msSt)
+        brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
+      }
+
+      if (brew !== '') {
+        msSt = grpSt(`brew install ${brew}`)
+          execSync(`brew install ${brew}`)
+        grpEnd(msSt)
+      }
+    }
+  } catch (error) {
+    core.setFailed(error.message)
+  }
 }
 
 
 /***/ }),
 
-/***/ 211:
-/***/ (function(module) {
+/***/ 732:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-module.exports = require("https");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "version": () => /* binding */ version,
+/* harmony export */   "download": () => /* binding */ download,
+/* harmony export */   "ruby": () => /* binding */ ruby,
+/* harmony export */   "execSync": () => /* binding */ execSync,
+/* harmony export */   "execSyncQ": () => /* binding */ execSyncQ,
+/* harmony export */   "grpSt": () => /* binding */ grpSt,
+/* harmony export */   "grpEnd": () => /* binding */ grpEnd,
+/* harmony export */   "log": () => /* binding */ log,
+/* harmony export */   "getInput": () => /* binding */ getInput,
+/* harmony export */   "win2nix": () => /* binding */ win2nix,
+/* harmony export */   "updateKeyRing": () => /* binding */ updateKeyRing
+/* harmony export */ });
+
+
+const cp = __webpack_require__(129)
+const fs = __webpack_require__(747)
+const path  = __webpack_require__(622)
+const core  = __webpack_require__(487)
+const httpc = __webpack_require__(79)
+
+const { performance } = __webpack_require__(630)
+
+const colors = {
+  'yel': '\x1b[93m',
+  'blu': '\x1b[94m'
+}
+const rst = '\x1b[0m'
+
+const version = JSON.parse(fs.readFileSync(__webpack_require__.ab + "package.json", 'utf8')).version
+
+const download = async (uri, dest, log = true) => {
+  // make sure the folder exists
+  if (!fs.existsSync(path.dirname(dest))) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+  }
+
+  if (log) { console.log(`[command]Downloading:\n  ${uri}`) }
+
+  const http = new httpc.HttpClient('MSP-Greg', [], {
+    allowRetries: true,
+    maxRetries: 3
+  })
+
+  const msg = (await http.get(uri)).message
+
+  return new Promise ( (resolve, reject) => {
+    if (msg.statusCode !== 200) {
+      const errMsg = `Failed to download from:\n  ${uri}\n` +
+                     `  StatusCode: ${msg.statusCode}  Message: ${msg.statusMessage}`
+      reject(new Error(errMsg))
+    }
+
+    const file = fs.createWriteStream(dest)
+
+    file.on('open', async () => {
+      try {
+        const stream = msg.pipe(file)
+        stream.on('close', () => {
+          resolve(dest)
+        })
+      } catch (err) {
+        const errMsg = `Failed to download from:\n  ${uri}\n` +
+                       `  StatusCode: ${msg.statusCode}  Message: ${msg.statusMessage}\n  Error: ${err.message}`
+        reject(new Error(errMsg))
+      }
+    })
+    file.on('error', err => {
+      file.end()
+      reject(err)
+    })
+  })
+}
+
+// get Ruby info in one pass
+const ruby = () => {
+  let map = {}
+  let ary = ['platform', 'engine', 'engineVersion', 'vers', 'abiVers' ]
+  let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, (Object.const_defined?(:RUBY_ENGINE_VERSION) ? RUBY_ENGINE_VERSION : nil), RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
+  cp.execSync(cmd).toString().trim().split(/\r?\n/).forEach( (v,i) => {
+    map[ary[i]]  = v
+  })
+  return map
+}
+
+const execSync = (cmd) => {
+  console.log(`[command]${cmd}`)
+  cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'inherit']})
+}
+
+const execSyncQ = (cmd) => {
+  console.log(`[command]${cmd}`)
+  cp.execSync(cmd, {stdio: ['ignore', 'ignore', 'inherit']})
+  console.log('  Done')
+}
+
+const grpSt = (desc) => {
+  console.log(`##[group]${colors['yel']}${desc}${rst}`)
+  return performance.now()
+}
+
+const grpEnd = (msSt) => {
+  const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+  console.log(`::[endgroup]\n  took ${timeStr} s`)
+}
+
+const log = (logText, color = 'yel') => {
+  console.log(`${colors[color]}${logText}${rst}`)
+}
+
+const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+
+// convert windows path like C:\Users\runneradmin to /c/Users/runneradmin
+const win2nix = (path) => {
+  return (/^[A-Z]:/i.test(path) ?
+    ('/' + path[0].toLowerCase() + path.split(':',2)[1]) :
+    path).replace(/\\/g, '/').replace(/ /g, '\\ ')
+}
+
+const updateKeyRing = async (vers) => {
+  const dlPath = `${process.env.RUNNER_TEMP}\\srp`
+  const uri = `http://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.xz`
+  const fn = `${dlPath}\\key-ring.tar.xz`
+  const msSt = grpSt('install updated MSYS2 keyring')
+
+  await download(uri, fn)
+  await download(`${uri}.sig`, `${fn}.sig`)
+
+  const origPath = process.env.Path
+  process.env.Path = `C:\\msys64\\usr\\bin;C:\\msys64\\mingw64\\bin;${origPath}`
+
+  execSync(`C:\\msys64\\usr\\bin\\pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+  process.env['Path'] = origPath
+
+  grpEnd(msSt)
+}
+
 
 /***/ }),
 
-/***/ 276:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ 781:
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+(async () => {
+  const core = __webpack_require__(487)
+  const { performance } = __webpack_require__(630)
+
+  const common = __webpack_require__(732)
+
+  const platform = __webpack_require__(87).platform()
+
+  let ref = core.getInput('setup-ruby-ref')
+  if (ref === '') { ref = 'ruby/setup-ruby/v1' }
+
+  let rubyInfo
+  let timeSt
+  let doBundler = false
+
+  const timeEnd = (msSt) => {
+    const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+    console.log(`  took ${timeStr} s`)
+  }
+
+  try {
+
+    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
+    core.exportVariable('CI'    , 'true')
+
+    const pkgs = async (ri) => {
+      rubyInfo = ri
+      timeEnd(timeSt)
+      common.log(`  —————————————————— Package tasks using: MSP-Greg/setup-ruby-pkgs ${common.version}`)
+      // console.log(rubyInfo)
+      let runner
+      let ruby
+
+      switch (platform) {
+        case 'linux':
+          runner = __webpack_require__(256)  ; break
+        case 'darwin':
+          runner = __webpack_require__(386) ; break
+        case 'win32':
+          ruby = common.ruby()
+
+          if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(483) }
+          else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(884) }
+
+          if (runner) { runner.setRuby(ruby) }  // pass Ruby info to runner
+      }
+
+      if (runner) { await runner.run() }
+
+      if ((core.getInput('ruby-version') !== 'none') &&
+          (core.getInput('bundler') !== 'none')    ) {
+        doBundler = true
+        timeSt = performance.now()
+        common.log(`  —————————————————— Bundler tasks using: ${ref}`)
+      }
+    }
+
+    timeSt = performance.now()
+
+    if (core.getInput('ruby-version') !== 'none') {
+      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
+      common.log(`  ——————————————————    Ruby tasks using: ${ref}`)
+      await common.download(`https://raw.githubusercontent.com/${ref}/dist/index.js`, fn, false)
+      // pass pkgs function to setup-ruby, allows package installation before
+      // 'bundle install' but after ruby setup (install, paths, compile tools, etc)
+      await require(fn).setupRuby({afterSetupPathHook: pkgs})
+      if (doBundler) { timeEnd(timeSt) }
+    } else {
+      // install packages if setup-ruby is not used
+      await pkgs()
+    }
+  } catch (e) {
+    console.log(`::error::${e.message}`)
+    process.exitCode = 1
+  }
+})()
+
+
+/***/ }),
+
+/***/ 483:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "setRuby": () => /* binding */ setRuby,
+/* harmony export */   "run": () => /* binding */ run
+/* harmony export */ });
+
+
+const fs   = __webpack_require__(747)
+const core = __webpack_require__(487)
+
+// , updateKeyRing
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(732)
+
+// group start time
+let msSt
+
+// used to only update MSYS2 database (y parameter) once
+let msys2Sync = '-Sy'
+
+// SSD drive, used for most downloads and MSYS
+const drive = (process.env.GITHUB_WORKSPACE || 'C')[0]
+
+// location to extract old MSYS packages
+const dirDK7z  = `${drive}:\\DevKit64\\mingw\\x86_64-w64-mingw32`
+
+const dlPath = `${process.env.RUNNER_TEMP}\\srp`
+if (!fs.existsSync(dlPath)) {
+  fs.mkdirSync(dlPath, { recursive: true })
+}
+
+let ruby
+let old_pkgs
+let RELEASE_ASSET
+
+// clean inputs
+let mingw = getInput('mingw')
+let msys2 = getInput('msys2')
+
+let pre // set in setRuby, ' mingw-w64-x86_64-' or ' mingw-w64-i686-'
+// standard pacman args
+const args  = '--noconfirm --noprogressbar --needed'
+
+// Not used. Installs packages stored in GitHub release.
+// Only needed for exceptional cases.
+const install = async (pkg, release) => {  // eslint-disable-line no-unused-vars
+  const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
+  const suff    = '-any.pkg.tar.xz'
+  const args    = '--noconfirm --noprogressbar --needed'
+
+  const uri = `${uriBase}/${release}`
+
+  const dir = `${dlPath}\\msys2_gcc`
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+
+  let f = `${pre}${pkg}${suff}`
+  await download(`${uri}/${f}`    , `${dir}\\${f}`)
+  await download(`${uri}/${f}.sig`, `${dir}\\${f}.sig`)
+  console.log(`pacman.exe -Udd ${args} ${dir}\\${f}`)
+
+  const cwd = process.cwd()
+  try {
+    process.chdir(dir)
+    execSync(`pacman.exe -Udd ${args} ${f}`)
+    process.chdir(cwd)
+  } catch (error) {
+    process.chdir(cwd)
+    core.setFailed(error.message)
+  }
+}
+
+/* Renames OpenSSL dlls in System32 folder, installs OpenSSL 1.0.2 for Ruby 2.4.
+ * At present, all versions of Ruby except 2.4 can use the OpenSSL packages
+ * provided by the generic package install code.  But that may change...
+ */
+const openssl = async () => {
+  let ssl = 'C:\\Windows\\System32\\'
+  let badFiles = [`${ssl}libcrypto-1_1-x64.dll`, `${ssl}libssl-1_1-x64.dll`]
+  badFiles.forEach( (bad) => {
+    if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
+  })
+
+  if (ruby.abiVers === '2.4.0') {
+    let uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
+    let fn = `${dlPath}\\ri2.tar.zst`
+    msSt = grpSt('install 2.4 OpenSSL')
+
+    if (!RELEASE_ASSET) {
+      // appveyor ri2 package signing key
+//      let key = 'F98B8484BE8BF1C5'
+//      execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
+//      execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
+    }
+
+    await download(uri, fn)
+//    await download(`${uri}.sig`, `${fn}.sig`)
+    execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+    grpEnd(msSt)
+    mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
+  }
+}
+
+// Updates MSYS2 MinGW gcc items
+const updateGCC = async () => {
+  // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
+
+  msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
+  let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+  execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
+  grpEnd(msSt)
+
+  // await require('./mingw_gcc').run(ruby.vers)
+}
+
+// Used to install pre-built MSYS2 from a GitHub release asset, hopefully never
+// needed once Actions Windows images have MSYS2 installed.
+const installMSYS2 = async () => {
+  const fn = `${dlPath}\\msys64.7z`
+  const cmd = `7z x ${fn} -oC:\\`
+  await download(`https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/${RELEASE_ASSET}/msys64.7z`, fn)
+  fs.rmdirSync('C:\\msys64', { recursive: true })
+  execSyncQ(cmd)
+  core.info('Installed MSYS2 for Ruby 2.4 and later')
+}
+
+// install MinGW packages from mingw input
+const runMingw = async () => {
+  if (mingw.includes('_upgrade_')) {
+    if (ruby.abiVers >= '2.4') {
+      await updateGCC()
+      msys2Sync = '-S'
+    }
+    mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
+  }
+
+  /* _msvc_ can be used when building mswin Rubies
+   * when using an installed mingw Ruby, normally _upgrade_ should be used
+   */
+  if (mingw.includes('_msvc_')) {
+    await __webpack_require__(884).addVCVARSEnv()
+    return
+  }
+
+  if (mingw !== '') {
+    if (ruby.abiVers >= '2.4.0') {
+      if (mingw.includes('openssl')) {
+        await openssl()
+      }
+      if (mingw !== '') {
+        let pkgs = mingw.split(/\s+/)
+        pkgs.unshift('')
+        let list = pkgs.join(pre)
+        if (msys2 !== '') {
+          list += ' ' + msys2
+          msys2 = ''
+        }
+        msSt = grpSt(`pacman.exe -S ${list}`)
+        execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
+        grpEnd(msSt)
+      }
+    } else {
+      // install old DevKit packages
+      let toInstall = []
+      let pkgs = mingw.split(/\s+/)
+      pkgs.forEach( (pkg) => {
+        if (old_pkgs[pkg]) {
+          toInstall.push({ pkg: pkg, uri: old_pkgs[pkg]})
+        } else {
+          core.warning(`Package '${pkg}' is not available`)
+        }
+      })
+      if (toInstall.length !== 0) {
+        const list = toInstall.map(item => item.pkg).join(' ')
+        msSt = grpSt(`installing MSYS packages: ${list}`)
+        for (const item of toInstall) {
+          let fn = `${dlPath}\\${item.pkg}.tar.lzma`
+          await download(item.uri, fn)
+          let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
+          execSyncQ(cmd)
+        }
+        grpEnd(msSt)
+      }
+    }
+  }
+}
+
+// install MSYS2 packages from mys2 input
+const runMSYS2 = async () => {
+  let pacman = 'pacman.exe'
+  if (ruby.abiVers < '2.4.0') {
+    pacman = 'C:\\msys64\\usr\\bin\\pacman.exe'
+  }
+  msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2}`)
+  execSync(`${pacman} ${msys2Sync} ${args} ${msys2}`)
+  grpEnd(msSt)
+}
+
+const setRuby = (_ruby) => {
+  ruby = _ruby
+  pre = (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
+}
+
+const run = async () => {
+  try {
+    // rename files that cause build conflicts with MSYS2
+    // let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
+    // badFiles.forEach( (bad) => {
+    //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
+    // })
+
+    // await updateKeyRing('r21.b39fb11-1')
+
+    if (mingw !== '' || msys2 !== '') {
+      if (ruby.abiVers >= '2.4.0') {
+        // remove pacman CheckSpace, move cache dir to SSD
+        const conf_fn = 'C:\\msys64\\etc\\pacman.conf'
+        let conf      = fs.readFileSync(conf_fn, 'utf-8')
+        let cache_dir = `${process.env.RUNNER_TEMP}\\pacman\\pkg`
+
+        fs.mkdirSync(cache_dir, { recursive: true })
+
+        cache_dir = win2nix(cache_dir)
+
+        conf = conf.replace(/^CheckSpace/m, '#CheckSpace')
+        conf = conf.replace(/^#CacheDir( += )[^\n]+/m, (m, p1) => {
+          return `CacheDir ${p1}${cache_dir}`
+        })
+        fs.writeFileSync(conf_fn, conf, 'utf-8')
+
+        /* setting to string uses specified release asset for MSYS2,
+         * setting to null uses pre-installed MSYS2
+         * release contains all Ruby building dependencies,
+         * used when MSYS2 install or server have problems
+         */
+        RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
+          'msys2-2020-05-20' : null
+        if (RELEASE_ASSET) {
+          msSt = grpSt('Updating MSYS2')
+          await installMSYS2()
+          grpEnd(msSt)
+        }
+
+      } else {
+        // get list of available pkgs for Ruby 2.2 & 2.3
+        old_pkgs = __webpack_require__(970)/* .old_pkgs */ .c
+      }
+
+      // install user specificied packages
+      if (mingw !== '') { await runMingw() }
+      if (msys2 !== '') { await runMSYS2() }
+    }
+
+    if (ruby.abiVers >= '2.4.0') {
+      // add home directory for user
+      const dirHome = `C:\\msys64\\home\\${process.env.USERNAME}`
+      if (!fs.existsSync(dirHome)) {
+        fs.mkdirSync(dirHome, { recursive: true })
+      }
+    }
+
+  } catch (error) {
+    core.setFailed(error.message)
+  }
+}
+
+
+/***/ }),
+
+/***/ 884:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "setRuby": () => /* binding */ setRuby,
+/* harmony export */   "run": () => /* binding */ run
+/* harmony export */ });
+
+
+const fs   = __webpack_require__(747)
+const core = __webpack_require__(487)
+
+// , updateKeyRing
+const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(732)
+
+// group start time
+let msSt
+
+let mingw = getInput('mingw')  // only parsed for openssl
+let mswin = getInput('mswin')
+let choco = getInput('choco')
+let vcpkg = getInput('vcpkg')
+
+let ruby
+
+const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-vars
+
+const run = async () => {
+  try {
+    if (mswin !== '') {
+      // await updateKeyRing('r21.b39fb11-1')
+
+      if (mingw.includes('ragel') && !mswin.includes('ragel')) {
+        mswin += ' mingw-w64-x86_64-ragel'
+        mswin = mswin.trim()
+      }
+      msSt = grpSt(`install msys2 packages: ${mswin}`)
+      execSync(`pacman.exe -Sy --noconfirm --noprogressbar --needed ${mswin}`)
+      grpEnd(msSt)
+    }
+
+    if (mingw.includes('openssl')) {
+      if (!choco.includes('openssl')) {
+        choco += ' openssl'
+        choco = choco.trim()        
+      }
+    }
+
+    if (choco !== '') {
+      msSt = grpSt(`choco install ${choco}`)
+      execSync(`choco install --no-progress ${choco}`)
+      if (choco.includes('openssl')) {
+        fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
+        core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
+      }
+      grpEnd(msSt)
+    }
+
+    if (vcpkg !== '') {
+      msSt = grpSt(`vcpkg --triplet x64-windows install ${vcpkg}`)
+      execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
+      const vcpkgRoot = process.env.VCPKG_INSTALLATION_ROOT.replace(/\\/g, '/')
+      core.exportVariable('OPT_DIR', `--with-opt-dir=${vcpkgRoot}/installed/x64-windows`)
+      const vcpkgTools = `${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\tools`
+      if (fs.existsSync(vcpkgTools) && fs.readdirSync(vcpkgTools).length >= 0) {
+        core.addPath(vcpkgTools)
+        console.log(`Added to Path: ${vcpkgTools}`)
+      }
+      grpEnd(msSt)
+    }
+  } catch (error) {
+    core.setFailed(error.message)
+  }
+}
+
+
+/***/ }),
+
+/***/ 994:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const os = __importStar(__webpack_require__(87));
+/**
+ * Commands
+ *
+ * Command Format:
+ *   ::name key=value,key=value::message
+ *
+ * Examples:
+ *   ::warning::This is the message
+ *   ::set-env name=MY_VAR::some value
+ */
+function issueCommand(command, properties, message) {
+    const cmd = new Command(command, properties, message);
+    process.stdout.write(cmd.toString() + os.EOL);
+}
+exports.issueCommand = issueCommand;
+function issue(name, message = '') {
+    issueCommand(name, {}, message);
+}
+exports.issue = issue;
+const CMD_STRING = '::';
+class Command {
+    constructor(command, properties, message) {
+        if (!command) {
+            command = 'missing.command';
+        }
+        this.command = command;
+        this.properties = properties;
+        this.message = message;
+    }
+    toString() {
+        let cmdStr = CMD_STRING + this.command;
+        if (this.properties && Object.keys(this.properties).length > 0) {
+            cmdStr += ' ';
+            let first = true;
+            for (const key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    const val = this.properties[key];
+                    if (val) {
+                        if (first) {
+                            first = false;
+                        }
+                        else {
+                            cmdStr += ',';
+                        }
+                        cmdStr += `${key}=${escapeProperty(val)}`;
+                    }
+                }
+            }
+        }
+        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
+        return cmdStr;
+    }
+}
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+function escapeData(s) {
+    return toCommandValue(s)
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A');
+}
+function escapeProperty(s) {
+    return toCommandValue(s)
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A')
+        .replace(/:/g, '%3A')
+        .replace(/,/g, '%2C');
+}
+//# sourceMappingURL=command.js.map
+
+/***/ }),
+
+/***/ 487:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -197,8 +837,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __webpack_require__(512);
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const command_1 = __webpack_require__(994);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -405,808 +1045,16 @@ exports.getState = getState;
 
 /***/ }),
 
-/***/ 357:
-/***/ (function(module) {
-
-module.exports = require("assert");
-
-/***/ }),
-
-/***/ 498:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ 79:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "version", function() { return version; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "download", function() { return download; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ruby", function() { return ruby; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSync", function() { return execSync; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "execSyncQ", function() { return execSyncQ; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpSt", function() { return grpSt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "grpEnd", function() { return grpEnd; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "log", function() { return log; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getInput", function() { return getInput; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "win2nix", function() { return win2nix; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateKeyRing", function() { return updateKeyRing; });
 
-
-const cp = __webpack_require__(129)
-const fs = __webpack_require__(747)
-const path  = __webpack_require__(622)
-const core  = __webpack_require__(276)
-const httpc = __webpack_require__(553)
-
-const { performance } = __webpack_require__(630)
-
-const colors = {
-  'yel': '\x1b[33m',
-  'blu': '\x1b[94m'
-}
-const rst = '\x1b[0m'
-
-const version = JSON.parse(fs.readFileSync(__webpack_require__.ab + "package.json", 'utf8')).version
-
-const download = async (uri, dest, log = true) => {
-  // make sure the folder exists
-  if (!fs.existsSync(path.dirname(dest))) {
-    fs.mkdirSync(path.dirname(dest), { recursive: true })
-  }
-
-  if (log) { console.log(`[command]Downloading:\n  ${uri}`) }
-
-  const http = new httpc.HttpClient('MSP-Greg', [], {
-    allowRetries: true,
-    maxRetries: 3
-  })
-
-  const msg = (await http.get(uri)).message
-
-  return new Promise ( (resolve, reject) => {
-    if (msg.statusCode !== 200) {
-      const errMsg = `Failed to download from:\n  ${uri}\n` +
-                     `  StatusCode: ${msg.statusCode}  Message: ${msg.statusMessage}`
-      reject(new Error(errMsg))
-    }
-
-    const file = fs.createWriteStream(dest)
-
-    file.on('open', async () => {
-      try {
-        const stream = msg.pipe(file)
-        stream.on('close', () => {
-          resolve(dest)
-        })
-      } catch (err) {
-        const errMsg = `Failed to download from:\n  ${uri}\n` +
-                       `  StatusCode: ${msg.statusCode}  Message: ${msg.statusMessage}\n  Error: ${err.message}`
-        reject(new Error(errMsg))
-      }
-    })
-    file.on('error', err => {
-      file.end()
-      reject(err)
-    })
-  })
-}
-
-// get Ruby info in one pass
-const ruby = () => {
-  let map = {}
-  let ary = ['platform', 'engine', 'engineVersion', 'vers', 'abiVers' ]
-  let cmd = 'ruby -e "puts RUBY_PLATFORM, RUBY_ENGINE, (Object.const_defined?(:RUBY_ENGINE_VERSION) ? RUBY_ENGINE_VERSION : nil), RUBY_VERSION, RbConfig::CONFIG[%q[ruby_version]]"';
-  cp.execSync(cmd).toString().trim().split(/\r?\n/).forEach( (v,i) => {
-    map[ary[i]]  = v
-  })
-  return map
-}
-
-const execSync = (cmd) => {
-  console.log(`[command]${cmd}`)
-  cp.execSync(cmd, {stdio: ['ignore', 'inherit', 'inherit']})
-}
-
-const execSyncQ = (cmd) => {
-  console.log(`[command]${cmd}`)
-  cp.execSync(cmd, {stdio: ['ignore', 'ignore', 'inherit']})
-  console.log('  Done')
-}
-
-const grpSt = (desc) => {
-  console.log(`##[group]${colors['yel']}${desc}${rst}`)
-  return performance.now()
-}
-
-const grpEnd = (msSt) => {
-  const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
-  console.log(`::[endgroup]\n  took ${timeStr} s`)
-}
-
-const log = (logText, color = 'yel') => {
-  console.log(`${colors[color]}${logText}${rst}`)
-}
-
-const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-
-// convert windows path like C:\Users\runneradmin to /c/Users/runneradmin
-const win2nix = (path) => {
-  return (/^[A-Z]:/i.test(path) ?
-    ('/' + path[0].toLowerCase() + path.split(':',2)[1]) :
-    path).replace(/\\/g, '/').replace(/ /g, '\\ ')
-}
-
-const updateKeyRing = async (vers) => {
-  const dlPath = `${process.env.RUNNER_TEMP}\\srp`
-  const uri = `http://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.xz`
-  const fn = `${dlPath}\\key-ring.tar.xz`
-  const msSt = grpSt('install updated MSYS2 keyring')
-
-  await download(uri, fn)
-  await download(`${uri}.sig`, `${fn}.sig`)
-
-  const origPath = process.env.Path
-  process.env.Path = `C:\\msys64\\usr\\bin;C:\\msys64\\mingw64\\bin;${origPath}`
-
-  execSync(`C:\\msys64\\usr\\bin\\pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
-  process.env['Path'] = origPath
-
-  grpEnd(msSt)
-}
-
-
-/***/ }),
-
-/***/ 505:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRuby", function() { return setRuby; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
-
-
-const fs   = __webpack_require__(747)
-const core = __webpack_require__(276)
-
-// , updateKeyRing
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(498)
-
-// group start time
-let msSt
-
-// used to only update MSYS2 database (y parameter) once
-let msys2Sync = '-Sy'
-
-// SSD drive, used for most downloads and MSYS
-const drive = (process.env.GITHUB_WORKSPACE || 'C')[0]
-
-// location to extract old MSYS packages
-const dirDK7z  = `${drive}:\\DevKit64\\mingw\\x86_64-w64-mingw32`
-
-const dlPath = `${process.env.RUNNER_TEMP}\\srp`
-if (!fs.existsSync(dlPath)) {
-  fs.mkdirSync(dlPath, { recursive: true })
-}
-
-let ruby
-let old_pkgs
-let RELEASE_ASSET
-
-// clean inputs
-let mingw = getInput('mingw')
-let msys2 = getInput('msys2')
-
-let pre // set in setRuby, ' mingw-w64-x86_64-' or ' mingw-w64-i686-'
-// standard pacman args
-const args  = '--noconfirm --noprogressbar --needed'
-
-// Not used. Installs packages stored in GitHub release.
-// Only needed for exceptional cases.
-const install = async (pkg, release) => {  // eslint-disable-line no-unused-vars
-  const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
-  const suff    = '-any.pkg.tar.xz'
-  const args    = '--noconfirm --noprogressbar --needed'
-
-  const uri = `${uriBase}/${release}`
-
-  const dir = `${dlPath}\\msys2_gcc`
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-
-  let f = `${pre}${pkg}${suff}`
-  await download(`${uri}/${f}`    , `${dir}\\${f}`)
-  await download(`${uri}/${f}.sig`, `${dir}\\${f}.sig`)
-  console.log(`pacman.exe -Udd ${args} ${dir}\\${f}`)
-
-  const cwd = process.cwd()
-  try {
-    process.chdir(dir)
-    execSync(`pacman.exe -Udd ${args} ${f}`)
-    process.chdir(cwd)
-  } catch (error) {
-    process.chdir(cwd)
-    core.setFailed(error.message)
-  }
-}
-
-/* Renames OpenSSL dlls in System32 folder, installs OpenSSL 1.0.2 for Ruby 2.4.
- * At present, all versions of Ruby except 2.4 can use the OpenSSL packages
- * provided by the generic package install code.  But that may change...
- */
-const openssl = async () => {
-  let ssl = 'C:\\Windows\\System32\\'
-  let badFiles = [`${ssl}libcrypto-1_1-x64.dll`, `${ssl}libssl-1_1-x64.dll`]
-  badFiles.forEach( (bad) => {
-    if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
-  })
-
-  if (ruby.abiVers === '2.4.0') {
-    let uri = `https://dl.bintray.com/larskanis/rubyinstaller2-packages/${pre.trim()}openssl-1.0.2.u-1-any.pkg.tar.zst`
-    let fn = `${dlPath}\\ri2.tar.zst`
-    msSt = grpSt('install 2.4 OpenSSL')
-
-    if (!RELEASE_ASSET) {
-      // appveyor ri2 package signing key
-//      let key = 'F98B8484BE8BF1C5'
-//      execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
-//      execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
-    }
-
-    await download(uri, fn)
-//    await download(`${uri}.sig`, `${fn}.sig`)
-    execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
-    grpEnd(msSt)
-    mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
-  }
-}
-
-// Updates MSYS2 MinGW gcc items
-const updateGCC = async () => {
-  // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
-
-  msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
-  let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
-  execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
-  grpEnd(msSt)
-
-  // await require('./mingw_gcc').run(ruby.vers)
-}
-
-// Used to install pre-built MSYS2 from a GitHub release asset, hopefully never
-// needed once Actions Windows images have MSYS2 installed.
-const installMSYS2 = async () => {
-  const fn = `${dlPath}\\msys64.7z`
-  const cmd = `7z x ${fn} -oC:\\`
-  await download(`https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download/${RELEASE_ASSET}/msys64.7z`, fn)
-  fs.rmdirSync('C:\\msys64', { recursive: true })
-  execSyncQ(cmd)
-  core.info('Installed MSYS2 for Ruby 2.4 and later')
-}
-
-// install MinGW packages from mingw input
-const runMingw = async () => {
-  if (mingw.includes('_upgrade_')) {
-    if (ruby.abiVers >= '2.4') {
-      await updateGCC()
-      msys2Sync = '-S'
-    }
-    mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
-  }
-
-  /* _msvc_ can be used when building mswin Rubies
-   * when using an installed mingw Ruby, normally _upgrade_ should be used
-   */
-  if (mingw.includes('_msvc_')) {
-    await __webpack_require__(894).addVCVARSEnv()
-    return
-  }
-
-  if (mingw !== '') {
-    if (ruby.abiVers >= '2.4.0') {
-      if (mingw.includes('openssl')) {
-        await openssl()
-      }
-      if (mingw !== '') {
-        let pkgs = mingw.split(/\s+/)
-        pkgs.unshift('')
-        let list = pkgs.join(pre)
-        if (msys2 !== '') {
-          list += ' ' + msys2
-          msys2 = ''
-        }
-        msSt = grpSt(`pacman.exe -S ${list}`)
-        execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
-        grpEnd(msSt)
-      }
-    } else {
-      // install old DevKit packages
-      let toInstall = []
-      let pkgs = mingw.split(/\s+/)
-      pkgs.forEach( (pkg) => {
-        if (old_pkgs[pkg]) {
-          toInstall.push({ pkg: pkg, uri: old_pkgs[pkg]})
-        } else {
-          core.warning(`Package '${pkg}' is not available`)
-        }
-      })
-      if (toInstall.length !== 0) {
-        const list = toInstall.map(item => item.pkg).join(' ')
-        msSt = grpSt(`installing MSYS packages: ${list}`)
-        for (const item of toInstall) {
-          let fn = `${dlPath}\\${item.pkg}.tar.lzma`
-          await download(item.uri, fn)
-          let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
-          execSyncQ(cmd)
-        }
-        grpEnd(msSt)
-      }
-    }
-  }
-}
-
-// install MSYS2 packages from mys2 input
-const runMSYS2 = async () => {
-  let pacman = 'pacman.exe'
-  if (ruby.abiVers < '2.4.0') {
-    pacman = 'C:\\msys64\\usr\\bin\\pacman.exe'
-  }
-  msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2}`)
-  execSync(`${pacman} ${msys2Sync} ${args} ${msys2}`)
-  grpEnd(msSt)
-}
-
-const setRuby = (_ruby) => {
-  ruby = _ruby
-  pre = (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
-}
-
-const run = async () => {
-  try {
-    // rename files that cause build conflicts with MSYS2
-    // let badFiles = ['C:\\Strawberry\\c\\bin\\gmake.exe']
-    // badFiles.forEach( (bad) => {
-    //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
-    // })
-
-    // await updateKeyRing('r21.b39fb11-1')
-
-    if (mingw !== '' || msys2 !== '') {
-      if (ruby.abiVers >= '2.4.0') {
-        // remove pacman CheckSpace, move cache dir to SSD
-        const conf_fn = 'C:\\msys64\\etc\\pacman.conf'
-        let conf      = fs.readFileSync(conf_fn, 'utf-8')
-        let cache_dir = `${process.env.RUNNER_TEMP}\\pacman\\pkg`
-
-        fs.mkdirSync(cache_dir, { recursive: true })
-
-        cache_dir = win2nix(cache_dir)
-
-        conf = conf.replace(/^CheckSpace/m, '#CheckSpace')
-        conf = conf.replace(/^#CacheDir( += )[^\n]+/m, (m, p1) => {
-          return `CacheDir ${p1}${cache_dir}`
-        })
-        fs.writeFileSync(conf_fn, conf, 'utf-8')
-
-        /* setting to string uses specified release asset for MSYS2,
-         * setting to null uses pre-installed MSYS2
-         * release contains all Ruby building dependencies,
-         * used when MSYS2 install or server have problems
-         */
-        RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-          'msys2-2020-05-20' : null
-        if (RELEASE_ASSET) {
-          msSt = grpSt('Updating MSYS2')
-          await installMSYS2()
-          grpEnd(msSt)
-        }
-
-      } else {
-        // get list of available pkgs for Ruby 2.2 & 2.3
-        old_pkgs = __webpack_require__(169).old_pkgs
-      }
-
-      // install user specificied packages
-      if (mingw !== '') { await runMingw() }
-      if (msys2 !== '') { await runMSYS2() }
-    }
-
-    if (ruby.abiVers >= '2.4.0') {
-      // add home directory for user
-      const dirHome = `C:\\msys64\\home\\${process.env.USERNAME}`
-      if (!fs.existsSync(dirHome)) {
-        fs.mkdirSync(dirHome, { recursive: true })
-      }
-    }
-
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-
-/***/ }),
-
-/***/ 512:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__webpack_require__(87));
-/**
- * Commands
- *
- * Command Format:
- *   ::name key=value,key=value::message
- *
- * Examples:
- *   ::warning::This is the message
- *   ::set-env name=MY_VAR::some value
- */
-function issueCommand(command, properties, message) {
-    const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
-}
-exports.issueCommand = issueCommand;
-function issue(name, message = '') {
-    issueCommand(name, {}, message);
-}
-exports.issue = issue;
-const CMD_STRING = '::';
-class Command {
-    constructor(command, properties, message) {
-        if (!command) {
-            command = 'missing.command';
-        }
-        this.command = command;
-        this.properties = properties;
-        this.message = message;
-    }
-    toString() {
-        let cmdStr = CMD_STRING + this.command;
-        if (this.properties && Object.keys(this.properties).length > 0) {
-            cmdStr += ' ';
-            let first = true;
-            for (const key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    const val = this.properties[key];
-                    if (val) {
-                        if (first) {
-                            first = false;
-                        }
-                        else {
-                            cmdStr += ',';
-                        }
-                        cmdStr += `${key}=${escapeProperty(val)}`;
-                    }
-                }
-            }
-        }
-        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
-        return cmdStr;
-    }
-}
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
-function escapeData(s) {
-    return toCommandValue(s)
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A');
-}
-function escapeProperty(s) {
-    return toCommandValue(s)
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A')
-        .replace(/:/g, '%3A')
-        .replace(/,/g, '%2C');
-}
-//# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 525:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-
-var net = __webpack_require__(631);
-var tls = __webpack_require__(16);
-var http = __webpack_require__(605);
-var https = __webpack_require__(211);
-var events = __webpack_require__(614);
-var assert = __webpack_require__(357);
-var util = __webpack_require__(669);
-
-
-exports.httpOverHttp = httpOverHttp;
-exports.httpsOverHttp = httpsOverHttp;
-exports.httpOverHttps = httpOverHttps;
-exports.httpsOverHttps = httpsOverHttps;
-
-
-function httpOverHttp(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = http.request;
-  return agent;
-}
-
-function httpsOverHttp(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = http.request;
-  agent.createSocket = createSecureSocket;
-  agent.defaultPort = 443;
-  return agent;
-}
-
-function httpOverHttps(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = https.request;
-  return agent;
-}
-
-function httpsOverHttps(options) {
-  var agent = new TunnelingAgent(options);
-  agent.request = https.request;
-  agent.createSocket = createSecureSocket;
-  agent.defaultPort = 443;
-  return agent;
-}
-
-
-function TunnelingAgent(options) {
-  var self = this;
-  self.options = options || {};
-  self.proxyOptions = self.options.proxy || {};
-  self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
-  self.requests = [];
-  self.sockets = [];
-
-  self.on('free', function onFree(socket, host, port, localAddress) {
-    var options = toOptions(host, port, localAddress);
-    for (var i = 0, len = self.requests.length; i < len; ++i) {
-      var pending = self.requests[i];
-      if (pending.host === options.host && pending.port === options.port) {
-        // Detect the request to connect same origin server,
-        // reuse the connection.
-        self.requests.splice(i, 1);
-        pending.request.onSocket(socket);
-        return;
-      }
-    }
-    socket.destroy();
-    self.removeSocket(socket);
-  });
-}
-util.inherits(TunnelingAgent, events.EventEmitter);
-
-TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
-  var self = this;
-  var options = mergeOptions({request: req}, self.options, toOptions(host, port, localAddress));
-
-  if (self.sockets.length >= this.maxSockets) {
-    // We are over limit so we'll add it to the queue.
-    self.requests.push(options);
-    return;
-  }
-
-  // If we are under maxSockets create a new one.
-  self.createSocket(options, function(socket) {
-    socket.on('free', onFree);
-    socket.on('close', onCloseOrRemove);
-    socket.on('agentRemove', onCloseOrRemove);
-    req.onSocket(socket);
-
-    function onFree() {
-      self.emit('free', socket, options);
-    }
-
-    function onCloseOrRemove(err) {
-      self.removeSocket(socket);
-      socket.removeListener('free', onFree);
-      socket.removeListener('close', onCloseOrRemove);
-      socket.removeListener('agentRemove', onCloseOrRemove);
-    }
-  });
-};
-
-TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
-  var self = this;
-  var placeholder = {};
-  self.sockets.push(placeholder);
-
-  var connectOptions = mergeOptions({}, self.proxyOptions, {
-    method: 'CONNECT',
-    path: options.host + ':' + options.port,
-    agent: false,
-    headers: {
-      host: options.host + ':' + options.port
-    }
-  });
-  if (options.localAddress) {
-    connectOptions.localAddress = options.localAddress;
-  }
-  if (connectOptions.proxyAuth) {
-    connectOptions.headers = connectOptions.headers || {};
-    connectOptions.headers['Proxy-Authorization'] = 'Basic ' +
-        new Buffer(connectOptions.proxyAuth).toString('base64');
-  }
-
-  debug('making CONNECT request');
-  var connectReq = self.request(connectOptions);
-  connectReq.useChunkedEncodingByDefault = false; // for v0.6
-  connectReq.once('response', onResponse); // for v0.6
-  connectReq.once('upgrade', onUpgrade);   // for v0.6
-  connectReq.once('connect', onConnect);   // for v0.7 or later
-  connectReq.once('error', onError);
-  connectReq.end();
-
-  function onResponse(res) {
-    // Very hacky. This is necessary to avoid http-parser leaks.
-    res.upgrade = true;
-  }
-
-  function onUpgrade(res, socket, head) {
-    // Hacky.
-    process.nextTick(function() {
-      onConnect(res, socket, head);
-    });
-  }
-
-  function onConnect(res, socket, head) {
-    connectReq.removeAllListeners();
-    socket.removeAllListeners();
-
-    if (res.statusCode !== 200) {
-      debug('tunneling socket could not be established, statusCode=%d',
-        res.statusCode);
-      socket.destroy();
-      var error = new Error('tunneling socket could not be established, ' +
-        'statusCode=' + res.statusCode);
-      error.code = 'ECONNRESET';
-      options.request.emit('error', error);
-      self.removeSocket(placeholder);
-      return;
-    }
-    if (head.length > 0) {
-      debug('got illegal response body from proxy');
-      socket.destroy();
-      var error = new Error('got illegal response body from proxy');
-      error.code = 'ECONNRESET';
-      options.request.emit('error', error);
-      self.removeSocket(placeholder);
-      return;
-    }
-    debug('tunneling connection has established');
-    self.sockets[self.sockets.indexOf(placeholder)] = socket;
-    return cb(socket);
-  }
-
-  function onError(cause) {
-    connectReq.removeAllListeners();
-
-    debug('tunneling socket could not be established, cause=%s\n',
-          cause.message, cause.stack);
-    var error = new Error('tunneling socket could not be established, ' +
-                          'cause=' + cause.message);
-    error.code = 'ECONNRESET';
-    options.request.emit('error', error);
-    self.removeSocket(placeholder);
-  }
-};
-
-TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
-  var pos = this.sockets.indexOf(socket)
-  if (pos === -1) {
-    return;
-  }
-  this.sockets.splice(pos, 1);
-
-  var pending = this.requests.shift();
-  if (pending) {
-    // If we have pending requests and a socket gets closed a new one
-    // needs to be created to take over in the pool for the one that closed.
-    this.createSocket(pending, function(socket) {
-      pending.request.onSocket(socket);
-    });
-  }
-};
-
-function createSecureSocket(options, cb) {
-  var self = this;
-  TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
-    var hostHeader = options.request.getHeader('host');
-    var tlsOptions = mergeOptions({}, self.options, {
-      socket: socket,
-      servername: hostHeader ? hostHeader.replace(/:.*$/, '') : options.host
-    });
-
-    // 0 is dummy port for v0.6
-    var secureSocket = tls.connect(0, tlsOptions);
-    self.sockets[self.sockets.indexOf(socket)] = secureSocket;
-    cb(secureSocket);
-  });
-}
-
-
-function toOptions(host, port, localAddress) {
-  if (typeof host === 'string') { // since v0.10
-    return {
-      host: host,
-      port: port,
-      localAddress: localAddress
-    };
-  }
-  return host; // for v0.11 or later
-}
-
-function mergeOptions(target) {
-  for (var i = 1, len = arguments.length; i < len; ++i) {
-    var overrides = arguments[i];
-    if (typeof overrides === 'object') {
-      var keys = Object.keys(overrides);
-      for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
-        var k = keys[j];
-        if (overrides[k] !== undefined) {
-          target[k] = overrides[k];
-        }
-      }
-    }
-  }
-  return target;
-}
-
-
-var debug;
-if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-  debug = function() {
-    var args = Array.prototype.slice.call(arguments);
-    if (typeof args[0] === 'string') {
-      args[0] = 'TUNNEL: ' + args[0];
-    } else {
-      args.unshift('TUNNEL:');
-    }
-    console.error.apply(console, args);
-  }
-} else {
-  debug = function() {};
-}
-exports.debug = debug; // for test
-
-
-/***/ }),
-
-/***/ 553:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 const url = __webpack_require__(835);
 const http = __webpack_require__(605);
 const https = __webpack_require__(211);
-const pm = __webpack_require__(766);
+const pm = __webpack_require__(805);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -1616,7 +1464,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __webpack_require__(855);
+                tunnel = __webpack_require__(990);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -1736,134 +1584,12 @@ exports.HttpClient = HttpClient;
 
 /***/ }),
 
-/***/ 605:
-/***/ (function(module) {
-
-module.exports = require("http");
-
-/***/ }),
-
-/***/ 614:
-/***/ (function(module) {
-
-module.exports = require("events");
-
-/***/ }),
-
-/***/ 622:
-/***/ (function(module) {
-
-module.exports = require("path");
-
-/***/ }),
-
-/***/ 630:
-/***/ (function(module) {
-
-module.exports = require("perf_hooks");
-
-/***/ }),
-
-/***/ 631:
-/***/ (function(module) {
-
-module.exports = require("net");
-
-/***/ }),
-
-/***/ 669:
-/***/ (function(module) {
-
-module.exports = require("util");
-
-/***/ }),
-
-/***/ 747:
-/***/ (function(module) {
-
-module.exports = require("fs");
-
-/***/ }),
-
-/***/ 758:
-/***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
+/***/ 805:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-
-(async () => {
-  const core = __webpack_require__(276)
-
-  const { performance } = __webpack_require__(630)
-
-  const common = __webpack_require__(498)
-
-  const platform = __webpack_require__(87).platform()
-
-  try {
-    const msgPre = 'Image info: https://github.com/actions/virtual-environments/tree/' +
-                   `${process.env.ImageOS}/${process.env.ImageVersion}`
-    switch (platform) {
-      case 'linux':
-        console.log(`${msgPre}/images/linux`)
-        break;
-      case 'win32':
-        console.log(`${msgPre}/images/win`)
-        break;
-      case 'darwin':
-        console.log('See https://github.com/actions/virtual-environments/commits/master/images/macos')
-        console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
-        break;
-      default:
-        console.log(`Using Image ${process.env.ImageOS} / ${process.env.ImageVersion}`)
-    }
-
-    if (core.getInput('ruby-version') !== 'none') {
-      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      common.log('  Running ruby/setup-ruby')
-      console.log(`  pwd: ${process.cwd()}`)
-      const msSt = performance.now()
-      await common.download('https://raw.githubusercontent.com/ruby/setup-ruby/v1/dist/index.js', fn, false)
-      await require(fn).run()
-      const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
-      console.log(`  took ${timeStr} s`)
-    }
-
-    common.log(`  Running MSP-Greg/setup-ruby-pkgs ${common.version}`)
-
-    let runner
-
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-    core.exportVariable('CI'    , 'true')
-
-    if      ( platform === 'linux' )              { runner = __webpack_require__(26  ) }
-    else if ( platform === 'darwin')              { runner = __webpack_require__(924 ) }
-    else if (platform === 'win32'  ) {
-      const ruby = common.ruby()
-
-      if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(505) }
-      else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(894) }
-
-      if (runner) { runner.setRuby(ruby) }  // pass Ruby info to runner
-    }
-
-    if (runner) { await runner.run() }
-
-  } catch (e) {
-    console.log(`::error::${e.message}`)
-    process.exitCode = 1
-  }
-})()
-
-
-/***/ }),
-
-/***/ 766:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 const url = __webpack_require__(835);
 function getProxyUrl(reqUrl) {
     let usingSsl = reqUrl.protocol === 'https:';
@@ -1924,177 +1650,480 @@ exports.checkBypass = checkBypass;
 
 /***/ }),
 
-/***/ 835:
-/***/ (function(module) {
+/***/ 990:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+module.exports = __webpack_require__(849);
+
+
+/***/ }),
+
+/***/ 849:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var net = __webpack_require__(631);
+var tls = __webpack_require__(16);
+var http = __webpack_require__(605);
+var https = __webpack_require__(211);
+var events = __webpack_require__(614);
+var assert = __webpack_require__(357);
+var util = __webpack_require__(669);
+
+
+exports.httpOverHttp = httpOverHttp;
+exports.httpsOverHttp = httpsOverHttp;
+exports.httpOverHttps = httpOverHttps;
+exports.httpsOverHttps = httpsOverHttps;
+
+
+function httpOverHttp(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = http.request;
+  return agent;
+}
+
+function httpsOverHttp(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = http.request;
+  agent.createSocket = createSecureSocket;
+  agent.defaultPort = 443;
+  return agent;
+}
+
+function httpOverHttps(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = https.request;
+  return agent;
+}
+
+function httpsOverHttps(options) {
+  var agent = new TunnelingAgent(options);
+  agent.request = https.request;
+  agent.createSocket = createSecureSocket;
+  agent.defaultPort = 443;
+  return agent;
+}
+
+
+function TunnelingAgent(options) {
+  var self = this;
+  self.options = options || {};
+  self.proxyOptions = self.options.proxy || {};
+  self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
+  self.requests = [];
+  self.sockets = [];
+
+  self.on('free', function onFree(socket, host, port, localAddress) {
+    var options = toOptions(host, port, localAddress);
+    for (var i = 0, len = self.requests.length; i < len; ++i) {
+      var pending = self.requests[i];
+      if (pending.host === options.host && pending.port === options.port) {
+        // Detect the request to connect same origin server,
+        // reuse the connection.
+        self.requests.splice(i, 1);
+        pending.request.onSocket(socket);
+        return;
+      }
+    }
+    socket.destroy();
+    self.removeSocket(socket);
+  });
+}
+util.inherits(TunnelingAgent, events.EventEmitter);
+
+TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
+  var self = this;
+  var options = mergeOptions({request: req}, self.options, toOptions(host, port, localAddress));
+
+  if (self.sockets.length >= this.maxSockets) {
+    // We are over limit so we'll add it to the queue.
+    self.requests.push(options);
+    return;
+  }
+
+  // If we are under maxSockets create a new one.
+  self.createSocket(options, function(socket) {
+    socket.on('free', onFree);
+    socket.on('close', onCloseOrRemove);
+    socket.on('agentRemove', onCloseOrRemove);
+    req.onSocket(socket);
+
+    function onFree() {
+      self.emit('free', socket, options);
+    }
+
+    function onCloseOrRemove(err) {
+      self.removeSocket(socket);
+      socket.removeListener('free', onFree);
+      socket.removeListener('close', onCloseOrRemove);
+      socket.removeListener('agentRemove', onCloseOrRemove);
+    }
+  });
+};
+
+TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
+  var self = this;
+  var placeholder = {};
+  self.sockets.push(placeholder);
+
+  var connectOptions = mergeOptions({}, self.proxyOptions, {
+    method: 'CONNECT',
+    path: options.host + ':' + options.port,
+    agent: false,
+    headers: {
+      host: options.host + ':' + options.port
+    }
+  });
+  if (options.localAddress) {
+    connectOptions.localAddress = options.localAddress;
+  }
+  if (connectOptions.proxyAuth) {
+    connectOptions.headers = connectOptions.headers || {};
+    connectOptions.headers['Proxy-Authorization'] = 'Basic ' +
+        new Buffer(connectOptions.proxyAuth).toString('base64');
+  }
+
+  debug('making CONNECT request');
+  var connectReq = self.request(connectOptions);
+  connectReq.useChunkedEncodingByDefault = false; // for v0.6
+  connectReq.once('response', onResponse); // for v0.6
+  connectReq.once('upgrade', onUpgrade);   // for v0.6
+  connectReq.once('connect', onConnect);   // for v0.7 or later
+  connectReq.once('error', onError);
+  connectReq.end();
+
+  function onResponse(res) {
+    // Very hacky. This is necessary to avoid http-parser leaks.
+    res.upgrade = true;
+  }
+
+  function onUpgrade(res, socket, head) {
+    // Hacky.
+    process.nextTick(function() {
+      onConnect(res, socket, head);
+    });
+  }
+
+  function onConnect(res, socket, head) {
+    connectReq.removeAllListeners();
+    socket.removeAllListeners();
+
+    if (res.statusCode !== 200) {
+      debug('tunneling socket could not be established, statusCode=%d',
+        res.statusCode);
+      socket.destroy();
+      var error = new Error('tunneling socket could not be established, ' +
+        'statusCode=' + res.statusCode);
+      error.code = 'ECONNRESET';
+      options.request.emit('error', error);
+      self.removeSocket(placeholder);
+      return;
+    }
+    if (head.length > 0) {
+      debug('got illegal response body from proxy');
+      socket.destroy();
+      var error = new Error('got illegal response body from proxy');
+      error.code = 'ECONNRESET';
+      options.request.emit('error', error);
+      self.removeSocket(placeholder);
+      return;
+    }
+    debug('tunneling connection has established');
+    self.sockets[self.sockets.indexOf(placeholder)] = socket;
+    return cb(socket);
+  }
+
+  function onError(cause) {
+    connectReq.removeAllListeners();
+
+    debug('tunneling socket could not be established, cause=%s\n',
+          cause.message, cause.stack);
+    var error = new Error('tunneling socket could not be established, ' +
+                          'cause=' + cause.message);
+    error.code = 'ECONNRESET';
+    options.request.emit('error', error);
+    self.removeSocket(placeholder);
+  }
+};
+
+TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
+  var pos = this.sockets.indexOf(socket)
+  if (pos === -1) {
+    return;
+  }
+  this.sockets.splice(pos, 1);
+
+  var pending = this.requests.shift();
+  if (pending) {
+    // If we have pending requests and a socket gets closed a new one
+    // needs to be created to take over in the pool for the one that closed.
+    this.createSocket(pending, function(socket) {
+      pending.request.onSocket(socket);
+    });
+  }
+};
+
+function createSecureSocket(options, cb) {
+  var self = this;
+  TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
+    var hostHeader = options.request.getHeader('host');
+    var tlsOptions = mergeOptions({}, self.options, {
+      socket: socket,
+      servername: hostHeader ? hostHeader.replace(/:.*$/, '') : options.host
+    });
+
+    // 0 is dummy port for v0.6
+    var secureSocket = tls.connect(0, tlsOptions);
+    self.sockets[self.sockets.indexOf(socket)] = secureSocket;
+    cb(secureSocket);
+  });
+}
+
+
+function toOptions(host, port, localAddress) {
+  if (typeof host === 'string') { // since v0.10
+    return {
+      host: host,
+      port: port,
+      localAddress: localAddress
+    };
+  }
+  return host; // for v0.11 or later
+}
+
+function mergeOptions(target) {
+  for (var i = 1, len = arguments.length; i < len; ++i) {
+    var overrides = arguments[i];
+    if (typeof overrides === 'object') {
+      var keys = Object.keys(overrides);
+      for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
+        var k = keys[j];
+        if (overrides[k] !== undefined) {
+          target[k] = overrides[k];
+        }
+      }
+    }
+  }
+  return target;
+}
+
+
+var debug;
+if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
+  debug = function() {
+    var args = Array.prototype.slice.call(arguments);
+    if (typeof args[0] === 'string') {
+      args[0] = 'TUNNEL: ' + args[0];
+    } else {
+      args.unshift('TUNNEL:');
+    }
+    console.error.apply(console, args);
+  }
+} else {
+  debug = function() {};
+}
+exports.debug = debug; // for test
+
+
+/***/ }),
+
+/***/ 970:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "c": () => /* binding */ old_pkgs
+/* harmony export */ });
+
+
+const baseUri = 'https://dl.bintray.com/oneclick/OpenKnapsack/x64'
+
+const baseSuf64 = 'x64-windows.tar.lzma'
+
+const old_pkgs = {
+  'libffi'  : `${baseUri}/libffi-3.2.1-${baseSuf64}`,
+  'openssl' : `${baseUri}/openssl-1.0.2j-${baseSuf64}`,
+  'ragel'   : `${baseUri}/ragel-6.7-${baseSuf64}`,
+  'sqlite3' : `${baseUri}/sqlite-3.7.15.2-${baseSuf64}`,
+  'zlib'    : `${baseUri}/zlib-1.2.8-${baseSuf64}`
+}
+
+
+/***/ }),
+
+/***/ 357:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("assert");
+
+/***/ }),
+
+/***/ 129:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 614:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("events");
+
+/***/ }),
+
+/***/ 747:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 605:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("http");
+
+/***/ }),
+
+/***/ 211:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("https");
+
+/***/ }),
+
+/***/ 631:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("net");
+
+/***/ }),
+
+/***/ 87:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("os");
+
+/***/ }),
+
+/***/ 622:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("path");
+
+/***/ }),
+
+/***/ 630:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("perf_hooks");
+
+/***/ }),
+
+/***/ 16:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("tls");
+
+/***/ }),
+
+/***/ 835:
+/***/ ((module) => {
+
+"use strict";
 module.exports = require("url");
 
 /***/ }),
 
-/***/ 855:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-module.exports = __webpack_require__(525);
-
-
-/***/ }),
-
-/***/ 894:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ 669:
+/***/ ((module) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRuby", function() { return setRuby; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
-
-
-const fs   = __webpack_require__(747)
-const core = __webpack_require__(276)
-
-// , updateKeyRing
-const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(498)
-
-// group start time
-let msSt
-
-let mingw = getInput('mingw')  // only parsed for openssl
-let mswin = getInput('mswin')
-let choco = getInput('choco')
-let vcpkg = getInput('vcpkg')
-
-let ruby
-
-const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-vars
-
-const run = async () => {
-  try {
-    if (mswin !== '') {
-      // await updateKeyRing('r21.b39fb11-1')
-
-      if (mingw.includes('ragel') && !mswin.includes('ragel')) {
-        mswin += ' mingw-w64-x86_64-ragel'
-        mswin = mswin.trim()
-      }
-      msSt = grpSt(`install msys2 packages: ${mswin}`)
-      execSync(`pacman.exe -Sy --noconfirm --noprogressbar --needed ${mswin}`)
-      grpEnd(msSt)
-    }
-
-    if (mingw.includes('openssl')) {
-      if (!choco.includes('openssl')) {
-        choco += ' openssl'
-        choco = choco.trim()        
-      }
-    }
-
-    if (choco !== '') {
-      msSt = grpSt(`choco install ${choco}`)
-      execSync(`choco install --no-progress ${choco}`)
-      if (choco.includes('openssl')) {
-        fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
-        core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
-      }
-      grpEnd(msSt)
-    }
-
-    if (vcpkg !== '') {
-      msSt = grpSt(`vcpkg --triplet x64-windows install ${vcpkg}`)
-      execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
-      const vcpkgRoot = process.env.VCPKG_INSTALLATION_ROOT.replace(/\\/g, '/')
-      core.exportVariable('OPT_DIR', `--with-opt-dir=${vcpkgRoot}/installed/x64-windows`)
-      const vcpkgTools = `${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\tools`
-      if (fs.existsSync(vcpkgTools) && fs.readdirSync(vcpkgTools).length >= 0) {
-        core.addPath(vcpkgTools)
-        console.log(`Added to Path: ${vcpkgTools}`)
-      }
-      grpEnd(msSt)
-    }
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-
-/***/ }),
-
-/***/ 924:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "run", function() { return run; });
-
-
-const core = __webpack_require__(276)
-
-const { execSync, grpSt, grpEnd } = __webpack_require__(498)
-
-// group start time
-let msSt
-
-// clean inputs
-let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
-
-const run = async () => {
-  try {
-    if (brew !== '') {
-      let needUpdate = true
-
-      if (/\b_update_\b/.test(brew)) {
-        msSt = grpSt('brew update')
-        execSync('brew update')
-        grpEnd(msSt)
-        needUpdate = false
-        brew = brew.replace(/\b_update_\b/gi, '').trim()
-      }
-
-      if (/\b_upgrade_\b/.test(brew)) {
-        msSt = grpSt('brew upgrade')
-        if (needUpdate) { execSync('brew update') }
-        execSync('brew upgrade')
-        grpEnd(msSt)
-        brew = brew.replace(/\b_upgrade_\b/gi, '').trim()
-      }
-
-      if (brew !== '') {
-        msSt = grpSt(`brew install ${brew}`)
-          execSync(`brew install ${brew}`)
-        grpEnd(msSt)
-      }
-    }
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
+module.exports = require("util");
 
 /***/ })
 
-/******/ },
-/******/ function(__webpack_require__) { // webpackRuntimeModules
-/******/ 	"use strict";
-/******/ 
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		if(__webpack_module_cache__[moduleId]) {
+/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		var threw = true;
+/******/ 		try {
+/******/ 			__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 			threw = false;
+/******/ 		} finally {
+/******/ 			if(threw) delete __webpack_module_cache__[moduleId];
+/******/ 		}
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	!function() {
+/******/ 	(() => {
 /******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = function(exports) {
+/******/ 		__webpack_require__.r = (exports) => {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
-/******/ 	}();
+/******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/define property getter */
-/******/ 	!function() {
-/******/ 		// define getter function for harmony exports
-/******/ 		var hasOwnProperty = Object.prototype.hasOwnProperty;
-/******/ 		__webpack_require__.d = function(exports, name, getter) {
-/******/ 			if(!hasOwnProperty.call(exports, name)) {
-/******/ 				Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 			}
-/******/ 		};
-/******/ 	}();
+/******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ }
-);
+/******/ 	__webpack_require__.ab = __dirname + "/";/************************************************************************/
+/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(781);
+/******/ })()
+;
