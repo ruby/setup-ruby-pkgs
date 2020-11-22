@@ -25,13 +25,13 @@ export const run = async () => {
       let needUpdate  = true
       let needUpgrade = true
 
-      if (/\b_update_\b/.test(apt)) {
+//      if (/\b_update_\b/.test(apt)) {
         msSt = grpSt('apt-get update')
         execSync(`sudo apt-get ${opts} -qy update`)
         grpEnd(msSt)
         apt = apt.replace(/\b_update_\b/gi, '').trim()
         needUpdate = false
-      }
+//      }
 
       if (/\b_dist-upgrade_\b/.test(apt)) {
         msSt = grpSt('apt-get dist-upgrade')
