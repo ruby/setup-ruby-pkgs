@@ -2,7 +2,7 @@ module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 256:
+/***/ 110:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -12,9 +12,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 
 
-const core = __webpack_require__(487)
+const core = __webpack_require__(948)
 
-const { execSync, grpSt, grpEnd } = __webpack_require__(732)
+const { execSync, grpSt, grpEnd } = __webpack_require__(734)
 
 // group start time
 let msSt
@@ -78,7 +78,7 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 386:
+/***/ 310:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -88,9 +88,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 
 
-const core = __webpack_require__(487)
+const core = __webpack_require__(948)
 
-const { execSync, grpSt, grpEnd } = __webpack_require__(732)
+const { execSync, grpSt, grpEnd } = __webpack_require__(734)
 
 // group start time
 let msSt
@@ -133,7 +133,7 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 732:
+/***/ 734:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -156,8 +156,8 @@ __webpack_require__.r(__webpack_exports__);
 const cp = __webpack_require__(129)
 const fs = __webpack_require__(747)
 const path  = __webpack_require__(622)
-const core  = __webpack_require__(487)
-const httpc = __webpack_require__(79)
+const core  = __webpack_require__(948)
+const httpc = __webpack_require__(666)
 
 const { performance } = __webpack_require__(630)
 
@@ -257,12 +257,9 @@ const win2nix = (path) => {
     path).replace(/\\/g, '/').replace(/ /g, '\\ ')
 }
 
-
-// Note
-// https://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz
 const updateKeyRing = async (vers) => {
   const dlPath = `${process.env.RUNNER_TEMP}\\srp`
-  const uri = `https://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.xz`
+  const uri = `https://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.zst`
   const fn = `${dlPath}\\key-ring.tar.xz`
   const msSt = grpSt('install updated MSYS2 keyring')
 
@@ -281,17 +278,17 @@ const updateKeyRing = async (vers) => {
 
 /***/ }),
 
-/***/ 781:
+/***/ 872:
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
 (async () => {
-  const core = __webpack_require__(487)
+  const core = __webpack_require__(948)
   const { performance } = __webpack_require__(630)
 
-  const common = __webpack_require__(732)
+  const common = __webpack_require__(734)
 
   const platform = __webpack_require__(87).platform()
 
@@ -322,14 +319,14 @@ const updateKeyRing = async (vers) => {
 
       switch (platform) {
         case 'linux':
-          runner = __webpack_require__(256)  ; break
+          runner = __webpack_require__(110)  ; break
         case 'darwin':
-          runner = __webpack_require__(386) ; break
+          runner = __webpack_require__(310) ; break
         case 'win32':
           ruby = common.ruby()
 
-          if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(483) }
-          else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(884) }
+          if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(31) }
+          else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(956) }
 
           if (runner) { runner.setRuby(ruby) }  // pass Ruby info to runner
       }
@@ -367,7 +364,7 @@ const updateKeyRing = async (vers) => {
 
 /***/ }),
 
-/***/ 483:
+/***/ 31:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -379,10 +376,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const fs   = __webpack_require__(747)
-const core = __webpack_require__(487)
+const core = __webpack_require__(948)
 
 // , updateKeyRing
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(732)
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(734)
 
 // group start time
 let msSt
@@ -511,7 +508,7 @@ const runMingw = async () => {
    * when using an installed mingw Ruby, normally _upgrade_ should be used
    */
   if (mingw.includes('_msvc_')) {
-    await __webpack_require__(884).addVCVARSEnv()
+    await __webpack_require__(956).addVCVARSEnv()
     return
   }
 
@@ -616,7 +613,7 @@ const run = async () => {
 
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
-        old_pkgs = __webpack_require__(970)/* .old_pkgs */ .c
+        old_pkgs = __webpack_require__(709)/* .old_pkgs */ .c
       }
 
       // install user specificied packages
@@ -640,7 +637,7 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 884:
+/***/ 956:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -652,10 +649,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const fs   = __webpack_require__(747)
-const core = __webpack_require__(487)
+const core = __webpack_require__(948)
 
 // , updateKeyRing
-const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(732)
+const { execSync, grpSt, grpEnd, getInput, updateKeyRing } = __webpack_require__(734)
 
 // group start time
 let msSt
@@ -672,7 +669,7 @@ const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-var
 const run = async () => {
   try {
     if (mswin !== '') {
-      // await updateKeyRing('r21.b39fb11-1')
+      await updateKeyRing('1~20210213-1')
 
       if (mingw.includes('ragel') && !mswin.includes('ragel')) {
         mswin += ' mingw-w64-x86_64-ragel'
@@ -686,7 +683,7 @@ const run = async () => {
     if (mingw.includes('openssl')) {
       if (!choco.includes('openssl')) {
         choco += ' openssl'
-        choco = choco.trim()        
+        choco = choco.trim()
       }
     }
 
@@ -720,7 +717,7 @@ const run = async () => {
 
 /***/ }),
 
-/***/ 994:
+/***/ 338:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -734,7 +731,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const os = __importStar(__webpack_require__(87));
-const utils_1 = __webpack_require__(718);
+const utils_1 = __webpack_require__(412);
 /**
  * Commands
  *
@@ -806,7 +803,7 @@ function escapeProperty(s) {
 
 /***/ }),
 
-/***/ 487:
+/***/ 948:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -828,9 +825,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const command_1 = __webpack_require__(994);
-const file_command_1 = __webpack_require__(345);
-const utils_1 = __webpack_require__(718);
+const command_1 = __webpack_require__(338);
+const file_command_1 = __webpack_require__(550);
+const utils_1 = __webpack_require__(412);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -1051,7 +1048,7 @@ exports.getState = getState;
 
 /***/ }),
 
-/***/ 345:
+/***/ 550:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -1069,7 +1066,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__webpack_require__(747));
 const os = __importStar(__webpack_require__(87));
-const utils_1 = __webpack_require__(718);
+const utils_1 = __webpack_require__(412);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -1087,7 +1084,7 @@ exports.issueCommand = issueCommand;
 
 /***/ }),
 
-/***/ 718:
+/***/ 412:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -1113,7 +1110,7 @@ exports.toCommandValue = toCommandValue;
 
 /***/ }),
 
-/***/ 79:
+/***/ 666:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -1121,7 +1118,7 @@ exports.toCommandValue = toCommandValue;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const http = __webpack_require__(605);
 const https = __webpack_require__(211);
-const pm = __webpack_require__(805);
+const pm = __webpack_require__(636);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -1540,7 +1537,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __webpack_require__(990);
+                tunnel = __webpack_require__(443);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -1656,7 +1653,7 @@ exports.HttpClient = HttpClient;
 
 /***/ }),
 
-/***/ 805:
+/***/ 636:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -1721,15 +1718,15 @@ exports.checkBypass = checkBypass;
 
 /***/ }),
 
-/***/ 990:
+/***/ 443:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-module.exports = __webpack_require__(849);
+module.exports = __webpack_require__(783);
 
 
 /***/ }),
 
-/***/ 849:
+/***/ 783:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -2001,7 +1998,7 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 970:
+/***/ 709:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -2029,7 +2026,7 @@ const old_pkgs = {
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");
+module.exports = require("assert");;
 
 /***/ }),
 
@@ -2037,7 +2034,7 @@ module.exports = require("assert");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("child_process");
+module.exports = require("child_process");;
 
 /***/ }),
 
@@ -2045,7 +2042,7 @@ module.exports = require("child_process");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");
+module.exports = require("events");;
 
 /***/ }),
 
@@ -2053,7 +2050,7 @@ module.exports = require("events");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");
+module.exports = require("fs");;
 
 /***/ }),
 
@@ -2061,7 +2058,7 @@ module.exports = require("fs");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");
+module.exports = require("http");;
 
 /***/ }),
 
@@ -2069,7 +2066,7 @@ module.exports = require("http");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");
+module.exports = require("https");;
 
 /***/ }),
 
@@ -2077,7 +2074,7 @@ module.exports = require("https");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");
+module.exports = require("net");;
 
 /***/ }),
 
@@ -2085,7 +2082,7 @@ module.exports = require("net");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");
+module.exports = require("os");;
 
 /***/ }),
 
@@ -2093,7 +2090,7 @@ module.exports = require("os");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");
+module.exports = require("path");;
 
 /***/ }),
 
@@ -2101,7 +2098,7 @@ module.exports = require("path");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("perf_hooks");
+module.exports = require("perf_hooks");;
 
 /***/ }),
 
@@ -2109,7 +2106,7 @@ module.exports = require("perf_hooks");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");
+module.exports = require("tls");;
 
 /***/ }),
 
@@ -2117,7 +2114,7 @@ module.exports = require("tls");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");
+module.exports = require("util");;
 
 /***/ })
 
@@ -2187,6 +2184,6 @@ module.exports = require("util");
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(781);
+/******/ 	return __webpack_require__(872);
 /******/ })()
 ;

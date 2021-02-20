@@ -104,12 +104,9 @@ export const win2nix = (path) => {
     path).replace(/\\/g, '/').replace(/ /g, '\\ ')
 }
 
-
-// Note
-// https://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz
 export const updateKeyRing = async (vers) => {
   const dlPath = `${process.env.RUNNER_TEMP}\\srp`
-  const uri = `https://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.xz`
+  const uri = `https://repo.msys2.org/msys/x86_64/msys2-keyring-${vers}-any.pkg.tar.zst`
   const fn = `${dlPath}\\key-ring.tar.xz`
   const msSt = grpSt('install updated MSYS2 keyring')
 
