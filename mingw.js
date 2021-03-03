@@ -204,7 +204,7 @@ export const run = async () => {
     //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     // })
 
-    // await updateKeyRing('r21.b39fb11-1')
+    // await updateKeyRing('1~20210213-1')
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {

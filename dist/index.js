@@ -579,7 +579,7 @@ const run = async () => {
     //   if (fs.existsSync(bad)) { fs.renameSync(bad, `${bad}_`) }
     // })
 
-    // await updateKeyRing('r21.b39fb11-1')
+    // await updateKeyRing('1~20210213-1')
 
     if (mingw !== '' || msys2 !== '') {
       if (ruby.abiVers >= '2.4.0') {
@@ -652,7 +652,7 @@ const fs   = __webpack_require__(747)
 const core = __webpack_require__(948)
 
 // , updateKeyRing
-const { execSync, grpSt, grpEnd, getInput, updateKeyRing } = __webpack_require__(734)
+const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(734)
 
 // group start time
 let msSt
@@ -669,7 +669,7 @@ const setRuby = (_ruby) => { ruby = _ruby } // eslint-disable-line no-unused-var
 const run = async () => {
   try {
     if (mswin !== '') {
-      await updateKeyRing('1~20210213-1')
+      // await updateKeyRing('1~20210213-1')
 
       if (mingw.includes('ragel') && !mswin.includes('ragel')) {
         mswin += ' mingw-w64-x86_64-ragel'
