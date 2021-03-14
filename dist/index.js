@@ -496,6 +496,13 @@ const installMSYS2 = async () => {
 
 // install MinGW packages from mingw input
 const runMingw = async () => {
+
+  if (ruby.abiVers >= '2.4') {
+    msSt = grpSt(`pacman.exe -Sy pacman-mirrors`)
+    execSync(`pacman.exe -Sy ${args} pacman-mirrors`)
+    grpEnd(msSt)
+  }
+
   if (mingw.includes('_upgrade_')) {
     if (ruby.abiVers >= '2.4') {
       await updateGCC()
