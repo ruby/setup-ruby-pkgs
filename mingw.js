@@ -198,7 +198,8 @@ const runMSYS2 = async () => {
 
 export const setRuby = (_ruby) => {
   ruby = _ruby
-  pre = (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
+  pre = (ruby.sitearch === 'x64-ucrt') ? 'mingw-w64-ucrt-x86_64-' :
+    (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
 }
 
 export const run = async () => {
