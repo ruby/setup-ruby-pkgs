@@ -82,12 +82,12 @@ const openssl = async () => {
     msSt = grpSt('install 2.4 OpenSSL')
 
     // appveyor ri2 package signing key
-    let key = 'F98B8484BE8BF1C5'
-    execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
-    execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
+    // let key = 'F98B8484BE8BF1C5'
+    // execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
+    // execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
+    // await download(`${uri}.sig`, `${fn}.sig`)
 
     await download(uri, fn)
-    await download(`${uri}.sig`, `${fn}.sig`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingw = mingw.replace(/\bopenssl\b/gi, '').trim()

@@ -1,20 +1,19 @@
-module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 110:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "run": () => /* binding */ run
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "run": () => (/* binding */ run)
 /* harmony export */ });
 
 
-const core = __webpack_require__(948)
+const core = __nccwpck_require__(948)
 
-const { execSync, grpSt, grpEnd } = __webpack_require__(734)
+const { execSync, grpSt, grpEnd } = __nccwpck_require__(734)
 
 // group start time
 let msSt
@@ -79,18 +78,18 @@ const run = async () => {
 /***/ }),
 
 /***/ 310:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "run": () => /* binding */ run
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "run": () => (/* binding */ run)
 /* harmony export */ });
 
 
-const core = __webpack_require__(948)
+const core = __nccwpck_require__(948)
 
-const { execSync, grpSt, grpEnd } = __webpack_require__(734)
+const { execSync, grpSt, grpEnd } = __nccwpck_require__(734)
 
 // group start time
 let msSt
@@ -134,32 +133,32 @@ const run = async () => {
 /***/ }),
 
 /***/ 734:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "version": () => /* binding */ version,
-/* harmony export */   "download": () => /* binding */ download,
-/* harmony export */   "ruby": () => /* binding */ ruby,
-/* harmony export */   "execSync": () => /* binding */ execSync,
-/* harmony export */   "execSyncQ": () => /* binding */ execSyncQ,
-/* harmony export */   "grpSt": () => /* binding */ grpSt,
-/* harmony export */   "grpEnd": () => /* binding */ grpEnd,
-/* harmony export */   "log": () => /* binding */ log,
-/* harmony export */   "getInput": () => /* binding */ getInput,
-/* harmony export */   "win2nix": () => /* binding */ win2nix,
-/* harmony export */   "updateKeyRing": () => /* binding */ updateKeyRing
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "version": () => (/* binding */ version),
+/* harmony export */   "download": () => (/* binding */ download),
+/* harmony export */   "ruby": () => (/* binding */ ruby),
+/* harmony export */   "execSync": () => (/* binding */ execSync),
+/* harmony export */   "execSyncQ": () => (/* binding */ execSyncQ),
+/* harmony export */   "grpSt": () => (/* binding */ grpSt),
+/* harmony export */   "grpEnd": () => (/* binding */ grpEnd),
+/* harmony export */   "log": () => (/* binding */ log),
+/* harmony export */   "getInput": () => (/* binding */ getInput),
+/* harmony export */   "win2nix": () => (/* binding */ win2nix),
+/* harmony export */   "updateKeyRing": () => (/* binding */ updateKeyRing)
 /* harmony export */ });
 
 
-const cp = __webpack_require__(129)
-const fs = __webpack_require__(747)
-const path  = __webpack_require__(622)
-const core  = __webpack_require__(948)
-const httpc = __webpack_require__(666)
+const cp = __nccwpck_require__(129)
+const fs = __nccwpck_require__(747)
+const path  = __nccwpck_require__(622)
+const core  = __nccwpck_require__(948)
+const httpc = __nccwpck_require__(666)
 
-const { performance } = __webpack_require__(630)
+const { performance } = __nccwpck_require__(630)
 
 const colors = {
   'yel': '\x1b[93m',
@@ -167,7 +166,7 @@ const colors = {
 }
 const rst = '\x1b[0m'
 
-const version = JSON.parse(fs.readFileSync(__webpack_require__.ab + "package.json", 'utf8')).version
+const version = JSON.parse(fs.readFileSync(__nccwpck_require__.ab + "package.json", 'utf8')).version
 
 const download = async (uri, dest, log = true) => {
   // make sure the folder exists
@@ -278,108 +277,22 @@ const updateKeyRing = async (vers) => {
 
 /***/ }),
 
-/***/ 872:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-(async () => {
-  const core = __webpack_require__(948)
-  const { performance } = __webpack_require__(630)
-
-  const common = __webpack_require__(734)
-
-  const platform = __webpack_require__(87).platform()
-
-  let ref = core.getInput('setup-ruby-ref')
-  if (ref === '') { ref = 'ruby/setup-ruby/v1' }
-
-  let rubyInfo
-  let timeSt
-  let doBundler = false
-
-  const timeEnd = (msSt) => {
-    const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
-    console.log(`  took ${timeStr} s`)
-  }
-
-  try {
-
-    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
-    core.exportVariable('CI'    , 'true')
-
-    const pkgs = async (ri) => {
-      rubyInfo = ri
-      timeEnd(timeSt)
-      common.log(`  —————————————————— Package tasks using: MSP-Greg/setup-ruby-pkgs ${common.version}`)
-      // console.log(rubyInfo)
-      let runner
-      let ruby
-
-      switch (platform) {
-        case 'linux':
-          runner = __webpack_require__(110)  ; break
-        case 'darwin':
-          runner = __webpack_require__(310) ; break
-        case 'win32':
-          ruby = common.ruby()
-
-          if      ( ruby.platform.includes('mingw') ) { runner = __webpack_require__(31) }
-          else if ( ruby.platform.includes('mswin') ) { runner = __webpack_require__(956) }
-
-          if (runner) { runner.setRuby(ruby) }  // pass Ruby info to runner
-      }
-
-      if (runner) { await runner.run() }
-
-      if ((core.getInput('ruby-version') !== 'none') &&
-          (core.getInput('bundler') !== 'none')    ) {
-        doBundler = true
-        timeSt = performance.now()
-        common.log(`  —————————————————— Bundler tasks using: ${ref}`)
-      }
-    }
-
-    timeSt = performance.now()
-
-    if (core.getInput('ruby-version') !== 'none') {
-      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
-      common.log(`  ——————————————————    Ruby tasks using: ${ref}`)
-      await common.download(`https://raw.githubusercontent.com/${ref}/dist/index.js`, fn, false)
-      // pass pkgs function to setup-ruby, allows package installation before
-      // 'bundle install' but after ruby setup (install, paths, compile tools, etc)
-      await require(fn).setupRuby({afterSetupPathHook: pkgs})
-      if (doBundler) { timeEnd(timeSt) }
-    } else {
-      // install packages if setup-ruby is not used
-      await pkgs()
-    }
-  } catch (e) {
-    console.log(`::error::${e.message}`)
-    process.exitCode = 1
-  }
-})()
-
-
-/***/ }),
-
 /***/ 31:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "setRuby": () => /* binding */ setRuby,
-/* harmony export */   "run": () => /* binding */ run
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "setRuby": () => (/* binding */ setRuby),
+/* harmony export */   "run": () => (/* binding */ run)
 /* harmony export */ });
 
 
-const fs   = __webpack_require__(747)
-const core = __webpack_require__(948)
+const fs   = __nccwpck_require__(747)
+const core = __nccwpck_require__(948)
 
 // , updateKeyRing
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __webpack_require__(734)
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = __nccwpck_require__(734)
 
 // group start time
 let msSt
@@ -457,12 +370,12 @@ const openssl = async () => {
     msSt = grpSt('install 2.4 OpenSSL')
 
     // appveyor ri2 package signing key
-    let key = 'F98B8484BE8BF1C5'
-    execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
-    execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
+    // let key = 'F98B8484BE8BF1C5'
+    // execSync(`bash.exe -c "pacman-key --recv-keys ${key}"`)
+    // execSync(`bash.exe -c "pacman-key --lsign-key ${key}"`)
+    // await download(`${uri}.sig`, `${fn}.sig`)
 
     await download(uri, fn)
-    await download(`${uri}.sig`, `${fn}.sig`)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
@@ -513,7 +426,7 @@ const runMingw = async () => {
    * when using an installed mingw Ruby, normally _upgrade_ should be used
    */
   if (mingw.includes('_msvc_')) {
-    await __webpack_require__(956).addVCVARSEnv()
+    await __nccwpck_require__(956).addVCVARSEnv()
     return
   }
 
@@ -618,7 +531,7 @@ const run = async () => {
 
       } else {
         // get list of available pkgs for Ruby 2.2 & 2.3
-        old_pkgs = __webpack_require__(709)/* .old_pkgs */ .c
+        old_pkgs = __nccwpck_require__(709)/* .old_pkgs */ .c
       }
 
       // install user specificied packages
@@ -643,21 +556,21 @@ const run = async () => {
 /***/ }),
 
 /***/ 956:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "setRuby": () => /* binding */ setRuby,
-/* harmony export */   "run": () => /* binding */ run
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "setRuby": () => (/* binding */ setRuby),
+/* harmony export */   "run": () => (/* binding */ run)
 /* harmony export */ });
 
 
-const fs   = __webpack_require__(747)
-const core = __webpack_require__(948)
+const fs   = __nccwpck_require__(747)
+const core = __nccwpck_require__(948)
 
 // , updateKeyRing
-const { execSync, grpSt, grpEnd, getInput } = __webpack_require__(734)
+const { execSync, grpSt, grpEnd, getInput } = __nccwpck_require__(734)
 
 // group start time
 let msSt
@@ -723,20 +636,33 @@ const run = async () => {
 /***/ }),
 
 /***/ 338:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __importStar(__webpack_require__(87));
-const utils_1 = __webpack_require__(412);
+exports.issue = exports.issueCommand = void 0;
+const os = __importStar(__nccwpck_require__(87));
+const utils_1 = __nccwpck_require__(412);
 /**
  * Commands
  *
@@ -809,10 +735,29 @@ function escapeProperty(s) {
 /***/ }),
 
 /***/ 948:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -822,19 +767,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const command_1 = __webpack_require__(338);
-const file_command_1 = __webpack_require__(550);
-const utils_1 = __webpack_require__(412);
-const os = __importStar(__webpack_require__(87));
-const path = __importStar(__webpack_require__(622));
+exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+const command_1 = __nccwpck_require__(338);
+const file_command_1 = __nccwpck_require__(550);
+const utils_1 = __nccwpck_require__(412);
+const os = __importStar(__nccwpck_require__(87));
+const path = __importStar(__nccwpck_require__(622));
 /**
  * The code to exit an action
  */
@@ -896,7 +835,9 @@ function addPath(inputPath) {
 }
 exports.addPath = addPath;
 /**
- * Gets the value of an input.  The value is also trimmed.
+ * Gets the value of an input.
+ * Unless trimWhitespace is set to false in InputOptions, the value is also trimmed.
+ * Returns an empty string if the value is not defined.
  *
  * @param     name     name of the input to get
  * @param     options  optional. See InputOptions.
@@ -907,9 +848,49 @@ function getInput(name, options) {
     if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
     }
+    if (options && options.trimWhitespace === false) {
+        return val;
+    }
     return val.trim();
 }
 exports.getInput = getInput;
+/**
+ * Gets the values of an multiline input.  Each value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string[]
+ *
+ */
+function getMultilineInput(name, options) {
+    const inputs = getInput(name, options)
+        .split('\n')
+        .filter(x => x !== '');
+    return inputs;
+}
+exports.getMultilineInput = getMultilineInput;
+/**
+ * Gets the input value of the boolean type in the YAML 1.2 "core schema" specification.
+ * Support boolean input list: `true | True | TRUE | false | False | FALSE` .
+ * The return value is also in boolean type.
+ * ref: https://yaml.org/spec/1.2/spec.html#id2804923
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   boolean
+ */
+function getBooleanInput(name, options) {
+    const trueValue = ['true', 'True', 'TRUE'];
+    const falseValue = ['false', 'False', 'FALSE'];
+    const val = getInput(name, options);
+    if (trueValue.includes(val))
+        return true;
+    if (falseValue.includes(val))
+        return false;
+    throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}\n` +
+        `Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+}
+exports.getBooleanInput = getBooleanInput;
 /**
  * Sets the value of an output.
  *
@@ -1055,24 +1036,37 @@ exports.getState = getState;
 /***/ }),
 
 /***/ 550:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
 // For internal use, subject to change.
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.issueCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__webpack_require__(747));
-const os = __importStar(__webpack_require__(87));
-const utils_1 = __webpack_require__(412);
+const fs = __importStar(__nccwpck_require__(747));
+const os = __importStar(__nccwpck_require__(87));
+const utils_1 = __nccwpck_require__(412);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -1098,6 +1092,7 @@ exports.issueCommand = issueCommand;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toCommandValue = void 0;
 /**
  * Sanitizes an input into a string so it can be passed into issueCommand safely
  * @param input input to sanitize into a string
@@ -1117,14 +1112,14 @@ exports.toCommandValue = toCommandValue;
 /***/ }),
 
 /***/ 666:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const http = __webpack_require__(605);
-const https = __webpack_require__(211);
-const pm = __webpack_require__(636);
+const http = __nccwpck_require__(605);
+const https = __nccwpck_require__(211);
+const pm = __nccwpck_require__(636);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -1543,7 +1538,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __webpack_require__(443);
+                tunnel = __nccwpck_require__(443);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -1727,26 +1722,26 @@ exports.checkBypass = checkBypass;
 /***/ }),
 
 /***/ 443:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __webpack_require__(783);
+module.exports = __nccwpck_require__(783);
 
 
 /***/ }),
 
 /***/ 783:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var net = __webpack_require__(631);
-var tls = __webpack_require__(16);
-var http = __webpack_require__(605);
-var https = __webpack_require__(211);
-var events = __webpack_require__(614);
-var assert = __webpack_require__(357);
-var util = __webpack_require__(669);
+var net = __nccwpck_require__(631);
+var tls = __nccwpck_require__(16);
+var http = __nccwpck_require__(605);
+var https = __nccwpck_require__(211);
+var events = __nccwpck_require__(614);
+var assert = __nccwpck_require__(357);
+var util = __nccwpck_require__(669);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -2007,11 +2002,11 @@ exports.debug = debug; // for test
 /***/ }),
 
 /***/ 709:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "c": () => /* binding */ old_pkgs
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "c": () => (/* binding */ old_pkgs)
 /* harmony export */ });
 
 
@@ -2135,10 +2130,11 @@ module.exports = require("util");;
 /******/ 	var __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+/******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -2150,7 +2146,7 @@ module.exports = require("util");;
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
-/******/ 			__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 			__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
 /******/ 			threw = false;
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
@@ -2164,9 +2160,9 @@ module.exports = require("util");;
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
 /******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
@@ -2175,13 +2171,13 @@ module.exports = require("util");;
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
+/******/ 		__nccwpck_require__.r = (exports) => {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
@@ -2191,10 +2187,92 @@ module.exports = require("util");;
 /******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	__webpack_require__.ab = __dirname + "/";/************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(872);
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+
+
+(async () => {
+  const core = __nccwpck_require__(948)
+  const { performance } = __nccwpck_require__(630)
+
+  const common = __nccwpck_require__(734)
+
+  const platform = __nccwpck_require__(87).platform()
+
+  let ref = core.getInput('setup-ruby-ref')
+  if (ref === '') { ref = 'ruby/setup-ruby/v1' }
+
+  let rubyInfo
+  let timeSt
+  let doBundler = false
+
+  const timeEnd = (msSt) => {
+    const timeStr = ((performance.now() - msSt)/1000).toFixed(2).padStart(6)
+    console.log(`  took ${timeStr} s`)
+  }
+
+  try {
+
+    core.exportVariable('TMPDIR', process.env.RUNNER_TEMP)
+    core.exportVariable('CI'    , 'true')
+
+    const pkgs = async (ri) => {
+      rubyInfo = ri
+      timeEnd(timeSt)
+      common.log(`  —————————————————— Package tasks using: MSP-Greg/setup-ruby-pkgs ${common.version}`)
+      // console.log(rubyInfo)
+      let runner
+      let ruby
+
+      switch (platform) {
+        case 'linux':
+          runner = __nccwpck_require__(110)  ; break
+        case 'darwin':
+          runner = __nccwpck_require__(310) ; break
+        case 'win32':
+          ruby = common.ruby()
+
+          if      ( ruby.platform.includes('mingw') ) { runner = __nccwpck_require__(31) }
+          else if ( ruby.platform.includes('mswin') ) { runner = __nccwpck_require__(956) }
+
+          if (runner) { runner.setRuby(ruby) }  // pass Ruby info to runner
+      }
+
+      if (runner) { await runner.run() }
+
+      if ((core.getInput('ruby-version') !== 'none') &&
+          (core.getInput('bundler') !== 'none')    ) {
+        doBundler = true
+        timeSt = performance.now()
+        common.log(`  —————————————————— Bundler tasks using: ${ref}`)
+      }
+    }
+
+    timeSt = performance.now()
+
+    if (core.getInput('ruby-version') !== 'none') {
+      const fn = `${process.env.RUNNER_TEMP}\\setup_ruby.js`
+      common.log(`  ——————————————————    Ruby tasks using: ${ref}`)
+      await common.download(`https://raw.githubusercontent.com/${ref}/dist/index.js`, fn, false)
+      // pass pkgs function to setup-ruby, allows package installation before
+      // 'bundle install' but after ruby setup (install, paths, compile tools, etc)
+      await require(fn).setupRuby({afterSetupPathHook: pkgs})
+      if (doBundler) { timeEnd(timeSt) }
+    } else {
+      // install packages if setup-ruby is not used
+      await pkgs()
+    }
+  } catch (e) {
+    console.log(`::error::${e.message}`)
+    process.exitCode = 1
+  }
+})()
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
