@@ -409,6 +409,8 @@ const installMSYS2 = async () => {
 const runMingw = async () => {
 
   if (ruby.abiVers >= '2.4') {
+    // disable slow disk space check
+    execSync("sed -i 's/^CheckSpace/#CheckSpace/g' C:/msys64/etc/pacman.conf")
     msSt = grpSt(`pacman.exe -Sy pacman-mirrors`)
     execSync(`pacman.exe -Sy ${args} pacman-mirrors`)
     grpEnd(msSt)
