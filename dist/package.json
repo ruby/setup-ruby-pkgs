@@ -1,6 +1,6 @@
 {
   "name": "setup-ruby-pkgs",
-  "version": "1.29.1",
+  "version": "1.29.2",
   "description": "Install packages and update builds tools for Ruby",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "author": "MSP-Greg",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.4.0",
+    "@actions/core": "^1.5.0",
     "@actions/http-client": "^1.0.11"
   }
 }
