@@ -3,42 +3,73 @@ description: 'Cross platform action for setting up Ruby build environments.  Run
 author: 'MSP-Greg'
 inputs:
   ruby-version:
-    description: 'Used by ruby/setup-ruby.  Ruby version.  A value of "none" will bypass running ruby/setup-ruby'
+    description: |
+      Used by ruby/setup-ruby.  Ruby version.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+      A value of 'none' will bypass running ruby/setup-ruby.
     required: false
     default: 'default'
   bundler:
-    description: 'Used by ruby/setup-ruby.  The version of Bundler to install. Either none, 1, 2, latest or Gemfile.lock. The default tries Gemfile.lock and otherwise uses latest.'
+    description: |
+      Used by ruby/setup-ruby.  The version of Bundler to install.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md.
     required: false
     default: 'default'
   bundler-cache:
-    description: 'Used by ruby/setup-ruby.  Run "bundle install", and cache the result automatically. Either true or false.'
+    description: |
+      Used by ruby/setup-ruby.  Run 'bundle install', and cache the result automatically.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md.
     required: false
     default: 'false'
   working-directory:
-    description: 'Used by ruby/setup-ruby.  The working directory to use for resolving paths for .ruby-version, .tool-versions and Gemfile.lock.'
+    description: |
+      Used by ruby/setup-ruby.  The working directory to use for resolving paths for
+      .ruby-version, .tool-versions and Gemfile.lock.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md.
     required: false
     default: '.'
+  cache-version:
+    description: |
+      Used by ruby/setup-ruby.  Arbitrary string that will be added to the cache key
+      of the bundler cache. Set or change it if you need to invalidate the cache.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+    required: false
+    default: '0'
   apt-get:
     description: 'Ubuntu - install packages'
+    required: false
     default: ''
   brew:
     description: 'macOS - install packages'
+    required: false
     default: ''
   mingw:
     description: 'MinGW - install MSYS2 mingw64 packages'
+    required: false
     default: ''
   msys2:
     description: 'MinGW - install MSYS2 msys2 packages'
+    required: false
     default: ''
   mswin:
     description: 'mswin - install MSYS2 packages (mingw64 packages need prefix)'
+    required: false
     default: ''
   choco:
     description: 'mswin - install Chocolatey packages'
+    required: false
     default: ''
   vcpkg:
     description: 'mswin - install vcpkg packages'
+    required: false
     default: ''
+  setup-ruby-ref:
+    description: |
+      Base ruby-setup repository. It is executed before installing packages,
+      and after if 'bundle install' is used.  Only used for testing updates to
+      ruby/setup-ruby.  Changing this may run untrusted code.
+    required: false
+    default: 'ruby/setup-ruby/v1'
 runs:
   using: 'node12'
   main: 'dist/index.js'
