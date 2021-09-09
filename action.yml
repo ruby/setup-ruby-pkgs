@@ -39,6 +39,9 @@ inputs:
   vcpkg:
     description: 'mswin - install vcpkg packages'
     default: ''
+  setup-ruby-ref:
+    description: 'Base ruby-setup repository. It is executed before installing packages.'
+    default: 'ruby/setup-ruby/v1'
 runs:
   using: 'node12'
   main: 'dist/index.js'
