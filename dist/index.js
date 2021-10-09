@@ -316,10 +316,10 @@ let old_pkgs
 let RELEASE_ASSET
 
 // clean inputs
-let mingw = getInput('mingw')
-let msys2 = getInput('msys2')
+let mingwPkgs = getInput('mingw')
+let msys2Pkgs = getInput('msys2')
 
-let pre // set in setRuby, ' mingw-w64-x86_64-' or ' mingw-w64-i686-'
+let pre // package prefix, set in setRuby
 // standard pacman args
 const args  = '--noconfirm --noprogressbar --needed'
 
@@ -378,7 +378,7 @@ const openssl = async () => {
     await download(uri, fn)
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
-    mingw = mingw.replace(/\bopenssl\b/gi, '').trim()
+    mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
   }
 }
 
@@ -416,34 +416,34 @@ const runMingw = async () => {
     grpEnd(msSt)
   }
 
-  if (mingw.includes('_upgrade_')) {
+  if (mingwPkgs.includes('_upgrade_')) {
     if (ruby.abiVers >= '2.4') {
       await updateGCC()
       msys2Sync = '-S'
     }
-    mingw = mingw.replace(/\b_upgrade_\b/g, '').trim()
+    mingwPkgs = mingwPkgs.replace(/\b_upgrade_\b/g, '').trim()
   }
 
   /* _msvc_ can be used when building mswin Rubies
    * when using an installed mingw Ruby, normally _upgrade_ should be used
    */
-  if (mingw.includes('_msvc_')) {
+  if (mingwPkgs.includes('_msvc_')) {
     await __nccwpck_require__(956).addVCVARSEnv()
     return
   }
 
-  if (mingw !== '') {
+  if (mingwPkgs !== '') {
     if (ruby.abiVers >= '2.4.0') {
-      if (mingw.includes('openssl')) {
+      if (mingwPkgs.includes('openssl')) {
         await openssl()
       }
-      if (mingw !== '') {
-        let pkgs = mingw.split(/\s+/)
+      if (mingwPkgs !== '') {
+        let pkgs = mingwPkgs.split(/\s+/)
         pkgs.unshift('')
         let list = pkgs.join(pre)
-        if (msys2 !== '') {
-          list += ' ' + msys2
-          msys2 = ''
+        if (msys2Pkgs !== '') {
+          list += ' ' + msys2Pkgs
+          msys2Pkgs = ''
         }
         msSt = grpSt(`pacman.exe -S ${list}`)
         execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
@@ -452,7 +452,7 @@ const runMingw = async () => {
     } else {
       // install old DevKit packages
       let toInstall = []
-      let pkgs = mingw.split(/\s+/)
+      let pkgs = mingwPkgs.split(/\s+/)
       pkgs.forEach( (pkg) => {
         if (old_pkgs[pkg]) {
           toInstall.push({ pkg: pkg, uri: old_pkgs[pkg]})
@@ -481,14 +481,15 @@ const runMSYS2 = async () => {
   if (ruby.abiVers < '2.4.0') {
     pacman = 'C:\\msys64\\usr\\bin\\pacman.exe'
   }
-  msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2}`)
-  execSync(`${pacman} ${msys2Sync} ${args} ${msys2}`)
+  msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2Pkgs}`)
+  execSync(`${pacman} ${msys2Sync} ${args} ${msys2Pkgs}`)
   grpEnd(msSt)
 }
 
 const setRuby = (_ruby) => {
   ruby = _ruby
-  pre = (ruby.platform === 'x64-mingw32') ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
+  pre = (ruby.platform === 'x64-mingw-ucrt') ? ' mingw-w64-ucrt-x86_64-' :
+        (ruby.platform === 'x64-mingw32')    ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
 }
 
 const run = async () => {
@@ -501,7 +502,7 @@ const run = async () => {
 
     // await updateKeyRing('1~20210213-1')
 
-    if (mingw !== '' || msys2 !== '') {
+    if (mingwPkgs !== '' || msys2Pkgs !== '') {
       if (ruby.abiVers >= '2.4.0') {
         // remove pacman CheckSpace, move cache dir to SSD
         const conf_fn = 'C:\\msys64\\etc\\pacman.conf'
@@ -537,8 +538,8 @@ const run = async () => {
       }
 
       // install user specificied packages
-      if (mingw !== '') { await runMingw() }
-      if (msys2 !== '') { await runMSYS2() }
+      if (mingwPkgs !== '') { await runMingw() }
+      if (msys2Pkgs !== '') { await runMSYS2() }
     }
 
     if (ruby.abiVers >= '2.4.0') {
