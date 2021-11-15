@@ -4,7 +4,7 @@ const fs   = require('fs')
 const core = require('@actions/core')
 
 // , updateKeyRing
-const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, win2nix } = require('./common')
+const { download, execSync, execSyncQ, grpSt, grpEnd, getInput, is2022orLater, win2nix } = require('./common')
 
 // group start time
 let msSt
@@ -88,10 +88,12 @@ const openssl = async () => {
     // await download(`${uri}.sig`, `${fn}.sig`)
 
     await download(uri, fn)
+    checkSpace
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
-  }
+  } else if (is2022orLater && ruby.abiVers >= '2.5.0 ')
+    mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
 }
 
 // Updates MSYS2 MinGW gcc items
@@ -99,6 +101,7 @@ const updateGCC = async () => {
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
 
   msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
+  checkSpace
   let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'pkgconf', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
   execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
   grpEnd(msSt)
@@ -117,23 +120,32 @@ const installMSYS2 = async () => {
   core.info('Installed MSYS2 for Ruby 2.4 and later')
 }
 
+let checkSpaceIsDone = false
+
+// disable slow disk space check
+const checkSpace = () => {
+  if (!checkSpaceIsDone) {
+    execSync("sed -i 's/^CheckSpace/#CheckSpace/g' C:/msys64/etc/pacman.conf")
+    checkSpaceIsDone = true
+  }
+}
+
 // install MinGW packages from mingw input
 const runMingw = async () => {
 
-  if (ruby.abiVers >= '2.4') {
-    // disable slow disk space check
-    execSync("sed -i 's/^CheckSpace/#CheckSpace/g' C:/msys64/etc/pacman.conf")
+  if (ruby.abiVers >= '2.4' && !is2022orLater) {
     msSt = grpSt(`pacman.exe -Sy pacman-mirrors`)
+    checkSpace
     execSync(`pacman.exe -Sy ${args} pacman-mirrors`)
     grpEnd(msSt)
   }
 
   if (mingwPkgs.includes('_upgrade_')) {
-    if (ruby.abiVers >= '2.4') {
+    if (ruby.abiVers >= '2.4' && !is2022orLater) {
       await updateGCC()
       msys2Sync = '-S'
     }
-    mingwPkgs = mingwPkgs.replace(/\b_upgrade_\b/g, '').trim()
+    mingwPkgs = mingwPkgs.replace(/\b_upgrade_\b/gi, '').trim()
   }
 
   /* _msvc_ can be used when building mswin Rubies
@@ -144,45 +156,56 @@ const runMingw = async () => {
     return
   }
 
-  if (mingwPkgs !== '') {
-    if (ruby.abiVers >= '2.4.0') {
+  if (ruby.abiVers >= '2.4.0') {
+    let list = ''
+    if (mingwPkgs !== '') {
+      if (is2022orLater) {
+        const preInstalled2022 = /\b(dlfcn|gmp|libffi|libyaml|ragel|readline)\b/gi
+        mingwPkgs = mingwPkgs.replace(preInstalled2022, '').trim()
+      }
       if (mingwPkgs.includes('openssl')) {
         await openssl()
       }
       if (mingwPkgs !== '') {
         let pkgs = mingwPkgs.split(/\s+/)
         pkgs.unshift('')
-        let list = pkgs.join(pre)
-        if (msys2Pkgs !== '') {
-          list += ' ' + msys2Pkgs
-          msys2Pkgs = ''
-        }
-        msSt = grpSt(`pacman.exe -S ${list}`)
-        execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
-        grpEnd(msSt)
+        list = pkgs.join(pre)
       }
-    } else {
-      // install old DevKit packages
-      let toInstall = []
-      let pkgs = mingwPkgs.split(/\s+/)
-      pkgs.forEach( (pkg) => {
-        if (old_pkgs[pkg]) {
-          toInstall.push({ pkg: pkg, uri: old_pkgs[pkg]})
-        } else {
-          core.warning(`Package '${pkg}' is not available`)
-        }
-      })
-      if (toInstall.length !== 0) {
-        const list = toInstall.map(item => item.pkg).join(' ')
-        msSt = grpSt(`installing MSYS packages: ${list}`)
-        for (const item of toInstall) {
-          let fn = `${dlPath}\\${item.pkg}.tar.lzma`
-          await download(item.uri, fn)
-          let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
-          execSyncQ(cmd)
-        }
-        grpEnd(msSt)
+    }
+    if (msys2Pkgs !== '') {
+      if (is2022orLater) msys2Pkgs = msys2Pkgs.replace(/\bbison\b/gi, '').trim()
+      if (msys2Pkgs !== '') {
+        list += ' ' + msys2Pkgs
+        msys2Pkgs = ''
       }
+    }
+    if (list !== '') {
+      msSt = grpSt(`pacman.exe -S ${list}`)
+      checkSpace
+      execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
+      grpEnd(msSt)
+    }
+  } else if (mingwPkgs !== '') {
+    // install old DevKit packages
+    let toInstall = []
+    let pkgs = mingwPkgs.split(/\s+/)
+    pkgs.forEach( (pkg) => {
+      if (old_pkgs[pkg]) {
+        toInstall.push({ pkg: pkg, uri: old_pkgs[pkg]})
+      } else {
+        core.warning(`Package '${pkg}' is not available`)
+      }
+    })
+    if (toInstall.length !== 0) {
+      const list = toInstall.map(item => item.pkg).join(' ')
+      msSt = grpSt(`installing MSYS packages: ${list}`)
+      for (const item of toInstall) {
+        let fn = `${dlPath}\\${item.pkg}.tar.lzma`
+        await download(item.uri, fn)
+        let cmd = `7z x -tlzma ${fn} -so | 7z x -aoa -si -ttar -o${dirDK7z}`
+        execSyncQ(cmd)
+      }
+      grpEnd(msSt)
     }
   }
 }
