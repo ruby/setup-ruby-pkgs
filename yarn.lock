@@ -16,6 +16,11 @@
   dependencies:
     tunnel "0.0.6"
 
+"@vercel/ncc@^0.31.1":
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/@vercel/ncc/-/ncc-0.31.1.tgz#9346c7e59326f5eeac75c0286e47df94c2d6d8f7"
+  integrity sha512-g0FAxwdViI6UzsiVz5HssIHqjcPa1EHL6h+2dcJD893SoCJaGdqqgUF09xnMW6goWnnhbLvgiKlgJWrJa+7qYA==
+
 tunnel@0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/tunnel/-/tunnel-0.0.6.tgz#72f1314b34a5b192db012324df2cc587ca47f92c"
