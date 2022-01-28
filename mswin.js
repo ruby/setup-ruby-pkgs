@@ -43,8 +43,9 @@ export const run = async () => {
       msSt = grpSt(`choco install ${choco}`)
       execSync(`choco install --no-progress ${choco}`)
       if (choco.includes('openssl')) {
-        fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
-        core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
+        // fs.renameSync('C:\\Program Files\\OpenSSL-Win64', 'C:\\openssl-win')
+        // core.exportVariable('SSL_DIR', '--with-openssl-dir=C:/openssl-win')
+        core.exportVariable('SSL_DIR', '--with-openssl-dir="C:/Program Files/OpenSSL-Win64"')
       }
       grpEnd(msSt)
     }
