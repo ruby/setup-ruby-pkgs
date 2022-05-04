@@ -1,4 +1,6 @@
 [ruby/setup-ruby]:https://github.com/ruby/setup-ruby
+[README]:https://github.com/ruby/setup-ruby/blob/master/README.md
+[action.yml]:https://github.com/ruby/setup-ruby/blob/master/action.yml
 
 # setup-ruby-pkgs
 
@@ -11,28 +13,27 @@ The action's inputs are shown below:
 ```yaml
 - uses: MSP-Greg/setup-ruby-pkgs@v1
   with:
-    ruby-version:
-    bundler:
-    apt:             # Ubuntu
-    brew:            # macOS
-    mingw:           # Windows mingw / mswin
-    msys2:           #         mingw
-    mswin:           # Windows mswin
-    choco:           #         mswin
-    vcpkg:           #         mswin
+    ruby-version:      # passed to ruby/setup-ruby
+    bundler:           #   "    "   "     "    "
+    bundler-cache:     #   "    "   "     "    "
+    cache-version:     #   "    "   "     "    "
+    rubygems:          #   "    "   "     "    "
+    working-directory: #   "    "   "     "    "
+    apt:               # Ubuntu
+    brew:              # macOS
+    mingw:             # Windows mingw / mswin /ucrt
+    msys2:             #         mingw / mswin /ucrt
+    mswin:             # Windows mswin
+    choco:             #         mswin
+    vcpkg:             #         mswin
 ```
 
 ## Input Information
 
+Information on inputs passed to [ruby/setup-ruby] is contained in its [README] and
+[action.yml] files.
+
 All inputs are optional.
-
-### ruby-version:
-
-Installs the Ruby version using the code from [ruby/setup-ruby].  The available versions can be found in its [README](https://github.com/ruby/setup-ruby/blob/master/README.md#supported-versions).
-
-### bundler:
-
-Installs Bundler using the code from [ruby/setup-ruby].
 
 ### apt: (Ubuntu)
 
@@ -49,34 +50,29 @@ List of packages to install.  Space delimited. Special options are `_update_` an
 
 ### mingw: (Windows)
 
-<dl>
-  <dt><b>Ruby 2.4 & later</b></dt>
-  <dd>List of MSYS2 MinGW packages to install.
-    Space delimited.  The package prefix (<code>mingw-w64-x86_64-</code>) is not required.<br/>If <code>_upgrade_</code> is included in the input, all packages needed by the gcc tools are updated.<br/>If <code>openssl</code> is included, an appropriate package will be installed.
-  </dd>
-  <dt><b>Ruby 2.3 & earlier</b></dt>
-  <dd>The following DevKit packages are available:
-    <ul>
-      <li>libffi-3.2.1</li>
-      <li>openssl-1.0.2j</li>
-      <li>ragel-6.7</li>
-      <li>sqlite-3.7.15.2  (sqlite3)</li>
-      <li>zlib-1.2.8</li>
-    </ul>
-  </dd>
-  <dt><b>Ruby mswin</b></dt>
-  <dd>If <code>openssl</code> is included, it will be installed for mswin as a convenience.<br/>Likewise, if <code>ragel</code> is included, the MSYS2 ragel package will be installed.
+* **Ruby 2.4 & later**<br/>
+  List of MSYS2 MinGW packages to install.<br/>
+  Space delimited.  The package prefix (`mingw-w64-x86_64-` or `mingw-w64-ucrt-x86_64-`) is not required.<br/>If `_upgrade_` is included in the input, all packages needed by the gcc tools are updated.<br/>If `openssl` is included, an appropriate package will be installed.
+
+* **Ruby 2.3 & earlier**<br/>
+  The following DevKit packages are available:<br/>
+    * libffi-3.2.1
+    * openssl-1.0.2j
+    * ragel-6.7
+    * sqlite-3.7.15.2  (sqlite3)</li>
+    * zlib-1.2.8
+
+* **Ruby mswin**<br/>
+  If `openssl` is included, it will be installed for mswin as a convenience.<br/>Likewise, if `ragel` is included, the MSYS2 ragel package will be installed.
 </dl>
 
 ### msys2: (Windows)
 
-<dl>
-  <dt><b>Ruby 2.4 & later</b></dt>
-  <dd>List of MSYS2 packages to install.  Space delimited.  These are command line utilities, and are rarely needed.
-  </dd>
-  <dt><b>Ruby 2.3 & earlier</b></dt>
-  <dd>No action, as no utilities are available for the older MSYS/DevKit.</dd>
-</dl>
+* **Ruby 2.4 & later**<br/>
+  List of MSYS2 packages to install.  Space delimited.  These are command line utilities, and are rarely needed.
+
+* **Ruby 2.3 & earlier**<br/
+  No action, as no utilities are available for the older MSYS/DevKit.</dd>
 
 ### mswin: (Windows)
 

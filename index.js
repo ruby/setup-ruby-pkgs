@@ -49,8 +49,8 @@
 
       if (runner) { await runner.run() }
 
-      if ((core.getInput('ruby-version') !== 'none') &&
-          (core.getInput('bundler') !== 'none')    ) {
+      if ((core.getInput('bundler')       !== 'none') ||
+          (core.getInput('bundler-cache') === 'true')) {
         doBundler = true
         timeSt = performance.now()
         common.log(`  —————————————————— Bundler tasks using: ${ref}`)

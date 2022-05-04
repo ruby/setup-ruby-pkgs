@@ -1,11 +1,13 @@
 [MSYS2]:https://github.com/msys2
 [ruby/setup-ruby]:https://github.com/ruby/setup-ruby
 
+**NOTE:** This doc is outdated.  Updates regarding ucrt and mswin builds to follow.
+
 # Ruby and Windows
 
 This document is intended to provide information on Windows Ruby builds that may help with Windows CI problems.
 
-Problems are most likely to occur with gems/repos that require compiling.  They may also occur when installing dependencies that require compiling.
+Problems are most likely to occur with gems/repos (or their dependencies) that require compiling.
 
 Much of the below information is general, and may also help with users having problems locally.
 

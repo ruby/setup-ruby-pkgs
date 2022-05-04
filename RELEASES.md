@@ -1,5 +1,20 @@
 # @MSP-Greg/setup-ruby-pkgs Releases
 
+### v1.30.2 - 2022-May-04
+- Improve input doc, update dependencies
+
+### v1.30.1 - 2022-Jan-27
+- [mswin openssl - keep in Program Files](https://github.com/MSP-Greg/setup-ruby-pkgs/commit/4fc46d3152)
+
+### v1.30.0 - 2022-Jan-13
+- Updates for Windows ucrt builds
+
+### v1.29.2 - 2021-Sep-09
+- [Add pkgconf to gcc packages](https://github.com/MSP-Greg/setup-ruby-pkgs/commit/5f02b049d9)
+
+### v1.29.1 - 2021-Jun-24
+- [Disable slow pacman disk space check](https://github.com/MSP-Greg/setup-ruby-pkgs/commit/1cff2817ea)
+
 ### v1.10.0
 - [Update MSYS2 to 2020-05-20](https://github.com/MSP-Greg/setup-ruby-pkgs/commit/b5d86ae)
 

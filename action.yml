@@ -1,40 +1,56 @@
+---
 name: 'Setup Ruby Pkgs'
 description: 'Cross platform action for setting up Ruby build environments.  Runs ruby/setup-ruby, see input info'
 author: 'MSP-Greg'
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs
 inputs:
+  #————————————————————————————————————————— inputs used by ruby/setup-ruby
   ruby-version:
     description: |
       Used by ruby/setup-ruby.  Ruby version.
-      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md and
+      https://github.com/ruby/setup-ruby/blob/master/action.yml.
       A value of 'none' will bypass running ruby/setup-ruby.
     required: false
     default: 'default'
   bundler:
     description: |
       Used by ruby/setup-ruby.  The version of Bundler to install.
-      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md and
+      https://github.com/ruby/setup-ruby/blob/master/action.yml.
     required: false
     default: 'default'
   bundler-cache:
     description: |
       Used by ruby/setup-ruby.  Run 'bundle install', and cache the result automatically.
-      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md and
+      https://github.com/ruby/setup-ruby/blob/master/action.yml.
     required: false
     default: 'false'
+  rubygems: 
+    description: |
+      Used by ruby/setup-ruby.  Runs `gem update --system`.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md and
+      https://github.com/ruby/setup-ruby/blob/master/action.yml.
+    required: false
+    default: 'default'
   working-directory:
     description: |
       Used by ruby/setup-ruby.  The working directory to use for resolving paths for
       .ruby-version, .tool-versions and Gemfile.lock.
-      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md and
+      https://github.com/ruby/setup-ruby/blob/master/action.yml.
     required: false
     default: '.'
   cache-version:
     description: |
       Used by ruby/setup-ruby.  Arbitrary string that will be added to the cache key
       of the bundler cache. Set or change it if you need to invalidate the cache.
-      See https://github.com/ruby/setup-ruby/blob/master/README.md.
+      See https://github.com/ruby/setup-ruby/blob/master/README.md and
+      https://github.com/ruby/setup-ruby/blob/master/action.yml.
     required: false
     default: '0'
+  #————————————————————————————————————————— inputs used by this setup-ruby-pkgs
   apt-get:
     description: 'Ubuntu - install packages'
     required: false

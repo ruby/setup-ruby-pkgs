@@ -24,7 +24,7 @@ export const run = async () => {
       // await updateKeyRing('1~20210213-1')
 
       if (mingw.includes('ragel') && !mswin.includes('ragel')) {
-        mswin += ' mingw-w64-x86_64-ragel'
+        mswin += ' mingw-w64-ucrt-x86_64-ragel'
         mswin = mswin.trim()
       }
       msSt = grpSt(`install msys2 packages: ${mswin}`)

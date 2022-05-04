@@ -9,8 +9,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04, ubuntu-18.04, macos-10.15 ]
-        ruby: [ ruby-head, '3.0', 2.7, 2.5, 2.2, jruby, truffleruby ]
+        os: [ ubuntu-20.04, ubuntu-18.04, macos-11, macos-10.15 ]
+        ruby: [ ruby-head, 3.1, '3.0', 2.7, 2.5, 2.2, jruby, truffleruby ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -74,6 +74,13 @@ jobs:
           if ('${{ matrix.ruby }}' -ge '2.4') {
             ridk version
           }
+
+      - name: update RubyGems for Ruby 2.4 & 2.5
+        # Included RubyGems doesn't work with required_ruby_version
+        if: (matrix.ruby >= '2.4') && (matrix.ruby < '2.6')
+        run: gem update --system --no-document
+        timeout-minutes: 5
+
       - name: gem install openssl
         if:   (matrix.ruby >= '2.4') && (matrix.ruby <= '3.2')
         run:  gem install openssl -N

@@ -23,10 +23,10 @@
   "author": "MSP-Greg",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.6.0",
+    "@actions/core": "^1.7.0",
     "@actions/http-client": "^1.0.11"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.31.1"
+    "@vercel/ncc": "^0.33.4"
   }
 }
