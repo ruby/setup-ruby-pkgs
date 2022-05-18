@@ -646,15 +646,30 @@ const run = async () => {
     }
 
     if (vcpkg !== '') {
+      const vcpkgRoot = process.env.VCPKG_INSTALLATION_ROOT.replace(/\\/g, '/')
+
+      // Update vcpkg
+      const cwd = process.cwd()
+      process.chdir(vcpkgRoot)
+      execSync('git pull -q')
+      execSync('bootstrap-vcpkg.bat')
+
+      // install packages
       msSt = grpSt(`vcpkg --triplet x64-windows install ${vcpkg}`)
       execSync(`vcpkg --triplet x64-windows install ${vcpkg}`)
-      const vcpkgRoot = process.env.VCPKG_INSTALLATION_ROOT.replace(/\\/g, '/')
+
+      // add vcpkg dll folder to path
+      const vcpkgBin = `${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\bin`
+      core.addPath(vcpkgBin)
+      console.log(`Added to Path: ${vcpkgBin}`)
+
       core.exportVariable('OPT_DIR', `--with-opt-dir=${vcpkgRoot}/installed/x64-windows`)
       const vcpkgTools = `${process.env.VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\tools`
       if (fs.existsSync(vcpkgTools) && fs.readdirSync(vcpkgTools).length >= 0) {
         core.addPath(vcpkgTools)
         console.log(`Added to Path: ${vcpkgTools}`)
       }
+      process.chdir(cwd)
       grpEnd(msSt)
     }
   } catch (error) {
