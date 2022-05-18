@@ -1,5 +1,9 @@
 # @MSP-Greg/setup-ruby-pkgs Releases
 
+### v1.31.0 - 2022-May-18
+- vcpkg - update repo, add `installed/x64-windows/bin` to path
+- Use node16, package.json version updates
+
 ### v1.30.2 - 2022-May-04
 - Improve input doc, update dependencies
 
