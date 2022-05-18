@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MSP-Greg/setup-ruby-pkgs.git"
+    "url": "git+https://github.com/ruby/setup-ruby-pkgs.git"
   },
   "keywords": [
     "actions",
@@ -23,8 +23,8 @@
   "author": "MSP-Greg",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.7.0",
-    "@actions/http-client": "^1.0.11"
+    "@actions/core": "^1.8.0",
+    "@actions/http-client": "^2.0.1"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.33.4"
