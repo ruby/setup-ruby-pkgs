@@ -11,7 +11,7 @@ If you don't need any changes to tools or packages, please use [ruby/setup-ruby]
 The action's inputs are shown below:
 
 ```yaml
-- uses: MSP-Greg/setup-ruby-pkgs@v1
+- uses: ruby/setup-ruby-pkgs@v1
   with:
     ruby-version:      # passed to ruby/setup-ruby
     bundler:           #   "    "   "     "    "

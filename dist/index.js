@@ -179,7 +179,7 @@ const download = async (uri, dest, log = true) => {
 
   if (log) { console.log(`[command]Downloading:\n  ${uri}`) }
 
-  const http = new httpc.HttpClient('MSP-Greg', [], {
+  const http = new httpc.HttpClient('ruby-setup-ruby-pkgs', [], {
     allowRetries: true,
     maxRetries: 3
   })
@@ -2849,7 +2849,7 @@ var __webpack_exports__ = {};
     const pkgs = async (ri) => {
       rubyInfo = ri
       timeEnd(timeSt)
-      common.log(`  —————————————————— Package tasks using: MSP-Greg/setup-ruby-pkgs ${common.version}`)
+      common.log(`  —————————————————— Package tasks using: ruby/setup-ruby-pkgs ${common.version}`)
       // console.log(rubyInfo)
       let runner
       let ruby

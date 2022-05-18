@@ -28,7 +28,7 @@
     const pkgs = async (ri) => {
       rubyInfo = ri
       timeEnd(timeSt)
-      common.log(`  —————————————————— Package tasks using: MSP-Greg/setup-ruby-pkgs ${common.version}`)
+      common.log(`  —————————————————— Package tasks using: ruby/setup-ruby-pkgs ${common.version}`)
       // console.log(rubyInfo)
       let runner
       let ruby

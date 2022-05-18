@@ -26,7 +26,7 @@ export const download = async (uri, dest, log = true) => {
 
   if (log) { console.log(`[command]Downloading:\n  ${uri}`) }
 
-  const http = new httpc.HttpClient('MSP-Greg', [], {
+  const http = new httpc.HttpClient('ruby-setup-ruby-pkgs', [], {
     allowRetries: true,
     maxRetries: 3
   })
