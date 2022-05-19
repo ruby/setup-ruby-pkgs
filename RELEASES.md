@@ -1,5 +1,8 @@
 # ruby/setup-ruby-pkgs Releases
 
+### v1.32.0 - 2022-May-19
+- Remove 'convenience' install of Choco OpenSSL, update README
+
 ### v1.31.0 - 2022-May-18
 - vcpkg - update repo, add `installed/x64-windows/bin` to path
 - Use node16, package.json version updates

@@ -6,7 +6,9 @@
 
 Cross platform action that installs Ruby, along with tools and packages needed for compiling.
 
-If you don't need any changes to tools or packages, please use [ruby/setup-ruby].
+**IMPORTANT NOTE:** If one is using Actions image 'windows-2022' or later, [ruby/setup-ruby]
+installs all packages needed to compile/build Windows Rubies, versions 2.5 and later.
+Hence, if you don't need any additional tools or packages, please use [ruby/setup-ruby].
 
 The action's inputs are shown below:
 
@@ -23,7 +25,7 @@ The action's inputs are shown below:
     brew:              # macOS
     mingw:             # Windows mingw / mswin /ucrt
     msys2:             #         mingw / mswin /ucrt
-    mswin:             # Windows mswin
+    mswin:             # Windows mswin - installs MSYS packages
     choco:             #         mswin
     vcpkg:             #         mswin
 ```
@@ -52,35 +54,36 @@ List of packages to install.  Space delimited. Special options are `_update_` an
 
 * **Ruby 2.4 & later**<br/>
   List of MSYS2 MinGW packages to install.<br/>
-  Space delimited.  The package prefix (`mingw-w64-x86_64-` or `mingw-w64-ucrt-x86_64-`) is not required.<br/>If `_upgrade_` is included in the input, all packages needed by the gcc tools are updated.<br/>If `openssl` is included, an appropriate package will be installed.
+  Space delimited.  The package prefix (`mingw-w64-x86_64-` or `mingw-w64-ucrt-x86_64-`) is not required.<br/>
+  If `_upgrade_` is included in the input, all packages needed by the gcc tools are updated.<br/>
+  If `openssl` is included, an appropriate package will be installed.
 
 * **Ruby 2.3 & earlier**<br/>
   The following DevKit packages are available:<br/>
     * libffi-3.2.1
     * openssl-1.0.2j
     * ragel-6.7
-    * sqlite-3.7.15.2  (sqlite3)</li>
+    * sqlite-3.7.15.2  (sqlite3)
     * zlib-1.2.8
-
-* **Ruby mswin**<br/>
-  If `openssl` is included, it will be installed for mswin as a convenience.<br/>Likewise, if `ragel` is included, the MSYS2 ragel package will be installed.
-</dl>
 
 ### msys2: (Windows)
 
 * **Ruby 2.4 & later**<br/>
-  List of MSYS2 packages to install.  Space delimited.  These are command line utilities, and are rarely needed.
+  List of MSYS2 packages to install.  Space delimited.  These are command line utilities and are rarely needed.
 
 * **Ruby 2.3 & earlier**<br/
-  No action, as no utilities are available for the older MSYS/DevKit.</dd>
+  No action, as no utilities are available for the older MSYS/DevKit.
 
 ### mswin: (Windows)
 
-Installs MSYS2 packages.  These are typically build utilities, such as bison, ragel, etc.  As in pacman, MinGW packages must be prefixed with `mingw-w64-x86_64-`.
+Installs MSYS2 packages.  These are typically build utilities, such as bison, ragel, etc.
+As in pacman, MinGW packages must be prefixed with `mingw-w64-x86_64-` or `mingw-w64-ucrt-x86_64-`.
 
 ### choco: (Windows)
 
 List of packages to install.  Space delimited.  Most packages are compiled with msvc, so normally used with mswin builds.
+Currently, the mswin Ruby build is compiled using [microsoft/vcpkg](https://github.com/microsoft/vcpkg) packages, so
+use of choco packages is discouraged.
 
 ### vcpkg: (Windows)
 

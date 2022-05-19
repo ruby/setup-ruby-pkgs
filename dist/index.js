@@ -627,13 +627,6 @@ const run = async () => {
       grpEnd(msSt)
     }
 
-    if (mingw.includes('openssl')) {
-      if (!choco.includes('openssl')) {
-        choco += ' openssl'
-        choco = choco.trim()
-      }
-    }
-
     if (choco !== '') {
       msSt = grpSt(`choco install ${choco}`)
       execSync(`choco install --no-progress ${choco}`)
