@@ -8,7 +8,7 @@ const { execSync, grpSt, grpEnd } = require('./common')
 let msSt
 
 // clean inputs
-let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+let apt = core.getInput('apt-get').replace(/[^a-z_ \d.+-]+/gi, '').trim().toLowerCase()
 
 export const run = async () => {
   try {
