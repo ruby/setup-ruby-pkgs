@@ -21,7 +21,7 @@ The action's inputs are shown below:
     cache-version:     #   "    "   "     "    "
     rubygems:          #   "    "   "     "    "
     working-directory: #   "    "   "     "    "
-    apt:               # Ubuntu
+    apt-get:           # Ubuntu
     brew:              # macOS
     mingw:             # Windows mingw / mswin /ucrt
     msys2:             #         mingw / mswin /ucrt
@@ -37,7 +37,7 @@ Information on inputs passed to [ruby/setup-ruby] is contained in its [README] a
 
 All inputs are optional.
 
-### apt: (Ubuntu)
+### apt-get: (Ubuntu)
 
 List of packages to install.  Space delimited. Special options are `_update_`, `_upgrade_`, and `_dist-upgrade_`.
 
