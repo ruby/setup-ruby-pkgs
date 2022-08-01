@@ -97,7 +97,9 @@ export const log = (logText, color = 'yel') => {
   console.log(`${colors[color]}${logText}${rst}`)
 }
 
-export const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
+// Used by apt, mingw, & mswin for input 'cleaning'.  Brew also uses
+// @ character in package names, so regex is in brew.js.
+export const getInput = (name) => core.getInput(name).replace(/[^a-z_ \d.+-]+/gi, '').trim().toLowerCase()
 
 // convert windows path like C:\Users\runneradmin to /c/Users/runneradmin
 export const win2nix = (path) => {

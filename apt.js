@@ -2,16 +2,16 @@
 
 const core = require('@actions/core')
 
-const { execSync, grpSt, grpEnd } = require('./common')
+const { execSync, grpSt, grpEnd, getInput } = require('./common')
 
 // group start time
 let msSt
 
-// clean inputs
-let apt = core.getInput('apt-get').replace(/[^a-z_ \d.-]+/gi, '').trim().toLowerCase()
-
 export const run = async () => {
   try {
+    // clean input
+    let apt = getInput('apt-get')
+
     if (apt !== '') {
 
       // fix for server timeout issues

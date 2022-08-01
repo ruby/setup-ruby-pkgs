@@ -7,11 +7,12 @@ const { execSync, grpSt, grpEnd } = require('./common')
 // group start time
 let msSt
 
-// clean inputs
-let brew = core.getInput('brew').replace(/[^a-z_ \d.@-]+/gi, '').trim().toLowerCase()
-
 export const run = async () => {
   try {
+    // clean input
+    // use different regex than getInput in common.js.  Some packages contain @ character
+    let brew = core.getInput('brew').replace(/[^a-z_ \d.+@-]+/gi, '').trim().toLowerCase()
+
     if (brew !== '') {
       let needUpdate = true
 
