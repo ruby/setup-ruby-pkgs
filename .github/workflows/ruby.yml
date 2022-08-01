@@ -95,3 +95,33 @@ jobs:
       - name: gem install openssl
         if:   (matrix.ruby >= '2.4') && (matrix.ruby <= '3.2')
         run:  gem install openssl -N
+
+  plus:
+    name: >-
+      plus ${{ matrix.os }} ${{ matrix.ruby }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-20.04, macos-11 ]
+        ruby: [ '3.0' ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Ruby Install
+        uses: ./
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          apt-get: g++
+          brew: libxml++3
+
+      - name: Info
+        run:  |
+          ruby -v
+          echo ''
+          gcc --version
+          echo ''
+          bundler version
+          echo ''
+          gem --version
