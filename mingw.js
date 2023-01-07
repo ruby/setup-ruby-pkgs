@@ -33,14 +33,13 @@ let msys2Pkgs = getInput('msys2')
 
 let pre // package prefix, set in setRuby
 // standard pacman args
-const args  = '--noconfirm --noprogressbar --needed'
+const args  = '--noconfirm --noprogressbar --needed --disable-download-timeout'
 
 // Not used. Installs packages stored in GitHub release.
 // Only needed for exceptional cases.
 const install = async (pkg, release) => {  // eslint-disable-line no-unused-vars
   const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
   const suff    = '-any.pkg.tar.xz'
-  const args    = '--noconfirm --noprogressbar --needed'
 
   const uri = `${uriBase}/${release}`
 
@@ -92,7 +91,8 @@ const openssl = async () => {
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
-  } else if (is2022orLater && ruby.abiVers >= '2.5.0 ')
+  } else if ((is2022orLater && ruby.abiVers >= '2.5.0') || core.getInput('ruby-version') === 'head')
+    // Ruby 'head' uses a custom OpenSSL 3 package
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
 }
 
@@ -102,7 +102,7 @@ const updateGCC = async () => {
 
   msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
   checkSpace
-  let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'pkgconf', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+  let gccPkgs = ['', 'binutils', 'crt', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'pkgconf', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
   execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
   grpEnd(msSt)
 

@@ -28,7 +28,7 @@ export const run = async (rubyVers) => {
   const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
   const pre64   = 'mingw-w64-x86_64-'
   const suff    = '-any.pkg.tar.xz'
-  const args    = '--noconfirm --noprogressbar --needed'
+  const args    = '--noconfirm --noprogressbar --needed --disable-download-timeout'
 
   let mingwFiles
   let uri
