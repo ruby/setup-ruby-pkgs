@@ -102,7 +102,7 @@ const updateGCC = async () => {
 
   msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
   checkSpace
-  let gccPkgs = ['', 'binutils', 'crt', 'dlfcn', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'pkgconf', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
+  let gccPkgs = ['', 'binutils', 'crt', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'pkgconf', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
   execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
   grpEnd(msSt)
 
