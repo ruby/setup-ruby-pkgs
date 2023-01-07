@@ -91,7 +91,8 @@ const openssl = async () => {
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
-  } else if (is2022orLater && ruby.abiVers >= '2.5.0 ')
+  } else if ((is2022orLater && ruby.abiVers >= '2.5.0') || core.getInput('ruby-version') === 'head')
+    // Ruby 'head' uses a custom OpenSSL 3 package
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
 }
 
