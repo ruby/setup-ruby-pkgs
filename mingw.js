@@ -33,14 +33,13 @@ let msys2Pkgs = getInput('msys2')
 
 let pre // package prefix, set in setRuby
 // standard pacman args
-const args  = '--noconfirm --noprogressbar --needed'
+const args  = '--noconfirm --noprogressbar --needed --disable-download-timeout'
 
 // Not used. Installs packages stored in GitHub release.
 // Only needed for exceptional cases.
 const install = async (pkg, release) => {  // eslint-disable-line no-unused-vars
   const uriBase = 'https://github.com/MSP-Greg/ruby-msys2-package-archive/releases/download'
   const suff    = '-any.pkg.tar.xz'
-  const args    = '--noconfirm --noprogressbar --needed'
 
   const uri = `${uriBase}/${release}`
 
