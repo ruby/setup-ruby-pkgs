@@ -76,9 +76,9 @@ const openssl = async () => {
   })
 
   if (ruby.abiVers === '2.4.0') {
+    msSt = grpSt('install 2.4 OpenSSL 1.0.2')
     let uri = 'https://github.com/MSP-Greg/ruby-loco/releases/download/old-ruby/mingw-w64-x86_64-openssl-1.0.2.u-1-any.pkg.tar.zst'
     let fn = `${dlPath}\\ri2.tar.zst`
-    msSt = grpSt('install 2.4 OpenSSL')
 
     // appveyor ri2 package signing key
     // let key = 'F98B8484BE8BF1C5'
@@ -91,9 +91,19 @@ const openssl = async () => {
     execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
     grpEnd(msSt)
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
-  } else if ((is2022orLater && ruby.abiVers >= '2.5.0') || core.getInput('ruby-version') === 'head')
-    // Ruby 'head' uses a custom OpenSSL 3 package
+  } else if (!is2022orLater && ruby.abiVers >= '2.5.0' && ruby.abiVers < '3.1.0') {
+    msSt = grpSt('install OpenSSL 1.1.1.t')
+    let uri = `https://github.com/ruby/setup-msys2-gcc/releases/download/msys2-packages/${pre.trim()}openssl-1.1.1.t-1-any.pkg.tar.zst`
+    let fn = `${dlPath}\\ri2.tar.zst`
+    await download(uri, fn)
+    checkSpace
+    execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
+    grpEnd(msSt)
     mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
+  } else if ((is2022orLater && ruby.abiVers >= '2.5.0') || (!is2022orLater && ruby.abiVers >= '3.1.0')) {
+    // already installed by setup-ruby
+    mingwPkgs = mingwPkgs.replace(/\bopenssl\b/gi, '').trim()
+  }
 }
 
 // Updates MSYS2 MinGW gcc items

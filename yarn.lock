@@ -10,17 +10,12 @@
     "@actions/http-client" "^2.0.1"
     uuid "^8.3.2"
 
-"@actions/http-client@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@actions/http-client/-/http-client-2.0.1.tgz#873f4ca98fe32f6839462a6f046332677322f99c"
-  integrity sha512-PIXiMVtz6VvyaRsGY268qvj57hXQEpsYogYOu2nrQhlf+XCGmZstmuZBbAybUl1nQGnvS1k1eEsQ69ZoD7xlSw==
+"@actions/http-client@^2.0.1", "@actions/http-client@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@actions/http-client/-/http-client-2.1.1.tgz#a8e97699c315bed0ecaeaaeb640948470d4586a0"
+  integrity sha512-qhrkRMB40bbbLo7gF+0vu+X+UawOvQQqNAA/5Unx774RS8poaOhThDOG6BGmxvAnxhQnDp2BG/ZUm65xZILTpw==
   dependencies:
     tunnel "^0.0.6"
-
-"@vercel/ncc@^0.34.0":
-  version "0.34.0"
-  resolved "https://registry.yarnpkg.com/@vercel/ncc/-/ncc-0.34.0.tgz#d0139528320e46670d949c82967044a8f66db054"
-  integrity sha512-G9h5ZLBJ/V57Ou9vz5hI8pda/YQX5HQszCs3AmIus3XzsmRn/0Ptic5otD3xVST8QLKk7AMk7AqpsyQGN7MZ9A==
 
 tunnel@^0.0.6:
   version "0.0.6"

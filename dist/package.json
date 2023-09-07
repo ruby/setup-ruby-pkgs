@@ -1,6 +1,6 @@
 {
   "name": "setup-ruby-pkgs",
-  "version": "1.32.4",
+  "version": "1.33.0",
   "description": "Install packages and update builds tools for Ruby",
   "main": "index.js",
   "scripts": {
@@ -24,9 +24,6 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "@actions/http-client": "^2.0.1"
-  },
-  "devDependencies": {
-    "@vercel/ncc": "^0.34.0"
+    "@actions/http-client": "^2.1.1"
   }
 }
