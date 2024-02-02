@@ -71,7 +71,7 @@ List of packages to install.  Space delimited. Special options are `_update_` an
 * **Ruby 2.4 & later**<br/>
   List of MSYS2 packages to install.  Space delimited.  These are command line utilities and are rarely needed.
 
-* **Ruby 2.3 & earlier**<br/
+* **Ruby 2.3 & earlier**<br/>
   No action, as no utilities are available for the older MSYS/DevKit.
 
 ### mswin: (Windows)
