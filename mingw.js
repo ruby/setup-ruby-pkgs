@@ -192,7 +192,7 @@ const runMingw = async () => {
     if (list !== '') {
       msSt = grpSt(`pacman.exe -S ${list}`)
       checkSpace
-      execSync(`pacman.exe ${msys2Sync} ${args} ${list}`)
+      execSync(`pacman.exe -S ${args} ${list}`)
       grpEnd(msSt)
     }
   } else if (mingwPkgs !== '') {
