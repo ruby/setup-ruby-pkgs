@@ -116,6 +116,5 @@ jobs:
 
       - name: gem install openssl
         if:   |
-          ((matrix.ruby >= '2.5') && (matrix.os == 'windows-2019'))
-          || ((matrix.ruby >= '2.4') && (matrix.os >= 'windows-2022'))
+          ((matrix.ruby >= '2.4') && ((matrix.os >= 'windows-2022') || (matrix.os >= 'windows-11-arm')))
         run:  gem install openssl -N
