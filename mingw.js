@@ -111,7 +111,7 @@ const updateGCC = async () => {
   // TODO: code for installing gcc 9.2.0-1 or 9.1.0-3
 
   msSt = grpSt(`Upgrading gcc for Ruby ${ruby.vers}`)
-  checkSpace
+  // checkSpace
   let gccPkgs = ['', 'binutils', 'crt', 'headers', 'libiconv', 'isl', 'make', 'mpc', 'mpfr', 'pkgconf', 'windows-default-manifest', 'libwinpthread', 'libyaml', 'winpthreads', 'zlib', 'gcc-libs', 'gcc']
   execSync(`pacman.exe ${msys2Sync} --nodeps ${args} ${gccPkgs.join(pre)}`)
   grpEnd(msSt)
@@ -224,7 +224,7 @@ const runMingw = async () => {
 const runMSYS2 = async () => {
   let pacman = 'pacman.exe'
   if (ruby.abiVers < '2.4.0') {
-    pacman = 'C:\\msys64\\usr\\bin\\pacman.exe'
+    pacman = 'pacman.exe'
   }
   msSt = grpSt(`pacman.exe ${msys2Sync} ${msys2Pkgs}`)
   execSync(`${pacman} ${msys2Sync} ${args} ${msys2Pkgs}`)
@@ -234,6 +234,7 @@ const runMSYS2 = async () => {
 export const setRuby = (_ruby) => {
   ruby = _ruby
   pre = (ruby.platform === 'x64-mingw-ucrt') ? ' mingw-w64-ucrt-x86_64-' :
+        (ruby.platform === 'aarch64-mingw-ucrt') ? ' mingw-w64-clang-aarch64-' :
         (ruby.platform === 'x64-mingw32')    ? ' mingw-w64-x86_64-' : ' mingw-w64-i686-'
 }
 
@@ -248,36 +249,7 @@ export const run = async () => {
     // await updateKeyRing('1~20210213-1')
 
     if (mingwPkgs !== '' || msys2Pkgs !== '') {
-      if (ruby.abiVers >= '2.4.0') {
-        // remove pacman CheckSpace, move cache dir to SSD
-        const conf_fn = 'C:\\msys64\\etc\\pacman.conf'
-        let conf      = fs.readFileSync(conf_fn, 'utf-8')
-        let cache_dir = `${process.env.RUNNER_TEMP}\\pacman\\pkg`
-
-        fs.mkdirSync(cache_dir, { recursive: true })
-
-        cache_dir = win2nix(cache_dir)
-
-        conf = conf.replace(/^CheckSpace/m, '#CheckSpace')
-        conf = conf.replace(/^#CacheDir( += )[^\n]+/m, (m, p1) => {
-          return `CacheDir ${p1}${cache_dir}`
-        })
-        fs.writeFileSync(conf_fn, conf, 'utf-8')
-
-        /* setting to string uses specified release asset for MSYS2,
-         * setting to null uses pre-installed MSYS2
-         * release contains all Ruby building dependencies,
-         * used when MSYS2 install or server have problems
-         */
-        RELEASE_ASSET = fs.lstatSync('C:\\msys64').isSymbolicLink() ?
-          'msys2-2020-05-20' : null
-        if (RELEASE_ASSET) {
-          msSt = grpSt('Updating MSYS2')
-          await installMSYS2()
-          grpEnd(msSt)
-        }
-
-      } else {
+      if (ruby.abiVers < '2.4.0') {
         // get list of available pkgs for Ruby 2.2 & 2.3
         old_pkgs = require('./open_knapsack_pkgs').old_pkgs
       }
@@ -286,15 +258,6 @@ export const run = async () => {
       if (mingwPkgs !== '') { await runMingw() }
       if (msys2Pkgs !== '') { await runMSYS2() }
     }
-
-    if (ruby.abiVers >= '2.4.0') {
-      // add home directory for user
-      const dirHome = `C:\\msys64\\home\\${process.env.USERNAME}`
-      if (!fs.existsSync(dirHome)) {
-        fs.mkdirSync(dirHome, { recursive: true })
-      }
-    }
-
   } catch (error) {
     core.setFailed(error.message)
   }
