@@ -20,10 +20,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, ubuntu-20.04, macos-13, macos-12, macos-11 ]
-        ruby: [ ruby-head, 3.3, 3.2, 3.1, '3.0', 2.7, 2.5, 2.2, jruby, truffleruby ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, ubuntu-22.04, macos-15, macos-14, macos-13 ]
+        ruby: [ ruby-head, 3.4, 3.3, 3.2, 3.1, '3.0', 2.7, 2.5, 2.2, jruby, truffleruby ]
         exclude:
-          - { os: ubuntu-22.04 , ruby:  2.2 }
+          - { os: ubuntu-22.04    , ruby:  2.2  }
+          - { os: ubuntu-24.04    , ruby:  2.2  }
+          - { os: ubuntu-24.04    , ruby:  2.5  }
+          - { os: ubuntu-24.04    , ruby:  2.7  }
+          - { os: ubuntu-24.04    , ruby: '3.0' }
+          - { os: ubuntu-24.04-arm, ruby:  2.5  }
+          - { os: ubuntu-24.04-arm, ruby:  2.2  }
+          - { os: ubuntu-24.04-arm, ruby:  2.5  }
+          - { os: ubuntu-24.04-arm, ruby:  2.7  }
+          - { os: macos-14 , ruby:  2.2  }
+          - { os: macos-14 , ruby:  2.4  }
+          - { os: macos-14 , ruby:  2.5  }
+          - { os: macos-14 , ruby:  2.6  }
+          - { os: macos-15 , ruby:  2.2  }
+          - { os: macos-15 , ruby:  2.4  }
+          - { os: macos-15 , ruby:  2.5  }
+          - { os: macos-15 , ruby:  2.6  }
+          
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -55,8 +72,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-2022, windows-2019 ]
-        ruby: [ mswin, mingw, ucrt, head, 3.3, 3.2, 3.1, '3.0', 2.5, 2.4, 2.3, 2.2 ]
+        os: [ windows-2025, windows-2022 ]
+        ruby: [ mswin, mingw, ucrt, head, 3.4, 3.3, 3.2, 3.1, '3.0', 2.5, 2.4, 2.3, 2.2 ]
+        include:
+          - { os: windows-11-arm  , ruby:  3.4  }
+          - { os: windows-11-arm  , ruby:  head }
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -96,6 +116,5 @@ jobs:
 
       - name: gem install openssl
         if:   |
-          ((matrix.ruby >= '2.5') && (matrix.os == 'windows-2019'))
-          || ((matrix.ruby >= '2.4') && (matrix.os >= 'windows-2022'))
+          ((matrix.ruby >= '2.4') && ((matrix.os >= 'windows-2022') || (matrix.os >= 'windows-11-arm')))
         run:  gem install openssl -N

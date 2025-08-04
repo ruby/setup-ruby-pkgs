@@ -117,11 +117,7 @@ export const updateKeyRing = async (vers) => {
   await download(uri, fn)
   await download(`${uri}.sig`, `${fn}.sig`)
 
-  const origPath = process.env.Path
-  process.env.Path = `C:\\msys64\\usr\\bin;C:\\msys64\\mingw64\\bin;${origPath}`
-
-  execSync(`C:\\msys64\\usr\\bin\\pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
-  process.env['Path'] = origPath
+  execSync(`pacman.exe -Udd --noconfirm --noprogressbar ${fn}`)
 
   grpEnd(msSt)
 }
